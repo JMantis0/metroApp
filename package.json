@@ -1,0 +1,52 @@
+{
+  "name": "metroApp",
+  "version": "0.1.0",
+  "private": true,
+  "description": "metroApp",
+  "main": "server.js",
+  "dependencies": {
+    "@material-ui/core": "^4.11.0",
+    "@material-ui/icons": "^4.9.1",
+    "axios": "^0.19.2",
+    "dotenv": "^8.2.0",
+    "express": "^4.16.3",
+    "if-env": "^1.0.4",
+    "morgan": "^1.9.1",
+    "mysql": "^2.18.1",
+    "mysql2": "^1.7.0",
+    "react-pdf": "^5.0.0",
+    "react-sizeme": "^2.6.12",
+    "sequelize": "^5.8.6",
+    "xlsx": "^0.16.8"
+  },
+  "devDependencies": {
+    "concurrently": "^4.1.2",
+    "eslint-config-prettier": "^2.9.0",
+    "nodemon": "^1.18.7",
+    "prettier": "^1.13.7"
+  },
+  "scripts": {
+    "start": "if-env NODE_ENV=production && npm run start:prod || npm run start:dev",
+    "start:prod": "node server.js",
+    "start:dev": "concurrently \"nodemon --ignore 'client/*'\" \"npm run client\"",
+    "client": "cd client && npm run start",
+    "install": "cd client && npm install",
+    "build": "cd client && npm run build",
+    "heroku-postbuild": "npm run build"
+  },
+  "eslintConfig": {
+    "extends": "react-app"
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  }
+}
