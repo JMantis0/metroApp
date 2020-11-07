@@ -5,8 +5,10 @@ const app = express();
 const apiRoutes = require("./routes/apiRoutes");
 
 // sheetjs xlsx
-
-
+const XLSX = require("xlsx");
+const metroBook = XLSX.readFile("./Master Car List.xlsx");
+const sheet_name_list = metroBook.SheetNames;
+console.log(XLSX.utils.sheet_to_json(metroBook.Sheets[sheet_name_list[0]]));
 
 // Define middleware here
 app.use(express.urlencoded({ extended: true }));
@@ -17,7 +19,7 @@ if (process.env.NODE_ENV === "production") {
 }
 
 // Define API routes here
-app.use("/api", apiRoutes)
+app.use("/api", apiRoutes);
 
 // Send every other request to the React app
 // Define any API routes before this runs
