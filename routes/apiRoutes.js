@@ -30,12 +30,41 @@ router.post("/initializeDB", (req, res) => {
 
   models.Car.bulkCreate(metroCarObject)
     .then((response) => {
-      console.log("response", response);
-      res.send(response);
+      console.log("response from MySQL initilize route", { response });
+      res.send({ response });
     })
     .catch((err) => {
-      console.log("There was an error: ", err);
-      res.json(err);
+      console.log("There was an error in the initialize route: ", { err });
+      res.status(400).send({ err });
+    });
+});
+
+router.delete("/deleteDB", (req, res) => {
+  console.log("Delete route apiRoutes.js)");
+  models.Car.destroy({
+    where: {},
+    truncate: true,
+  })
+    .then((response) => {
+      console.log("The response from MySQL is: ", { response });
+      res.status(201).send({ response });
+    })
+    .catch((err) => {
+      console.log("There was an error in the delete route: ", { err });
+      res.status(400).send({ err });
+    });
+});
+
+router.get("/getAllCars", (req, res) => {
+  console.log("getAllCars route apiRoutes.js");
+  models.Car.findAll({})
+    .then((response) => {
+      console.log("getAllCars response from MySQL: ", response);
+      res.status(202).send(response);
+    })
+    .catch((err) => {
+      console.log("There was an arror in the MySQL getAllCars route", err);
+      res.status(400).send(err);
     });
 });
 
