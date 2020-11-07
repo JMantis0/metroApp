@@ -4,11 +4,7 @@ const PORT = process.env.PORT || 3001;
 const app = express();
 const apiRoutes = require("./routes/apiRoutes");
 
-// sheetjs xlsx
-const XLSX = require("xlsx");
-const metroBook = XLSX.readFile("./Master Car List.xlsx");
-const sheet_name_list = metroBook.SheetNames;
-console.log(XLSX.utils.sheet_to_json(metroBook.Sheets[sheet_name_list[0]]));
+
 
 // Define middleware here
 app.use(express.urlencoded({ extended: true }));
