@@ -11,20 +11,32 @@ const Sequelize = require("sequelize");
 const XLSX = require("xlsx");
 const metroBook = XLSX.readFile("./Master Car List.xlsx");
 const sheet_name_list = metroBook.SheetNames;
-const metroCarObject = XLSX.utils.sheet_to_json(metroBook.Sheets[sheet_name_list[0]])
-console.log(metroCarObject.length)
-console.log(metroCarObject[0]["Car #"]);
+const metroCarObject = XLSX.utils.sheet_to_json(
+  metroBook.Sheets[sheet_name_list[0]]
+);
+console.log(metroCarObject);
+console.log(metroCarObject[0]["num"]);
 
 router.get("/test", (req, res) => {
   // Use a regular expression to search titles for req.query.q
   // using case insensitive match. https://docs.mongodb.com/manual/reference/operator/query/regex/index.html
   console.log("This is the test route");
-  
+
   res.send(200);
 });
 
 router.post("/initializeDB", (req, res) => {
+  console.log("initializing the db");
 
-})
+  models.Car.bulkCreate(metroCarObject)
+    .then((response) => {
+      console.log("response", response);
+      res.send(response);
+    })
+    .catch((err) => {
+      console.log("There was an error: ", err);
+      res.json(err);
+    });
+});
 
 module.exports = router;

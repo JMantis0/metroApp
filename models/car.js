@@ -1,8 +1,8 @@
 // Creating our User model
 module.exports = function(sequelize, DataTypes) {
   const Car = sequelize.define("Car", {
-    number: {
-      type: DataTypes.STRING,
+    num: {
+      type: DataTypes.TEXT,
       allowNull: false,
       unique: true,
     },
@@ -11,7 +11,7 @@ module.exports = function(sequelize, DataTypes) {
       type: DataTypes.BOOLEAN,
       allowNull: false,
     },
-    keys: {
+    keyz: {
       type: DataTypes.BOOLEAN,
       allowNull: false,
     },
@@ -19,7 +19,7 @@ module.exports = function(sequelize, DataTypes) {
       type: DataTypes.BOOLEAN,
       allowNull: false,
     },
-    empty: {
+    clear: {
       type: DataTypes.BOOLEAN,
       allowNull: false,
     },

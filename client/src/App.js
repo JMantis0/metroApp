@@ -15,10 +15,24 @@ function App() {
         console.log("There was an error: ", err);
       });
   };
+
+  const initializeDB = () => {
+    axios
+      .post("/api/initializeDB", {})
+      .then((response) => {
+        console.log("response from backend", response);
+      })
+      .catch((err) => {
+        console.log("There was an error: ", err);
+      });
+  };
   return (
     <div className="App">
       METRO APP
       <Button onClick={testBackend}>Test Backend (check console)</Button>
+      <Button variant="outlined" onClick={initializeDB}>
+        Initialize DB
+      </Button>
     </div>
   );
 }
