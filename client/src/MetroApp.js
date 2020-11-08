@@ -12,6 +12,7 @@ import CssBaseline from "@material-ui/core/CssBaseline";
 
 function MetroApp() {
   const [state, setState] = useState([]);
+  const [lastChange, setLastChange] = useState("");
   const testBackend = () => {
     axios
       .get("/api/test")
@@ -22,6 +23,11 @@ function MetroApp() {
         console.log("There was an error: ", err);
       });
   };
+
+  // const carTicker = setInterval(() => {
+  //   getAllCars();
+  //   console.log("tick");
+  // }, 5000);
 
   useEffect(() => {
     axios
