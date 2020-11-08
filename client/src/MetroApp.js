@@ -8,6 +8,7 @@ import MetroCar from "./components/MetroCar";
 //     Mui imports
 import Button from "@material-ui/core/Button";
 import Collapse from "@material-ui/core/Collapse";
+import CssBaseline from "@material-ui/core/CssBaseline";
 
 function MetroApp() {
   const [state, setState] = useState([]);
@@ -93,6 +94,7 @@ function MetroApp() {
 
   return (
     <div className="App">
+      <CssBaseline />
       METRO APP
       <Button onClick={testBackend}>Test Backend (check console)</Button>
       <Button variant="outlined" onClick={initializeDB}>

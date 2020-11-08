@@ -63,8 +63,27 @@ router.get("/getAllCars", (req, res) => {
       res.status(202).send(response);
     })
     .catch((err) => {
-      console.log("There was an arror in the MySQL getAllCars route", err);
+      console.log("There was an error in the MySQL getAllCars route", err);
       res.status(400).send(err);
+    });
+});
+
+router.put("/toggleHeavy", (req, res) => {
+  console.log("toggleHeavy route apiRoutes.js");
+  console.log("req.body.num: ", req.body.num);
+  models.Car.update(
+    { heavy: req.body.newHeavy },
+    {
+      where: { num: req.body.num },
+    }
+  )
+    .then((sqlResponse) => {
+      console.log("sqlResponse toggleHeavy route: ", sqlResponse);
+      res.status(201).send(sqlResponse);
+    })
+    .catch((sqlErr) => {
+      console.log("There was an error in the toggleHeavy sql call: ", sqlErr);
+      res.status(400).send(sqlErr);
     });
 });
 
