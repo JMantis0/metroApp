@@ -8,6 +8,7 @@ import MetroCar from "./components/MetroCar";
 //     Mui imports
 import Button from "@material-ui/core/Button";
 import Collapse from "@material-ui/core/Collapse";
+import CssBaseline from "@material-ui/core/CssBaseline";
 
 function MetroApp() {
   const [state, setState] = useState([]);
@@ -27,7 +28,7 @@ function MetroApp() {
       .get("/api/getAllCars")
       .then((allCars) => {
         console.log("Response from get all cars route: ", allCars.data);
-        // setState(allCars.data);
+        setState(allCars.data);
         console.log(typeof allCars.data);
         return new Promise((resolve, reject) => {
           resolve("Resolve");
@@ -39,7 +40,7 @@ function MetroApp() {
       .then((word) => {
         console.log(state);
       });
-  }, [state]);
+  }, []);
 
   const initializeDB = () => {
     axios
@@ -93,6 +94,7 @@ function MetroApp() {
 
   return (
     <div className="App">
+      <CssBaseline />
       METRO APP
       <Button onClick={testBackend}>Test Backend (check console)</Button>
       <Button variant="outlined" onClick={initializeDB}>
@@ -115,6 +117,8 @@ function MetroApp() {
         return (
           <div>
             <MetroCar
+              key={metroCar.num}
+              getAllCars={getAllCars}
               number={metroCar.num}
               key={metroCar.id}
               flashers={metroCar.flashers}
