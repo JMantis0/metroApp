@@ -24,12 +24,25 @@ function MetroApp() {
       });
   };
 
-  // const carTicker = setInterval(() => {
-  //   getAllCars();
-  //   console.log("tick");
-  // }, 5000);
+  const checkForNewData = () => {
+    const currentUTC = Date.now().toString();
+    console.log("currentUTC inside checkForNewData route: ", currentUTC);
+    console.log("typeof currentUTC: ", typeof currentUTC);
+    axios
+      .get(`/api/checkForNewData/${currentUTC}`)
+      .then((dataCheckResponse) => {
+        console.log("Response from Datacheck route: ", dataCheckResponse);
+      })
+      .catch((dataCheckErr) => {
+        console.log("There was an error in the dataCheck route", dataCheckErr);
+      });
+  };
 
   useEffect(() => {
+    const carTicker = setInterval(() => {
+      checkForNewData();
+      console.log("Date.now(): ", Date.now());
+    }, 2000);
     axios
       .get("/api/getAllCars")
       .then((allCars) => {
@@ -46,6 +59,11 @@ function MetroApp() {
       .then((word) => {
         console.log(state);
       });
+    const cleanup = () => {
+      console.log("Cleaning up and clearing interval");
+      clearInterval(carTicker);
+    };
+    return cleanup;
   }, []);
 
   const initializeDB = () => {
@@ -58,7 +76,7 @@ function MetroApp() {
         });
       })
       .catch((err) => {
-        console.log("There was an error in the initialize call: ", { err });
+        console.log("There was an error in the initialize call: ", err);
         return new Promise((resolve, reject) => {
           resolve(err);
         });
@@ -117,6 +135,9 @@ function MetroApp() {
         }}
       >
         Console.log(state)
+      </Button>
+      <Button variant="filled" color="primary" onClick={checkForNewData}>
+        Check for new data
       </Button>
       {state.map((metroCar) => {
         console.log(metroCar.id);

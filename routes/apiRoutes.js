@@ -68,6 +68,22 @@ router.get("/getAllCars", (req, res) => {
     });
 });
 
+router.get("/checkForNewData/:currentUTC", (req, res) => {
+  console.log("Inside checkForNewData route: ", req.params.currentUTC);
+  models.Car.findAll({ where: {} })
+    .then((response) => {
+      // console.log("Response[0] from MySQL in checkForNewData route: ", response[100]);
+      res.status(200).send(response);
+    })
+    .catch((err) => {
+      console.log(
+        "There was an error in the mysql call in checkForNewData route: ",
+        err
+      );
+      res.status(400).send(err);
+    });
+});
+
 router.put("/toggleHeavy", (req, res) => {
   console.log("toggleHeavy route apiRoutes.js");
   console.log("req.body.num: ", req.body.num);
@@ -101,7 +117,10 @@ router.put("/toggleFlashers", (req, res) => {
       res.status(201).send(sqlResponse);
     })
     .catch((sqlErr) => {
-      console.log("There was an error in the toggleFlashers sql call: ", sqlErr);
+      console.log(
+        "There was an error in the toggleFlashers sql call: ",
+        sqlErr
+      );
       res.status(400).send(sqlErr);
     });
 });
@@ -124,4 +143,5 @@ router.put("/toggleKeys", (req, res) => {
       res.status(400).send(sqlErr);
     });
 });
+
 module.exports = router;
