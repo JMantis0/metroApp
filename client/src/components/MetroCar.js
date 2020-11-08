@@ -12,18 +12,42 @@ import Switch from "@material-ui/core/Switch";
 
 import { makeStyles } from "@material-ui/core/styles";
 
-const MetroCar = ({ number, heavy, keys, flashers, clear }) => {
+const MetroCar = ({ number, heavy, keys, flashers, clear, getAllCars }) => {
   const handleHeavyChange = () => {
     axios
       .put("/api/toggleHeavy", { newHeavy: !heavy, num: number })
       .then((response) => {
         console.log("Response from toggleHeavy", response);
+        getAllCars();
       })
       .catch((err) => {
         console.log("There was an error in the toggleHeavy route: ", err);
       });
   };
 
+  const handleFlashersChange = () => {
+    axios
+      .put("/api/toggleFlashers", { newFlashers: !flashers, num: number })
+      .then((response) => {
+        console.log("Response from toggleFlashers", response);
+        getAllCars();
+      })
+      .catch((err) => {
+        console.log("There was an error in the toggleFlashers route: ", err);
+      });
+  };
+  
+  const handleKeysChange = () => {
+    axios
+      .put("/api/toggleKeys", { newKeys: !keys, num: number })
+      .then((response) => {
+        console.log("Response from toggleKeys", response);
+        getAllCars();
+      })
+      .catch((err) => {
+        console.log("There was an error in the toggleKeys route: ", err);
+      });
+  };
   const handleChange = () => {
     console.log("change");
   };
@@ -31,7 +55,7 @@ const MetroCar = ({ number, heavy, keys, flashers, clear }) => {
     <Paper>
       {number}
       <FormControl component="fieldset">
-        <FormLabel component="legend">Assign responsibility</FormLabel>
+        <FormLabel component="legend">FormLabel text</FormLabel>
         <FormGroup>
           <FormControlLabel
             control={
@@ -47,7 +71,7 @@ const MetroCar = ({ number, heavy, keys, flashers, clear }) => {
             control={
               <Switch
                 checked={flashers}
-                onChange={handleChange}
+                onChange={handleFlashersChange}
                 name="flashers"
               />
             }
@@ -55,12 +79,12 @@ const MetroCar = ({ number, heavy, keys, flashers, clear }) => {
           />
           <FormControlLabel
             control={
-              <Switch checked={keys} onChange={handleChange} name="keys" />
+              <Switch checked={keys} onChange={handleKeysChange} name="keys" />
             }
             label="Keys"
           />
         </FormGroup>
-        <FormHelperText>Be careful</FormHelperText>
+        <FormHelperText>FormHelperText</FormHelperText>
       </FormControl>
     </Paper>
   );

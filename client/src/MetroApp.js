@@ -28,7 +28,7 @@ function MetroApp() {
       .get("/api/getAllCars")
       .then((allCars) => {
         console.log("Response from get all cars route: ", allCars.data);
-        // setState(allCars.data);
+        setState(allCars.data);
         console.log(typeof allCars.data);
         return new Promise((resolve, reject) => {
           resolve("Resolve");
@@ -40,7 +40,7 @@ function MetroApp() {
       .then((word) => {
         console.log(state);
       });
-  }, [state]);
+  }, []);
 
   const initializeDB = () => {
     axios
@@ -117,6 +117,8 @@ function MetroApp() {
         return (
           <div>
             <MetroCar
+              key={metroCar.num}
+              getAllCars={getAllCars}
               number={metroCar.num}
               key={metroCar.id}
               flashers={metroCar.flashers}
