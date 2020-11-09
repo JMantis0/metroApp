@@ -3,7 +3,8 @@ const models = require("../models");
 const env = require("dotenv");
 const axios = require("axios");
 const Sequelize = require("sequelize");
-
+const moment = require("moment");
+moment().format();
 // apiKey = process.env.APIKEY;
 // const db = require("../models");
 
@@ -16,6 +17,30 @@ const metroCarObject = XLSX.utils.sheet_to_json(
 );
 console.log(metroCarObject);
 console.log(metroCarObject[0]["num"]);
+
+const updateLatestPut = (req, res) => {
+  const response = new Promise((resolve, reject) => {
+    models.LatestPut.update(
+      { latestPut: moment().toString() },
+      { where: { id: 1 } }
+    )
+      .then((response) => {
+        console.log("response from latestPut update", response);
+        resolve(response);
+      })
+      .catch((latestPutErr) => {
+        console.log("Error in the latestPut call: ", latestPutErr);
+        reject(latestPutErr);
+      });
+  });
+  return response;
+};
+
+router.put("/testLatestPut", (req, res) => {
+  updateLatestPut(req, res).then((response) =>
+    console.log("42updateLatestPut response", response)
+  );
+});
 
 router.get("/test", (req, res) => {
   // Use a regular expression to search titles for req.query.q
@@ -69,10 +94,36 @@ router.get("/getAllCars", (req, res) => {
 });
 
 router.get("/checkForNewData/:currentUTC", (req, res) => {
-  console.log("Inside checkForNewData route: ", req.params.currentUTC);
+  // https://momentjs.com/docs/#/parsing/string-format/
+  // console.log("current moment()", moment());
+  //  Timestamp from front end
+  console.log("UTC Timestamp from front end ", req.params.currentUTC);
+
+  console.log(
+    "moment created from front end",
+    moment.unix(req.params.currentUTC)
+  );
+  const frontEndMoment = moment.unix(req.params.currentUTC);
+
+  //  I want to compare this timestamp to the most recent updatedAt
   models.Car.findAll({ where: {} })
     .then((response) => {
-      // console.log("Response[0] from MySQL in checkForNewData route: ", response[100]);
+      // console.log(
+      //   "Response[0] from MySQL in checkForNewData route: ",
+      //   response[0]
+      // );
+      let updatedAtMoment;
+
+      console.log("Response length: ", response.length);
+      console.log(
+        "moment created from updatedAt",
+        moment(response[0].dataValues.updatedAt)
+      );
+      updatedAtMoment = moment(response[0].dataValues.updatedAt);
+
+      console.log(frontEndMoment.diff(updatedAtMoment));
+      console.log(updatedAtMoment.diff(frontEndMoment));
+
       res.status(200).send(response);
     })
     .catch((err) => {

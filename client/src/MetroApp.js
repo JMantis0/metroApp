@@ -9,40 +9,21 @@ import MetroCar from "./components/MetroCar";
 import Button from "@material-ui/core/Button";
 import Collapse from "@material-ui/core/Collapse";
 import CssBaseline from "@material-ui/core/CssBaseline";
+import moment from "moment";
 
 function MetroApp() {
   const [state, setState] = useState([]);
-  const [lastChange, setLastChange] = useState("");
-  const testBackend = () => {
-    axios
-      .get("/api/test")
-      .then((response) => {
-        console.log("Response from test route", response);
-      })
-      .catch((err) => {
-        console.log("There was an error: ", err);
-      });
-  };
-
-  const checkForNewData = () => {
-    const currentUTC = Date.now().toString();
-    console.log("currentUTC inside checkForNewData route: ", currentUTC);
-    console.log("typeof currentUTC: ", typeof currentUTC);
-    axios
-      .get(`/api/checkForNewData/${currentUTC}`)
-      .then((dataCheckResponse) => {
-        console.log("Response from Datacheck route: ", dataCheckResponse);
-      })
-      .catch((dataCheckErr) => {
-        console.log("There was an error in the dataCheck route", dataCheckErr);
-      });
-  };
+  const [lastRenderTime, setLastRenderTime] = useState(
+    Math.floor(Date.now() / 1000)
+  );
 
   useEffect(() => {
-    const carTicker = setInterval(() => {
-      checkForNewData();
-      console.log("Date.now(): ", Date.now());
-    }, 2000);
+    console.log("useEffect Triggered");
+    // const carTicker = setInterval(() => {
+    //   checkForNewData();
+    //   console.log("Date.now(): ", Date.now());
+    // }, 2000);
+    setLastRenderTime(Math.floor(Date.now() / 1000));
     axios
       .get("/api/getAllCars")
       .then((allCars) => {
@@ -59,12 +40,38 @@ function MetroApp() {
       .then((word) => {
         console.log(state);
       });
-    const cleanup = () => {
-      console.log("Cleaning up and clearing interval");
-      clearInterval(carTicker);
-    };
-    return cleanup;
+    // const cleanup = () => {
+    //   console.log("Cleaning up and clearing interval");
+    //   clearInterval(carTicker);
+    // };
+    // return cleanup;
   }, []);
+
+  const testBackend = () => {
+    axios
+      .get("/api/test")
+      .then((response) => {
+        console.log("Response from test route", response);
+      })
+      .catch((err) => {
+        console.log("There was an error: ", err);
+      });
+  };
+
+  const checkForNewData = () => {
+    const currentUTC = Math.floor(Date.now() / 1000);
+    // .toString();
+    console.log("currentUTC inside checkForNewData route: ", currentUTC);
+    console.log("typeof currentUTC: ", typeof currentUTC);
+    axios
+      .get(`/api/checkForNewData/${currentUTC}`)
+      .then((dataCheckResponse) => {
+        console.log("Response from Datacheck route: ", dataCheckResponse);
+      })
+      .catch((dataCheckErr) => {
+        console.log("There was an error in the dataCheck route", dataCheckErr);
+      });
+  };
 
   const initializeDB = () => {
     axios
@@ -116,6 +123,18 @@ function MetroApp() {
       });
   };
 
+  const testLatestPut = () => {
+    console.log("Initiating latest put Get")
+    axios
+      .put("api/testLatestPut")
+      .then((response) => {
+        console.log("Response from latestPut route: ", response);
+      })
+      .catch((err) => {
+        console.log("Error in the testLatestPut route: ", err);
+      });
+  };
+
   return (
     <div className="App">
       <CssBaseline />
@@ -132,6 +151,7 @@ function MetroApp() {
       <Button
         onClick={() => {
           console.log(state);
+          console.log(lastRenderTime);
         }}
       >
         Console.log(state)
@@ -139,6 +159,7 @@ function MetroApp() {
       <Button variant="filled" color="primary" onClick={checkForNewData}>
         Check for new data
       </Button>
+      <Button onClick={testLatestPut}>update latest put</Button>
       {state.map((metroCar) => {
         console.log(metroCar.id);
         return (
