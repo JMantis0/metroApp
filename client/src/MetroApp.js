@@ -6,6 +6,7 @@ import { useState, useEffect } from "react";
 //     Component imports
 import MetroCar from "./components/MetroCar";
 //     Mui imports
+import Grid from "@material-ui/core/Grid";
 import Button from "@material-ui/core/Button";
 import Collapse from "@material-ui/core/Collapse";
 import CssBaseline from "@material-ui/core/CssBaseline";
@@ -13,39 +14,32 @@ import moment from "moment";
 
 function MetroApp() {
   const [state, setState] = useState([]);
-  const [lastRenderTime, setLastRenderTime] = useState(
-    Math.floor(Date.now() / 1000)
-  );
+  const [lastStateUpdateTime, setLastStateUpdateTime] = useState(0);
 
   useEffect(() => {
-    console.log("useEffect Triggered");
-    // const carTicker = setInterval(() => {
-    //   checkForNewData();
-    //   console.log("Date.now(): ", Date.now());
-    // }, 2000);
-    setLastRenderTime(Math.floor(Date.now() / 1000));
-    axios
-      .get("/api/getAllCars")
-      .then((allCars) => {
-        console.log("Response from get all cars route: ", allCars.data);
-        setState(allCars.data);
-        console.log(typeof allCars.data);
-        return new Promise((resolve, reject) => {
-          resolve("Resolve");
-        });
-      })
-      .catch((err) => {
-        console.log("There was an error in the getAllCars route: ", err);
-      })
-      .then((word) => {
-        console.log(state);
-      });
-    // const cleanup = () => {
-    //   console.log("Cleaning up and clearing interval");
-    //   clearInterval(carTicker);
-    // };
-    // return cleanup;
+    console.log("Getting car data");
+    /**
+     * getAllCars updates state and lastStateUpdateTime
+     */
+    getAllCars();
   }, []);
+
+  useEffect(() => {
+    const carTicker = setInterval(async () => {
+      console.log("lastUpdateTime: ", lastStateUpdateTime);
+      console.log(checkForNewData());
+      if (await checkForNewData()) {
+        console.log("inside true");
+        getAllCars();
+      }
+    }, 5000);
+    console.log("inside useEffect2");
+    const cleanup = () => {
+      console.log("Cleaning up and clearing interval");
+      clearInterval(carTicker);
+    };
+    return cleanup;
+  });
 
   const testBackend = () => {
     axios
@@ -59,18 +53,23 @@ function MetroApp() {
   };
 
   const checkForNewData = () => {
-    const currentUTC = Math.floor(Date.now() / 1000);
-    // .toString();
-    console.log("currentUTC inside checkForNewData route: ", currentUTC);
-    console.log("typeof currentUTC: ", typeof currentUTC);
-    axios
-      .get(`/api/checkForNewData/${currentUTC}`)
-      .then((dataCheckResponse) => {
-        console.log("Response from Datacheck route: ", dataCheckResponse);
-      })
-      .catch((dataCheckErr) => {
-        console.log("There was an error in the dataCheck route", dataCheckErr);
-      });
+    return new Promise((resolve, reject) => {
+      axios
+        .get(`/api/checkForNewData/${lastStateUpdateTime}`)
+        .then((dataCheckResponse) => {
+          console.log("Response from Datacheck route: ", dataCheckResponse);
+          const newData = dataCheckResponse.data.newData;
+          console.log("newData is:", newData);
+          resolve(newData);
+        })
+        .catch((dataCheckErr) => {
+          console.log(
+            "There was an error in the dataCheck route",
+            dataCheckErr
+          );
+          reject(dataCheckErr);
+        });
+    });
   };
 
   const initializeDB = () => {
@@ -97,18 +96,12 @@ function MetroApp() {
     axios
       .get("/api/getAllCars")
       .then((allCars) => {
-        console.log("Response from get all cars route: ", allCars.data);
+        // console.log("Response from get all cars route: ", allCars.data);
         setState(allCars.data);
-        console.log(typeof allCars.data);
-        return new Promise((resolve, reject) => {
-          resolve("Resolve");
-        });
+        setLastStateUpdateTime(Math.floor(Date.now() / 1000));
       })
       .catch((err) => {
         console.log("There was an error in the getAllCars route: ", err);
-      })
-      .then((word) => {
-        console.log(state);
       });
   };
 
@@ -124,7 +117,7 @@ function MetroApp() {
   };
 
   const testLatestPut = () => {
-    console.log("Initiating latest put Get")
+    console.log("Initiating latest put Get");
     axios
       .put("api/testLatestPut")
       .then((response) => {
@@ -139,6 +132,10 @@ function MetroApp() {
     <div className="App">
       <CssBaseline />
       METRO APP
+      <div>
+        {"Last State Update Time: "}
+        {moment.unix(lastStateUpdateTime)._d.toString()}
+      </div>
       <Button onClick={testBackend}>Test Backend (check console)</Button>
       <Button variant="outlined" onClick={initializeDB}>
         Initialize DB
@@ -150,8 +147,11 @@ function MetroApp() {
       <Collapse></Collapse>
       <Button
         onClick={() => {
-          console.log(state);
-          console.log(lastRenderTime);
+          console.log("state", state);
+          console.log(
+            "last state update time",
+            moment.unix(lastStateUpdateTime)._d
+          );
         }}
       >
         Console.log(state)
@@ -161,20 +161,37 @@ function MetroApp() {
       </Button>
       <Button onClick={testLatestPut}>update latest put</Button>
       {state.map((metroCar) => {
-        console.log(metroCar.id);
         return (
-          <div>
-            <MetroCar
-              key={metroCar.num}
-              getAllCars={getAllCars}
-              number={metroCar.num}
-              key={metroCar.id}
-              flashers={metroCar.flashers}
-              heavy={metroCar.heavy}
-              clear={metroCar.clear}
-              keys={metroCar.keyz}
-            ></MetroCar>{" "}
-          </div>
+          <Grid container>
+            <Grid item xs={6}>
+              {metroCar.heavy ? (
+                <MetroCar
+                  key={metroCar.num}
+                  getAllCars={getAllCars}
+                  number={metroCar.num}
+                  key={metroCar.id}
+                  flashers={metroCar.flashers}
+                  heavy={metroCar.heavy}
+                  clear={metroCar.clear}
+                  keys={metroCar.keyz}
+                ></MetroCar>
+              ) : null}
+            </Grid>
+            <Grid item xs={6}>
+              {!metroCar.heavy ? (
+                <MetroCar
+                  key={metroCar.num}
+                  getAllCars={getAllCars}
+                  number={metroCar.num}
+                  key={metroCar.id}
+                  flashers={metroCar.flashers}
+                  heavy={metroCar.heavy}
+                  clear={metroCar.clear}
+                  keys={metroCar.keyz}
+                ></MetroCar>
+              ) : null}
+            </Grid>
+          </Grid>
         );
       })}
     </div>

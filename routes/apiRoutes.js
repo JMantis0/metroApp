@@ -18,7 +18,7 @@ const metroCarObject = XLSX.utils.sheet_to_json(
 console.log(metroCarObject);
 console.log(metroCarObject[0]["num"]);
 
-const updateLatestPut = (req, res) => {
+const updateLatestPut = () => {
   const response = new Promise((resolve, reject) => {
     models.LatestPut.update(
       { latestPut: moment().toString() },
@@ -33,11 +33,12 @@ const updateLatestPut = (req, res) => {
         reject(latestPutErr);
       });
   });
+  console.log("response from updateLatestPut", response);
   return response;
 };
 
 router.put("/testLatestPut", (req, res) => {
-  updateLatestPut(req, res).then((response) =>
+  updateLatestPut().then((response) =>
     console.log("42updateLatestPut response", response)
   );
 });
@@ -93,38 +94,32 @@ router.get("/getAllCars", (req, res) => {
     });
 });
 
-router.get("/checkForNewData/:currentUTC", (req, res) => {
+router.get("/checkForNewData/:latestRenderTime", (req, res) => {
   // https://momentjs.com/docs/#/parsing/string-format/
   // console.log("current moment()", moment());
   //  Timestamp from front end
-  console.log("UTC Timestamp from front end ", req.params.currentUTC);
+  console.log("UTC Timestamp from front end ", req.params.latestRenderTime);
 
   console.log(
     "moment created from front end",
-    moment.unix(req.params.currentUTC)
+    moment.unix(req.params.latestRenderTime)
   );
-  const frontEndMoment = moment.unix(req.params.currentUTC);
+  const frontEndMoment = moment.unix(req.params.latestRenderTime);
 
   //  I want to compare this timestamp to the most recent updatedAt
-  models.Car.findAll({ where: {} })
+  models.LatestPut.findAll({ where: { id: 1 } })
     .then((response) => {
-      // console.log(
-      //   "Response[0] from MySQL in checkForNewData route: ",
-      //   response[0]
-      // );
-      let updatedAtMoment;
-
-      console.log("Response length: ", response.length);
-      console.log(
-        "moment created from updatedAt",
-        moment(response[0].dataValues.updatedAt)
-      );
-      updatedAtMoment = moment(response[0].dataValues.updatedAt);
-
-      console.log(frontEndMoment.diff(updatedAtMoment));
-      console.log(updatedAtMoment.diff(frontEndMoment));
-
-      res.status(200).send(response);
+      const updatedAtMoment = moment(response[0].dataValues.updatedAt);
+      console.log(`The last render was at ${frontEndMoment}`);
+      console.log(`The latest db PUT was at ${updatedAtMoment}`);
+      console.log(frontEndMoment.diff(updatedAtMoment, "seconds"));
+      if (frontEndMoment.diff(updatedAtMoment, "seconds") <= 0) {
+        console.log("There is new data");
+        res.status(200).send({ newData: true });
+      } else {
+        console.log("There is no new data");
+        res.status(200).send({ newData: false });
+      }
     })
     .catch((err) => {
       console.log(
@@ -145,6 +140,12 @@ router.put("/toggleHeavy", (req, res) => {
     }
   )
     .then((sqlResponse) => {
+      updateLatestPut().then((response) => {
+        console.log(
+          "UpdateLatestPut response in toggleHeavy route: ",
+          response
+        );
+      });
       console.log("sqlResponse toggleHeavy route: ", sqlResponse);
       res.status(201).send(sqlResponse);
     })
@@ -164,6 +165,12 @@ router.put("/toggleFlashers", (req, res) => {
     }
   )
     .then((sqlResponse) => {
+      updateLatestPut().then((response) => {
+        console.log(
+          "UpdateLatestPut response in toggleHeavy route: ",
+          response
+        );
+      });
       console.log("sqlResponse toggleFlashers route: ", sqlResponse);
       res.status(201).send(sqlResponse);
     })
@@ -186,6 +193,12 @@ router.put("/toggleKeys", (req, res) => {
     }
   )
     .then((sqlResponse) => {
+      updateLatestPut().then((response) => {
+        console.log(
+          "UpdateLatestPut response in toggleHeavy route: ",
+          response
+        );
+      });
       console.log("sqlResponse toggleKeys route: ", sqlResponse);
       res.status(201).send(sqlResponse);
     })

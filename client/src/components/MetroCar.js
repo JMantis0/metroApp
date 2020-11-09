@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 
 import axios from "axios";
 
@@ -13,6 +13,9 @@ import Switch from "@material-ui/core/Switch";
 import { makeStyles } from "@material-ui/core/styles";
 
 const MetroCar = ({ number, heavy, keys, flashers, clear, getAllCars }) => {
+  // useEffect(() => {
+  // console.log(`useEffect triggered for MetroCar ${number}`)
+  // });
   const handleHeavyChange = () => {
     axios
       .put("/api/toggleHeavy", { newHeavy: !heavy, num: number })
@@ -36,7 +39,7 @@ const MetroCar = ({ number, heavy, keys, flashers, clear, getAllCars }) => {
         console.log("There was an error in the toggleFlashers route: ", err);
       });
   };
-  
+
   const handleKeysChange = () => {
     axios
       .put("/api/toggleKeys", { newKeys: !keys, num: number })
@@ -48,9 +51,7 @@ const MetroCar = ({ number, heavy, keys, flashers, clear, getAllCars }) => {
         console.log("There was an error in the toggleKeys route: ", err);
       });
   };
-  const handleChange = () => {
-    console.log("change");
-  };
+
   return (
     <Paper>
       {number}
