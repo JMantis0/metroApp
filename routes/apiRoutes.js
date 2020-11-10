@@ -84,6 +84,7 @@ router.delete("/deleteDB", (req, res) => {
 router.get("/getAllCars", (req, res) => {
   console.log("getAllCars route apiRoutes.js");
   models.Car.findAll({})
+  //finds the whole set
     .then((response) => {
       // console.log("getAllCars response from MySQL: ", response);
       res.status(202).send(response);

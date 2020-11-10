@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 
 import axios from "axios";
 
@@ -9,13 +9,23 @@ import FormGroup from "@material-ui/core/FormGroup";
 import FormControlLabel from "@material-ui/core/FormControlLabel";
 import FormHelperText from "@material-ui/core/FormHelperText";
 import Switch from "@material-ui/core/Switch";
+import LocalShippingRoundedIcon from "@material-ui/icons/LocalShippingRounded";
+import Collapse from "@material-ui/core/Collapse";
 
 import { makeStyles } from "@material-ui/core/styles";
 
 const MetroCar = ({ number, heavy, keys, flashers, clear, getAllCars }) => {
-  // useEffect(() => {
-  // console.log(`useEffect triggered for MetroCar ${number}`)
-  // });
+  const [checked, setChecked] = useState(false);
+  const handleCollapse = () => {
+    setChecked((prev) => !prev);
+  };
+  const useStyles = makeStyles(() => ({
+    root: {
+      width: "100%",
+    },
+  }));
+  const classes = useStyles();
+
   const handleHeavyChange = () => {
     axios
       .put("/api/toggleHeavy", { newHeavy: !heavy, num: number })
@@ -53,39 +63,47 @@ const MetroCar = ({ number, heavy, keys, flashers, clear, getAllCars }) => {
   };
 
   return (
-    <Paper>
-      {number}
-      <FormControl component="fieldset">
-        <FormLabel component="legend">FormLabel text</FormLabel>
-        <FormGroup>
-          <FormControlLabel
-            control={
-              <Switch
-                checked={heavy}
-                onChange={handleHeavyChange}
-                name="heavy"
-              />
-            }
-            label="Heavy"
-          />
-          <FormControlLabel
-            control={
-              <Switch
-                checked={flashers}
-                onChange={handleFlashersChange}
-                name="flashers"
-              />
-            }
-            label="Flashers"
-          />
-          <FormControlLabel
-            control={
-              <Switch checked={keys} onChange={handleKeysChange} name="keys" />
-            }
-            label="Keys"
-          />
-        </FormGroup>
-        <FormHelperText>FormHelperText</FormHelperText>
+    <Paper className={classes.root}>
+      <FormControl className={classes.root}>
+        <FormLabel onClick={handleCollapse}>
+          <LocalShippingRoundedIcon />
+          {number} {(!heavy && !flashers && !keys && !clear) ? "Unchecked" : (heavy && keys) ? "Heavy (keys inside)" : (heavy && !keys) ? "Heavy (no keys)" : (flashers) ? "Consolidate" : null}
+        </FormLabel>
+        <Collapse in={checked}>
+          <FormGroup>
+            <FormControlLabel
+              control={
+                <Switch
+                  checked={heavy}
+                  onChange={handleHeavyChange}
+                  name="heavy"
+                />
+              }
+              label="Heavy"
+            />
+            <FormControlLabel
+              control={
+                <Switch
+                  checked={flashers}
+                  onChange={handleFlashersChange}
+                  name="flashers"
+                />
+              }
+              label="Light"
+            />
+            <FormControlLabel
+              control={
+                <Switch
+                  checked={keys}
+                  onChange={handleKeysChange}
+                  name="keys"
+                />
+              }
+              label="Keys"
+            />
+          </FormGroup>
+        </Collapse>
+        <FormHelperText></FormHelperText>
       </FormControl>
     </Paper>
   );

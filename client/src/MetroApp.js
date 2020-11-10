@@ -2,19 +2,26 @@ import React, { Component } from "react";
 import logo from "./logo.svg";
 import "./MetroApp.css";
 import axios from "axios";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 //     Component imports
 import MetroCar from "./components/MetroCar";
+import Search from "./components/Search";
 //     Mui imports
 import Grid from "@material-ui/core/Grid";
 import Button from "@material-ui/core/Button";
 import Collapse from "@material-ui/core/Collapse";
 import CssBaseline from "@material-ui/core/CssBaseline";
+import Input from "@material-ui/core/Input";
+
+// component imports
+import MetroFooter from "./components/MetroFooter";
+
 import moment from "moment";
 
 function MetroApp() {
   const [state, setState] = useState([]);
   const [lastStateUpdateTime, setLastStateUpdateTime] = useState(0);
+  const inputRef = useRef();
 
   useEffect(() => {
     console.log("Getting car data");
@@ -25,6 +32,7 @@ function MetroApp() {
   }, []);
 
   useEffect(() => {
+    console.log("inside useEffect2");
     const carTicker = setInterval(async () => {
       console.log("lastUpdateTime: ", lastStateUpdateTime);
       console.log(checkForNewData());
@@ -33,13 +41,12 @@ function MetroApp() {
         getAllCars();
       }
     }, 5000);
-    console.log("inside useEffect2");
     const cleanup = () => {
       console.log("Cleaning up and clearing interval");
       clearInterval(carTicker);
     };
     return cleanup;
-  });
+  }, [lastStateUpdateTime]);
 
   const testBackend = () => {
     axios
@@ -92,7 +99,7 @@ function MetroApp() {
       });
   };
 
-  const getAllCars = () => {
+  const getAllCars = async () => {
     axios
       .get("/api/getAllCars")
       .then((allCars) => {
@@ -128,6 +135,18 @@ function MetroApp() {
       });
   };
 
+  const filterAll = (car) => {
+    return true;
+  };
+
+  const filterHeavy = (car) => {
+    return car.heavy;
+  };
+
+  const getInputState = (input) => {
+    return input;
+  };
+
   return (
     <div className="App">
       <CssBaseline />
@@ -136,6 +155,11 @@ function MetroApp() {
         {"Last State Update Time: "}
         {moment.unix(lastStateUpdateTime)._d.toString()}
       </div>
+      <Input
+        inputRef={inputRef}
+        onChange={() => console.log("inputString", inputRef.current.value)}
+      ></Input>
+      <Search />
       <Button onClick={testBackend}>Test Backend (check console)</Button>
       <Button variant="outlined" onClick={initializeDB}>
         Initialize DB
@@ -160,40 +184,25 @@ function MetroApp() {
         Check for new data
       </Button>
       <Button onClick={testLatestPut}>update latest put</Button>
-      {state.map((metroCar) => {
-        return (
-          <Grid container>
-            <Grid item xs={6}>
-              {metroCar.heavy ? (
-                <MetroCar
-                  key={metroCar.num}
-                  getAllCars={getAllCars}
-                  number={metroCar.num}
-                  key={metroCar.id}
-                  flashers={metroCar.flashers}
-                  heavy={metroCar.heavy}
-                  clear={metroCar.clear}
-                  keys={metroCar.keyz}
-                ></MetroCar>
-              ) : null}
-            </Grid>
-            <Grid item xs={6}>
-              {!metroCar.heavy ? (
-                <MetroCar
-                  key={metroCar.num}
-                  getAllCars={getAllCars}
-                  number={metroCar.num}
-                  key={metroCar.id}
-                  flashers={metroCar.flashers}
-                  heavy={metroCar.heavy}
-                  clear={metroCar.clear}
-                  keys={metroCar.keyz}
-                ></MetroCar>
-              ) : null}
-            </Grid>
-          </Grid>
-        );
-      })}
+      <Grid container>
+        <Grid item xs={12}>
+          {state.filter(filterAll).map((metroCar) => {
+            return (
+              <MetroCar
+                key={metroCar.num}
+                getAllCars={getAllCars}
+                number={metroCar.num}
+                key={metroCar.id}
+                flashers={metroCar.flashers}
+                heavy={metroCar.heavy}
+                clear={metroCar.clear}
+                keys={metroCar.keyz}
+              ></MetroCar>
+            );
+          })}
+        </Grid>
+      </Grid>
+      <MetroFooter />
     </div>
   );
 }
