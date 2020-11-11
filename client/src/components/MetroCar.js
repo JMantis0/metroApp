@@ -16,6 +16,12 @@ import { makeStyles } from "@material-ui/core/styles";
 
 const MetroCar = ({ number, heavy, keys, flashers, clear, getAllCars }) => {
   const [checked, setChecked] = useState(false);
+  const [carState, setCarState] = useState({
+    heavyX: heavy,
+    keysX: keys,
+    flashersX: flashers,
+    clearX: clear,
+  });
   const handleCollapse = () => {
     setChecked((prev) => !prev);
   };
@@ -27,11 +33,13 @@ const MetroCar = ({ number, heavy, keys, flashers, clear, getAllCars }) => {
   const classes = useStyles();
 
   const handleHeavyChange = () => {
+    console.log("carState", carState)
+    setCarState({...carState, heavyX: !carState.heavyX})
     axios
       .put("/api/toggleHeavy", { newHeavy: !heavy, num: number })
       .then((response) => {
         console.log("Response from toggleHeavy", response);
-        getAllCars();
+        // getAllCars();
       })
       .catch((err) => {
         console.log("There was an error in the toggleHeavy route: ", err);
@@ -39,11 +47,12 @@ const MetroCar = ({ number, heavy, keys, flashers, clear, getAllCars }) => {
   };
 
   const handleFlashersChange = () => {
+    setCarState({...carState, flashersX: !carState.flashersX})
     axios
       .put("/api/toggleFlashers", { newFlashers: !flashers, num: number })
       .then((response) => {
         console.log("Response from toggleFlashers", response);
-        getAllCars();
+        // getAllCars();
       })
       .catch((err) => {
         console.log("There was an error in the toggleFlashers route: ", err);
@@ -51,11 +60,12 @@ const MetroCar = ({ number, heavy, keys, flashers, clear, getAllCars }) => {
   };
 
   const handleKeysChange = () => {
+    setCarState({...carState, keysX: !carState.keysX})
     axios
       .put("/api/toggleKeys", { newKeys: !keys, num: number })
       .then((response) => {
         console.log("Response from toggleKeys", response);
-        getAllCars();
+        // getAllCars();
       })
       .catch((err) => {
         console.log("There was an error in the toggleKeys route: ", err);
@@ -63,48 +73,53 @@ const MetroCar = ({ number, heavy, keys, flashers, clear, getAllCars }) => {
   };
 
   return (
-    <Paper className={classes.root}>
-      <FormControl className={classes.root}>
+    <Paper>
+      <FormGroup row>
         <FormLabel onClick={handleCollapse}>
           <LocalShippingRoundedIcon />
-          {number} {(!heavy && !flashers && !keys && !clear) ? "Unchecked" : (heavy && keys) ? "Heavy (keys inside)" : (heavy && !keys) ? "Heavy (no keys)" : (flashers) ? "Consolidate" : null}
+          {number}{" "}
+          {!carState.heavyX && !carState.flashersX && !carState.keysX && !carState.clearX 
+            ? "Unchecked"
+            : carState.heavyX && carState.keysX
+            ? "Heavy (keys inside)"
+            : carState.heavyX && !carState.keysX
+            ? "Heavy (no keys)"
+            : carState.flashersX
+            ? "Consolidate"
+            : null}
         </FormLabel>
-        <Collapse in={checked}>
-          <FormGroup>
-            <FormControlLabel
-              control={
-                <Switch
-                  checked={heavy}
-                  onChange={handleHeavyChange}
-                  name="heavy"
-                />
-              }
-              label="Heavy"
-            />
-            <FormControlLabel
-              control={
-                <Switch
-                  checked={flashers}
-                  onChange={handleFlashersChange}
-                  name="flashers"
-                />
-              }
-              label="Light"
-            />
-            <FormControlLabel
-              control={
-                <Switch
-                  checked={keys}
-                  onChange={handleKeysChange}
-                  name="keys"
-                />
-              }
-              label="Keys"
-            />
-          </FormGroup>
-        </Collapse>
+        {/* <Collapse in={checked}> */}
+        <FormGroup row>
+          <FormControlLabel
+            control={
+              <Switch
+                checked={carState.heavyX}
+                onChange={handleHeavyChange}
+                name="heavy"
+              />
+            }
+            label="Heavy"
+          />
+          <FormControlLabel
+            control={
+              <Switch
+                checked={carState.flashersX}
+                onChange={handleFlashersChange}
+                name="flashers"
+              />
+            }
+            label="Light"
+          />
+          <FormControlLabel
+            control={
+              <Switch checked={carState.keysX} onChange={handleKeysChange} name="keys" />
+            }
+            label="Keys"
+          />
+        </FormGroup>
+        {/* </Collapse> */}
         <FormHelperText></FormHelperText>
-      </FormControl>
+      </FormGroup>
     </Paper>
   );
 };

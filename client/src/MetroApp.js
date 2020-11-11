@@ -103,9 +103,9 @@ function MetroApp() {
     axios
       .get("/api/getAllCars")
       .then((allCars) => {
-        // console.log("Response from get all cars route: ", allCars.data);
+        console.log("Response from get all cars route: ", allCars.data);
         setState(allCars.data);
-        setFilteredCarState(allCars.data)
+        setFilteredCarState(allCars.data);
         setLastStateUpdateTime(Math.floor(Date.now() / 1000));
       })
       .catch((err) => {
