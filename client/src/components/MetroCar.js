@@ -17,12 +17,6 @@ import RadioGroup from "@material-ui/core/RadioGroup";
 import { makeStyles } from "@material-ui/core/styles";
 
 const MetroCar = ({ number, heavy, keys, flashers, clear, getAllCars }) => {
-  const [carState, setCarState] = useState({
-    heavyX: heavy,
-    keysX: keys,
-    flashersX: flashers,
-    clearX: clear,
-  });
   const [radioState, setRadioState] = useState(null);
 
   const useStyles = makeStyles(() => ({
@@ -34,10 +28,10 @@ const MetroCar = ({ number, heavy, keys, flashers, clear, getAllCars }) => {
 
   const toggleHeavyDB = () => {
     axios
-      .put("/api/toggleHeavy", { newHeavy: !carState.heavyX, num: number })
+      .put("/api/toggleHeavy", { newHeavy: !heavy, num: number })
       .then((response) => {
         console.log("Response from toggleHeavy", response);
-        // getAllCars();
+        getAllCars();
       })
       .catch((err) => {
         console.log("There was an error in the toggleHeavy route: ", err);
@@ -47,47 +41,19 @@ const MetroCar = ({ number, heavy, keys, flashers, clear, getAllCars }) => {
   const toggleFlashersDB = () => {
     axios
       .put("/api/toggleFlashers", {
-        newFlashers: !carState.flashersX,
+        newFlashers: !flashers,
         num: number,
       })
       .then((response) => {
         console.log("Response from toggleFlashers", response);
-        // getAllCars();
+        getAllCars();
       })
       .catch((err) => {
         console.log("There was an error in the toggleFlashers route: ", err);
       });
   };
 
-  const handleHeavyChange = () => {
-    console.log("carState", carState);
-    //  If currently false, then we are making it true.  So... set flashers (light) to false.
-    console.log(!carState.heavyX);
-    if (!carState.heavyX && carState.flashersX) {
-      console.log("inside !!!");
-      toggleHeavyDB();
-      toggleFlashersDB();
-      setCarState({ ...carState, flashersX: false, heavyX: !carState.heavyX });
-    } else {
-      toggleHeavyDB();
-      setCarState({ ...carState, heavyX: !carState.heavyX });
-    }
-  };
-
-  const handleEmptyChange = () => {};
-  const handleFlashersChange = () => {
-    if (!carState.flashersX && carState.heavyX) {
-      toggleFlashersDB();
-      toggleHeavyDB();
-      setCarState({ ...carState, flashersX: true, heavyX: !carState.heavyX });
-    } else {
-      toggleFlashersDB();
-      setCarState({ ...carState, flashersX: !carState.flashersX });
-    }
-  };
-
   const handleKeysChange = () => {
-    setCarState({ ...carState, keysX: !carState.keysX });
     axios
       .put("/api/toggleKeys", { newKeys: !keys, num: number })
       .then((response) => {
@@ -100,7 +66,7 @@ const MetroCar = ({ number, heavy, keys, flashers, clear, getAllCars }) => {
   };
 
   const handleRadioChange = (event) => {
-    console.log(event.target.value)
+    console.log(event.target.value);
     setRadioState(event.target.value);
   };
 
@@ -143,7 +109,7 @@ const MetroCar = ({ number, heavy, keys, flashers, clear, getAllCars }) => {
               control={
                 <Switch
                   size="small"
-                  checked={carState.heavyX}
+                  checked={heavy}
                   onChange={handleHeavyChange}
                   name="heavy"
                 />
@@ -154,7 +120,7 @@ const MetroCar = ({ number, heavy, keys, flashers, clear, getAllCars }) => {
               control={
                 <Switch
                   size="small"
-                  checked={carState.flashersX}
+                  checked={flashers}
                   onChange={handleFlashersChange}
                   name="flashers"
                 />
@@ -165,7 +131,7 @@ const MetroCar = ({ number, heavy, keys, flashers, clear, getAllCars }) => {
               control={
                 <Switch
                   size="small"
-                  checked={carState.keysX}
+                  checked={keys}
                   onChange={handleKeysChange}
                   name="keys"
                 />
@@ -176,7 +142,7 @@ const MetroCar = ({ number, heavy, keys, flashers, clear, getAllCars }) => {
               control={
                 <Switch
                   size="small"
-                  checked={carState.keysX}
+                  checked={keys}
                   onChange={handleEmptyChange}
                   name="empty"
                 />

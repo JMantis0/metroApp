@@ -22,7 +22,9 @@ function MetroApp() {
   const [checked, setChecked] = useState(false);
   const [filteredCarState, setFilteredCarState] = useState([]);
   const [lastStateUpdateTime, setLastStateUpdateTime] = useState(0);
+  const searchRef = useRef("");
 
+  //  Onload, getAllCars one time.
   useEffect(() => {
     console.log("Getting car data");
     /**
@@ -37,7 +39,7 @@ function MetroApp() {
       // console.log("lastUpdateTime: ", lastStateUpdateTime);
       // console.log(checkForNewData());
       if (await checkForNewData()) {
-        console.log("inside true");
+        console.log("There is new Data");
         getAllCars();
       }
     }, 5000);
@@ -61,7 +63,7 @@ function MetroApp() {
 
   const handleCollapse = () => {
     console.log("inside handleCollapse");
-    console.log(checked)
+    console.log(checked);
     setChecked(!checked);
   };
 
@@ -111,9 +113,13 @@ function MetroApp() {
       .then((allCars) => {
         console.log("Response from get all cars route: ", allCars.data);
         setState(allCars.data);
-        if (filteredCarState.length === 0) {
-          setFilteredCarState(allCars.data);
-        }
+        //get current input
+        //set filtered car state to be allCars.data with current filter applied.
+        setFilteredCarState(
+          allCars.data.filter((car) =>
+            car.num.includes(searchRef.current.value)
+          )
+        );
         setLastStateUpdateTime(Math.floor(Date.now() / 1000));
       })
       .catch((err) => {
@@ -164,6 +170,7 @@ function MetroApp() {
         onChange={() => console.log("inputString", inputRef.current.value)}
       ></Input> */}
       <Search
+        searchRef={searchRef}
         filteredCarState={filteredCarState}
         setFilteredCarState={setFilteredCarState}
         state={state}
@@ -211,6 +218,7 @@ function MetroApp() {
             return (
               <Suspense fallback={<h1>Loading...</h1>}>
                 <MetroCar
+                  state={state}
                   key={metroCar.num}
                   getAllCars={getAllCars}
                   number={metroCar.num}
