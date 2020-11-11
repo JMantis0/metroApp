@@ -10,12 +10,19 @@ const Search = ({
 }) => {
   const [inputState, setInputState] = useState("");
   const searchRef = useRef("");
+  let inputTimeout;
 
   const handleInputChange = (event) => {
-    setFilteredCarState(
-      state.filter((car) => car.num.includes(searchRef.current.value))
-    );
+    console.log("event", event);
+    //  I want to implement a timeout here that will delay the state being updated to avoid lag
+    clearTimeout(inputTimeout);
+    inputTimeout = setTimeout(() => {
+      setFilteredCarState(
+        state.filter((car) => car.num.includes(searchRef.current.value))
+      );
+    }, 1500);
   };
+
   return (
     <div>
       <button
@@ -25,10 +32,7 @@ const Search = ({
       >
         Filtered Car State
       </button>
-      <Input
-        inputRef={searchRef}
-        onChange={handleInputChange}
-      ></Input>
+      <Input inputRef={searchRef} onChange={handleInputChange}></Input>
     </div>
   );
 };
