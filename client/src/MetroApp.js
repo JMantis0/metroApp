@@ -20,8 +20,8 @@ import moment from "moment";
 
 function MetroApp() {
   const [state, setState] = useState([]);
+  const [filteredCarState, setFilteredCarState] = useState([]);
   const [lastStateUpdateTime, setLastStateUpdateTime] = useState(0);
-  const inputRef = useRef();
 
   useEffect(() => {
     console.log("Getting car data");
@@ -34,8 +34,8 @@ function MetroApp() {
   useEffect(() => {
     console.log("inside useEffect2");
     const carTicker = setInterval(async () => {
-      console.log("lastUpdateTime: ", lastStateUpdateTime);
-      console.log(checkForNewData());
+      // console.log("lastUpdateTime: ", lastStateUpdateTime);
+      // console.log(checkForNewData());
       if (await checkForNewData()) {
         console.log("inside true");
         getAllCars();
@@ -64,9 +64,9 @@ function MetroApp() {
       axios
         .get(`/api/checkForNewData/${lastStateUpdateTime}`)
         .then((dataCheckResponse) => {
-          console.log("Response from Datacheck route: ", dataCheckResponse);
+          // console.log("Response from Datacheck route: ", dataCheckResponse);
           const newData = dataCheckResponse.data.newData;
-          console.log("newData is:", newData);
+          // console.log("newData is:", newData);
           resolve(newData);
         })
         .catch((dataCheckErr) => {
@@ -105,6 +105,7 @@ function MetroApp() {
       .then((allCars) => {
         // console.log("Response from get all cars route: ", allCars.data);
         setState(allCars.data);
+        setFilteredCarState(allCars.data)
         setLastStateUpdateTime(Math.floor(Date.now() / 1000));
       })
       .catch((err) => {
@@ -135,16 +136,15 @@ function MetroApp() {
       });
   };
 
-  const filterAll = (car) => {
-    return true;
-  };
-
-  const filterHeavy = (car) => {
-    return car.heavy;
-  };
-
-  const getInputState = (input) => {
-    return input;
+  const getFilteredCars = (childData) => {
+    console.log("childData", childData);
+    console.log("insideGetFilteredCars  ");
+    if (childData) {
+      console.log("inside if(childData)");
+      return childData;
+    }
+    console.log("childData is false");
+    return state;
   };
 
   return (
@@ -155,11 +155,15 @@ function MetroApp() {
         {"Last State Update Time: "}
         {moment.unix(lastStateUpdateTime)._d.toString()}
       </div>
-      <Input
+      {/* <Input
         inputRef={inputRef}
         onChange={() => console.log("inputString", inputRef.current.value)}
-      ></Input>
-      <Search />
+      ></Input> */}
+      <Search
+        filteredCarState={filteredCarState}
+        setFilteredCarState={setFilteredCarState}
+        state={state}
+      />
       <Button onClick={testBackend}>Test Backend (check console)</Button>
       <Button variant="outlined" onClick={initializeDB}>
         Initialize DB
@@ -186,7 +190,7 @@ function MetroApp() {
       <Button onClick={testLatestPut}>update latest put</Button>
       <Grid container>
         <Grid item xs={12}>
-          {state.filter(filterAll).map((metroCar) => {
+          {filteredCarState.map((metroCar) => {
             return (
               <MetroCar
                 key={metroCar.num}

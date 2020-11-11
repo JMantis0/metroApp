@@ -1,17 +1,34 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import Input from "@material-ui/core/Input";
 
-const Search = ({ getInputState, onChange }) => {
+const Search = ({
+  filteredCarState,
+  setFilteredCarState,
+  getFilteredCars,
+  onChange,
+  state,
+}) => {
   const [inputState, setInputState] = useState("");
+  const searchRef = useRef("");
 
   const handleInputChange = (event) => {
-    console.log("event.target.value", event.target.value);
-    setInputState(event.target.value);
-    onChange(inputState);
+    setFilteredCarState(
+      state.filter((car) => car.num.includes(searchRef.current.value))
+    );
   };
   return (
     <div>
-      <Input value={inputState} onChange={handleInputChange}></Input>
+      <button
+        onClick={() => {
+          console.log("filteredCarState: ", filteredCarState);
+        }}
+      >
+        Filtered Car State
+      </button>
+      <Input
+        inputRef={searchRef}
+        onChange={handleInputChange}
+      ></Input>
     </div>
   );
 };
