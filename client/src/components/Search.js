@@ -25,13 +25,6 @@ const Search = ({
 
   return (
     <div>
-      <button
-        onClick={() => {
-          console.log("filteredCarState: ", filteredCarState);
-        }}
-      >
-        Filtered Car State
-      </button>
       <Input inputRef={searchRef} onChange={handleInputChange}></Input>
     </div>
   );

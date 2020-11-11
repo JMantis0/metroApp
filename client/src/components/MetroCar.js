@@ -10,21 +10,21 @@ import FormControlLabel from "@material-ui/core/FormControlLabel";
 import FormHelperText from "@material-ui/core/FormHelperText";
 import Switch from "@material-ui/core/Switch";
 import LocalShippingRoundedIcon from "@material-ui/icons/LocalShippingRounded";
-import Collapse from "@material-ui/core/Collapse";
+import Grid from "@material-ui/core/Grid";
+import Radio from "@material-ui/core/Radio";
+import RadioGroup from "@material-ui/core/RadioGroup";
 
 import { makeStyles } from "@material-ui/core/styles";
 
 const MetroCar = ({ number, heavy, keys, flashers, clear, getAllCars }) => {
-  const [checked, setChecked] = useState(false);
   const [carState, setCarState] = useState({
     heavyX: heavy,
     keysX: keys,
     flashersX: flashers,
     clearX: clear,
   });
-  const handleCollapse = () => {
-    setChecked((prev) => !prev);
-  };
+  const [radioState, setRadioState] = useState(null);
+
   const useStyles = makeStyles(() => ({
     root: {
       width: "100%",
@@ -32,11 +32,9 @@ const MetroCar = ({ number, heavy, keys, flashers, clear, getAllCars }) => {
   }));
   const classes = useStyles();
 
-  const handleHeavyChange = () => {
-    console.log("carState", carState)
-    setCarState({...carState, heavyX: !carState.heavyX})
+  const toggleHeavyDB = () => {
     axios
-      .put("/api/toggleHeavy", { newHeavy: !heavy, num: number })
+      .put("/api/toggleHeavy", { newHeavy: !carState.heavyX, num: number })
       .then((response) => {
         console.log("Response from toggleHeavy", response);
         // getAllCars();
@@ -46,10 +44,12 @@ const MetroCar = ({ number, heavy, keys, flashers, clear, getAllCars }) => {
       });
   };
 
-  const handleFlashersChange = () => {
-    setCarState({...carState, flashersX: !carState.flashersX})
+  const toggleFlashersDB = () => {
     axios
-      .put("/api/toggleFlashers", { newFlashers: !flashers, num: number })
+      .put("/api/toggleFlashers", {
+        newFlashers: !carState.flashersX,
+        num: number,
+      })
       .then((response) => {
         console.log("Response from toggleFlashers", response);
         // getAllCars();
@@ -59,8 +59,35 @@ const MetroCar = ({ number, heavy, keys, flashers, clear, getAllCars }) => {
       });
   };
 
+  const handleHeavyChange = () => {
+    console.log("carState", carState);
+    //  If currently false, then we are making it true.  So... set flashers (light) to false.
+    console.log(!carState.heavyX);
+    if (!carState.heavyX && carState.flashersX) {
+      console.log("inside !!!");
+      toggleHeavyDB();
+      toggleFlashersDB();
+      setCarState({ ...carState, flashersX: false, heavyX: !carState.heavyX });
+    } else {
+      toggleHeavyDB();
+      setCarState({ ...carState, heavyX: !carState.heavyX });
+    }
+  };
+
+  const handleEmptyChange = () => {};
+  const handleFlashersChange = () => {
+    if (!carState.flashersX && carState.heavyX) {
+      toggleFlashersDB();
+      toggleHeavyDB();
+      setCarState({ ...carState, flashersX: true, heavyX: !carState.heavyX });
+    } else {
+      toggleFlashersDB();
+      setCarState({ ...carState, flashersX: !carState.flashersX });
+    }
+  };
+
   const handleKeysChange = () => {
-    setCarState({...carState, keysX: !carState.keysX})
+    setCarState({ ...carState, keysX: !carState.keysX });
     axios
       .put("/api/toggleKeys", { newKeys: !keys, num: number })
       .then((response) => {
@@ -72,13 +99,36 @@ const MetroCar = ({ number, heavy, keys, flashers, clear, getAllCars }) => {
       });
   };
 
+  const handleRadioChange = (event) => {
+    console.log(event.target.value)
+    setRadioState(event.target.value);
+  };
+
   return (
-    <Paper>
-      <FormGroup row>
-        <FormLabel onClick={handleCollapse}>
-          <LocalShippingRoundedIcon />
-          {number}{" "}
-          {!carState.heavyX && !carState.flashersX && !carState.keysX && !carState.clearX 
+    <div>
+      <Grid container>
+        <Grid item>number</Grid>
+        <Grid item>volume radio</Grid>
+        <Grid item>keys</Grid>
+      </Grid>
+      <FormControl>
+        <FormLabel>Volume</FormLabel>
+        <RadioGroup row onChange={handleRadioChange}>
+          <Radio value="light" />
+          <Radio value="heavy" />
+          <Radio value="empty" />
+        </RadioGroup>
+      </FormControl>
+      <Paper>
+        <FormGroup row>
+          <FormLabel>
+            <LocalShippingRoundedIcon />
+            {number}
+            {/* {" "} */}
+            {/* {!carState.heavyX &&
+          !carState.flashersX &&
+          !carState.keysX &&
+          !carState.clearX
             ? "Unchecked"
             : carState.heavyX && carState.keysX
             ? "Heavy (keys inside)"
@@ -86,41 +136,58 @@ const MetroCar = ({ number, heavy, keys, flashers, clear, getAllCars }) => {
             ? "Heavy (no keys)"
             : carState.flashersX
             ? "Consolidate"
-            : null}
-        </FormLabel>
-        {/* <Collapse in={checked}> */}
-        <FormGroup row>
-          <FormControlLabel
-            control={
-              <Switch
-                checked={carState.heavyX}
-                onChange={handleHeavyChange}
-                name="heavy"
-              />
-            }
-            label="Heavy"
-          />
-          <FormControlLabel
-            control={
-              <Switch
-                checked={carState.flashersX}
-                onChange={handleFlashersChange}
-                name="flashers"
-              />
-            }
-            label="Light"
-          />
-          <FormControlLabel
-            control={
-              <Switch checked={carState.keysX} onChange={handleKeysChange} name="keys" />
-            }
-            label="Keys"
-          />
+            : null} */}
+          </FormLabel>
+          <FormGroup row>
+            <FormControlLabel
+              control={
+                <Switch
+                  size="small"
+                  checked={carState.heavyX}
+                  onChange={handleHeavyChange}
+                  name="heavy"
+                />
+              }
+              label="Heavy"
+            />
+            <FormControlLabel
+              control={
+                <Switch
+                  size="small"
+                  checked={carState.flashersX}
+                  onChange={handleFlashersChange}
+                  name="flashers"
+                />
+              }
+              label="Light"
+            />
+            <FormControlLabel
+              control={
+                <Switch
+                  size="small"
+                  checked={carState.keysX}
+                  onChange={handleKeysChange}
+                  name="keys"
+                />
+              }
+              label="Keys"
+            />
+            <FormControlLabel
+              control={
+                <Switch
+                  size="small"
+                  checked={carState.keysX}
+                  onChange={handleEmptyChange}
+                  name="empty"
+                />
+              }
+              label="Empty"
+            />
+          </FormGroup>
+          <FormHelperText></FormHelperText>
         </FormGroup>
-        {/* </Collapse> */}
-        <FormHelperText></FormHelperText>
-      </FormGroup>
-    </Paper>
+      </Paper>
+    </div>
   );
 };
 
