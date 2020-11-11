@@ -1,19 +1,26 @@
-import React, { Component } from "react";
-import logo from "./logo.svg";
+import React, { Suspense, lazy } from "react";
 import "./MetroApp.css";
 import axios from "axios";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 //     Component imports
-import MetroCar from "./components/MetroCar";
+// import MetroCar from "./components/MetroCar";
+import Search from "./components/Search";
 //     Mui imports
 import Grid from "@material-ui/core/Grid";
 import Button from "@material-ui/core/Button";
 import Collapse from "@material-ui/core/Collapse";
 import CssBaseline from "@material-ui/core/CssBaseline";
+
+// component imports
+import MetroFooter from "./components/MetroFooter";
+
 import moment from "moment";
+const MetroCar = lazy(() => import("./components/MetroCar"));
 
 function MetroApp() {
   const [state, setState] = useState([]);
+  const [checked, setChecked] = useState(false);
+  const [filteredCarState, setFilteredCarState] = useState([]);
   const [lastStateUpdateTime, setLastStateUpdateTime] = useState(0);
 
   useEffect(() => {
@@ -25,21 +32,21 @@ function MetroApp() {
   }, []);
 
   useEffect(() => {
+    console.log("inside useEffect2");
     const carTicker = setInterval(async () => {
-      console.log("lastUpdateTime: ", lastStateUpdateTime);
-      console.log(checkForNewData());
+      // console.log("lastUpdateTime: ", lastStateUpdateTime);
+      // console.log(checkForNewData());
       if (await checkForNewData()) {
         console.log("inside true");
         getAllCars();
       }
     }, 5000);
-    console.log("inside useEffect2");
     const cleanup = () => {
       console.log("Cleaning up and clearing interval");
       clearInterval(carTicker);
     };
     return cleanup;
-  });
+  }, [lastStateUpdateTime]);
 
   const testBackend = () => {
     axios
@@ -52,14 +59,20 @@ function MetroApp() {
       });
   };
 
+  const handleCollapse = () => {
+    console.log("inside handleCollapse");
+    console.log(checked)
+    setChecked(!checked);
+  };
+
   const checkForNewData = () => {
     return new Promise((resolve, reject) => {
       axios
         .get(`/api/checkForNewData/${lastStateUpdateTime}`)
         .then((dataCheckResponse) => {
-          console.log("Response from Datacheck route: ", dataCheckResponse);
+          // console.log("Response from Datacheck route: ", dataCheckResponse);
           const newData = dataCheckResponse.data.newData;
-          console.log("newData is:", newData);
+          // console.log("newData is:", newData);
           resolve(newData);
         })
         .catch((dataCheckErr) => {
@@ -92,12 +105,15 @@ function MetroApp() {
       });
   };
 
-  const getAllCars = () => {
+  const getAllCars = async () => {
     axios
       .get("/api/getAllCars")
       .then((allCars) => {
-        // console.log("Response from get all cars route: ", allCars.data);
+        console.log("Response from get all cars route: ", allCars.data);
         setState(allCars.data);
+        if (filteredCarState.length === 0) {
+          setFilteredCarState(allCars.data);
+        }
         setLastStateUpdateTime(Math.floor(Date.now() / 1000));
       })
       .catch((err) => {
@@ -128,43 +144,72 @@ function MetroApp() {
       });
   };
 
+  // const getFilteredCars = (childData) => {
+  //   console.log("childData", childData);
+  //   console.log("insideGetFilteredCars  ");
+  //   if (childData) {
+  //     console.log("inside if(childData)");
+  //     return childData;
+  //   }
+  //   console.log("childData is false");
+  //   return state;
+  // };
+
   return (
     <div className="App">
       <CssBaseline />
-      METRO APP
-      <div>
-        {"Last State Update Time: "}
-        {moment.unix(lastStateUpdateTime)._d.toString()}
-      </div>
-      <Button onClick={testBackend}>Test Backend (check console)</Button>
-      <Button variant="outlined" onClick={initializeDB}>
-        Initialize DB
-      </Button>
-      <Button variant="outlined" color="secondary" onClick={deleteDB}>
-        Delete DB
-      </Button>
-      <Button onClick={getAllCars}>Get All Cars</Button>
-      <Collapse></Collapse>
-      <Button
-        onClick={() => {
-          console.log("state", state);
-          console.log(
-            "last state update time",
-            moment.unix(lastStateUpdateTime)._d
-          );
-        }}
-      >
-        Console.log(state)
-      </Button>
-      <Button variant="filled" color="primary" onClick={checkForNewData}>
-        Check for new data
-      </Button>
-      <Button onClick={testLatestPut}>update latest put</Button>
-      {state.map((metroCar) => {
-        return (
-          <Grid container>
-            <Grid item xs={6}>
-              {metroCar.heavy ? (
+      <div onClick={handleCollapse}>METRO APP</div>
+      {/* <Input
+        inputRef={inputRef}
+        onChange={() => console.log("inputString", inputRef.current.value)}
+      ></Input> */}
+      <Search
+        filteredCarState={filteredCarState}
+        setFilteredCarState={setFilteredCarState}
+        state={state}
+      />
+      <Collapse in={checked}>
+        <button
+          onClick={() => {
+            console.log("filteredCarState: ", filteredCarState);
+          }}
+        >
+          Filtered Car State
+        </button>
+        <div>
+          {"Last State Update Time: "}
+          {moment.unix(lastStateUpdateTime)._d.toString()}
+        </div>
+        <Button onClick={testBackend}>Test Backend (check console)</Button>
+        <Button variant="outlined" onClick={initializeDB}>
+          Initialize DB
+        </Button>
+        <Button variant="outlined" color="secondary" onClick={deleteDB}>
+          Delete DB
+        </Button>
+        <Button onClick={getAllCars}>Get All Cars</Button>
+
+        <Button
+          onClick={() => {
+            console.log("state", state);
+            console.log(
+              "last state update time",
+              moment.unix(lastStateUpdateTime)._d
+            );
+          }}
+        >
+          Console.log(state)
+        </Button>
+        <Button variant="filled" color="primary" onClick={checkForNewData}>
+          Check for new data
+        </Button>
+        <Button onClick={testLatestPut}>update latest put</Button>
+      </Collapse>
+      <Grid container>
+        <Grid item xs={12}>
+          {filteredCarState.map((metroCar) => {
+            return (
+              <Suspense fallback={<h1>Loading...</h1>}>
                 <MetroCar
                   key={metroCar.num}
                   getAllCars={getAllCars}
@@ -175,25 +220,12 @@ function MetroApp() {
                   clear={metroCar.clear}
                   keys={metroCar.keyz}
                 ></MetroCar>
-              ) : null}
-            </Grid>
-            <Grid item xs={6}>
-              {!metroCar.heavy ? (
-                <MetroCar
-                  key={metroCar.num}
-                  getAllCars={getAllCars}
-                  number={metroCar.num}
-                  key={metroCar.id}
-                  flashers={metroCar.flashers}
-                  heavy={metroCar.heavy}
-                  clear={metroCar.clear}
-                  keys={metroCar.keyz}
-                ></MetroCar>
-              ) : null}
-            </Grid>
-          </Grid>
-        );
-      })}
+              </Suspense>
+            );
+          })}
+        </Grid>
+      </Grid>
+      <MetroFooter />
     </div>
   );
 }
