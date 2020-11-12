@@ -128,6 +128,7 @@ function MetroApp() {
   };
 
   const deleteDB = () => {
+    console.log("deleteDB triggered")
     axios
       .delete("/api/deleteDB", {})
       .then((response) => {

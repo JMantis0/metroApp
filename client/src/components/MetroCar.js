@@ -110,7 +110,7 @@ const MetroCar = ({ number, heavy, keys, flashers, clear, getAllCars }) => {
                 <Switch
                   size="small"
                   checked={heavy}
-                  onChange={handleHeavyChange}
+                  onChange={toggleHeavyDB}
                   name="heavy"
                 />
               }
@@ -121,7 +121,7 @@ const MetroCar = ({ number, heavy, keys, flashers, clear, getAllCars }) => {
                 <Switch
                   size="small"
                   checked={flashers}
-                  onChange={handleFlashersChange}
+                  onChange={toggleFlashersDB}
                   name="flashers"
                 />
               }
@@ -138,7 +138,7 @@ const MetroCar = ({ number, heavy, keys, flashers, clear, getAllCars }) => {
               }
               label="Keys"
             />
-            <FormControlLabel
+            {/* <FormControlLabel
               control={
                 <Switch
                   size="small"
@@ -148,7 +148,7 @@ const MetroCar = ({ number, heavy, keys, flashers, clear, getAllCars }) => {
                 />
               }
               label="Empty"
-            />
+            /> */}
           </FormGroup>
           <FormHelperText></FormHelperText>
         </FormGroup>
