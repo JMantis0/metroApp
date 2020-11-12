@@ -16,7 +16,15 @@ import RadioGroup from "@material-ui/core/RadioGroup";
 
 import { makeStyles } from "@material-ui/core/styles";
 
-const MetroCar = ({ number, heavy, keys, flashers, clear, getAllCars }) => {
+const MetroCar = ({
+  number,
+  heavy,
+  keys,
+  flashers,
+  clear,
+  getAllCars,
+  volume,
+}) => {
   const [radioState, setRadioState] = useState(null);
 
   const useStyles = makeStyles(() => ({
@@ -66,8 +74,22 @@ const MetroCar = ({ number, heavy, keys, flashers, clear, getAllCars }) => {
   };
 
   const handleRadioChange = (event) => {
-    console.log(event.target.value);
     setRadioState(event.target.value);
+    axios
+      .put("/api/setVolumeRadio", {
+        newVolume: event.target.value,
+        num: number,
+      })
+      .then((setVolumeRadioResponse) => {
+        console.log("setVolumeRadioResponse: ", setVolumeRadioResponse);
+        getAllCars();
+      })
+      .catch((setVolumeRadioError) => {
+        console.log(
+          ("There was an error in the setVolumeRadio route: ",
+          setVolumeRadioError)
+        );
+      });
   };
 
   return (
@@ -77,14 +99,6 @@ const MetroCar = ({ number, heavy, keys, flashers, clear, getAllCars }) => {
         <Grid item>volume radio</Grid>
         <Grid item>keys</Grid>
       </Grid>
-      <FormControl>
-        <FormLabel>Volume</FormLabel>
-        <RadioGroup row onChange={handleRadioChange}>
-          <Radio value="light" />
-          <Radio value="heavy" />
-          <Radio value="empty" />
-        </RadioGroup>
-      </FormControl>
       <Paper>
         <FormGroup row>
           <FormLabel>
@@ -95,15 +109,23 @@ const MetroCar = ({ number, heavy, keys, flashers, clear, getAllCars }) => {
           !carState.flashersX &&
           !carState.keysX &&
           !carState.clearX
-            ? "Unchecked"
-            : carState.heavyX && carState.keysX
-            ? "Heavy (keys inside)"
-            : carState.heavyX && !carState.keysX
-            ? "Heavy (no keys)"
-            : carState.flashersX
-            ? "Consolidate"
-            : null} */}
+          ? "Unchecked"
+          : carState.heavyX && carState.keysX
+          ? "Heavy (keys inside)"
+          : carState.heavyX && !carState.keysX
+          ? "Heavy (no keys)"
+          : carState.flashersX
+          ? "Consolidate"
+        : null} */}
           </FormLabel>
+          <FormControl>
+            <FormLabel>Volume</FormLabel>
+            <RadioGroup row value={volume} onChange={handleRadioChange}>
+              <Radio value="light" />
+              <Radio value="heavy" />
+              <Radio value="empty" />
+            </RadioGroup>
+          </FormControl>
           <FormGroup row>
             <FormControlLabel
               control={

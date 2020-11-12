@@ -21,8 +21,8 @@ console.log(metroCarObject[0]["num"]);
 //  Developer Functions
 
 const displayLogs = (log) => {
-  return
-}
+  return;
+};
 
 const updateLatestPut = (res) => {
   const response = new Promise((resolve, reject) => {
@@ -163,6 +163,23 @@ router.put("/toggleHeavy", (req, res) => {
     .catch((sqlErr) => {
       console.log("There was an error in the toggleHeavy sql call: ", sqlErr);
       res.status(400).send(sqlErr);
+    });
+});
+
+router.put("/setVolumeRadio", (req, res) => {
+  console.log("setVolumeRadio route apiRoutes.js");
+  models.Car.update(
+    { volume: req.body.newVolume },
+    { where: { num: req.body.num } }
+  )
+    .then((setRadioRouteResponse) => {
+      console.log("setRadioRouteResponse", setRadioRouteResponse);
+      updateLatestPut(res);
+      res.status(200).send(setRadioRouteResponse);
+    })
+    .catch((setRadioSQLError) => {
+      console.log("There was a SQL error: ", setRadioSQLError);
+      res.status(400).send(setRadioSQLError);
     });
 });
 

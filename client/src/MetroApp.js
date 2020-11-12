@@ -234,6 +234,7 @@ function MetroApp() {
                   heavy={metroCar.heavy}
                   clear={metroCar.clear}
                   keys={metroCar.keyz}
+                  volume={metroCar.volume}
                 ></MetroCar>
               </Suspense>
             );
