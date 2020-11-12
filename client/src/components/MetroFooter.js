@@ -4,7 +4,7 @@ import Grid from "@material-ui/core/Grid";
 import BottomNavigation from "@material-ui/core/BottomNavigation";
 import BottomNavigationAction from "@material-ui/core/BottomNavigationAction";
 import FitnessCenterRoundedIcon from "@material-ui/icons/FitnessCenterRounded";
-import { makeStyles } from "@material-ui/core/Styles";
+import { makeStyles } from "@material-ui/core/styles";
 
 const MetroFooter = () => {
   const useStyles = makeStyles(() => ({
