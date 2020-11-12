@@ -125,30 +125,6 @@ const MetroCar = ({
               <Radio value="heavy" />
               <Radio value="empty" />
             </RadioGroup>
-          </FormControl>
-          <FormGroup row>
-            <FormControlLabel
-              control={
-                <Switch
-                  size="small"
-                  checked={heavy}
-                  onChange={toggleHeavyDB}
-                  name="heavy"
-                />
-              }
-              label="Heavy"
-            />
-            <FormControlLabel
-              control={
-                <Switch
-                  size="small"
-                  checked={flashers}
-                  onChange={toggleFlashersDB}
-                  name="flashers"
-                />
-              }
-              label="Light"
-            />
             <FormControlLabel
               control={
                 <Switch
@@ -160,19 +136,8 @@ const MetroCar = ({
               }
               label="Keys"
             />
-            {/* <FormControlLabel
-              control={
-                <Switch
-                  size="small"
-                  checked={keys}
-                  onChange={handleEmptyChange}
-                  name="empty"
-                />
-              }
-              label="Empty"
-            /> */}
-          </FormGroup>
-          <FormHelperText></FormHelperText>
+            <FormHelperText></FormHelperText>
+          </FormControl>
         </FormGroup>
       </Paper>
     </div>
