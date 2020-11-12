@@ -6,10 +6,10 @@ const Search = ({
   setFilteredCarState,
   getFilteredCars,
   onChange,
+  searchRef,
   state,
 }) => {
   const [inputState, setInputState] = useState("");
-  const searchRef = useRef("");
   let inputTimeout;
 
   const handleInputChange = (event) => {

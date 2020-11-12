@@ -6,6 +6,10 @@ module.exports = function(sequelize, DataTypes) {
       allowNull: false,
       unique: true,
     },
+    volume: {
+      type: DataTypes.TEXT,
+      allowNull: false,
+    },
     // The email cannot be null, and must be a proper email before creation
     heavy: {
       type: DataTypes.BOOLEAN,

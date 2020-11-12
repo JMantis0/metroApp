@@ -22,7 +22,9 @@ function MetroApp() {
   const [checked, setChecked] = useState(false);
   const [filteredCarState, setFilteredCarState] = useState([]);
   const [lastStateUpdateTime, setLastStateUpdateTime] = useState(0);
+  const searchRef = useRef("");
 
+  //  Onload, getAllCars one time.
   useEffect(() => {
     console.log("Getting car data");
     /**
@@ -37,7 +39,7 @@ function MetroApp() {
       // console.log("lastUpdateTime: ", lastStateUpdateTime);
       // console.log(checkForNewData());
       if (await checkForNewData()) {
-        console.log("inside true");
+        console.log("There is new Data");
         getAllCars();
       }
     }, 5000);
@@ -61,16 +63,17 @@ function MetroApp() {
 
   const handleCollapse = () => {
     console.log("inside handleCollapse");
-    console.log(checked)
+    console.log(checked);
     setChecked(!checked);
   };
 
   const checkForNewData = () => {
+    console.log("Checking for new data");
     return new Promise((resolve, reject) => {
       axios
         .get(`/api/checkForNewData/${lastStateUpdateTime}`)
         .then((dataCheckResponse) => {
-          // console.log("Response from Datacheck route: ", dataCheckResponse);
+          console.log("Response from Datacheck route: ", dataCheckResponse);
           const newData = dataCheckResponse.data.newData;
           // console.log("newData is:", newData);
           resolve(newData);
@@ -82,6 +85,11 @@ function MetroApp() {
           );
           reject(dataCheckErr);
         });
+    }).catch((promiseError) => {
+      console.log(
+        "there was an error in the checkForNewData promise",
+        promiseError
+      );
     });
   };
 
@@ -111,9 +119,13 @@ function MetroApp() {
       .then((allCars) => {
         console.log("Response from get all cars route: ", allCars.data);
         setState(allCars.data);
-        if (filteredCarState.length === 0) {
-          setFilteredCarState(allCars.data);
-        }
+        //get current input
+        //set filtered car state to be allCars.data with current filter applied.
+        setFilteredCarState(
+          allCars.data.filter((car) =>
+            car.num.includes(searchRef.current.value)
+          )
+        );
         setLastStateUpdateTime(Math.floor(Date.now() / 1000));
       })
       .catch((err) => {
@@ -122,6 +134,7 @@ function MetroApp() {
   };
 
   const deleteDB = () => {
+    console.log("deleteDB triggered");
     axios
       .delete("/api/deleteDB", {})
       .then((response) => {
@@ -164,6 +177,7 @@ function MetroApp() {
         onChange={() => console.log("inputString", inputRef.current.value)}
       ></Input> */}
       <Search
+        searchRef={searchRef}
         filteredCarState={filteredCarState}
         setFilteredCarState={setFilteredCarState}
         state={state}
@@ -200,17 +214,19 @@ function MetroApp() {
         >
           Console.log(state)
         </Button>
-        <Button variant="filled" color="primary" onClick={checkForNewData}>
+        <Button variant="contained" color="primary" onClick={checkForNewData}>
           Check for new data
         </Button>
         <Button onClick={testLatestPut}>update latest put</Button>
       </Collapse>
+
       <Grid container>
-        <Grid item xs={12}>
+        <Suspense fallback={<h1>Loading...</h1>}>
           {filteredCarState.map((metroCar) => {
             return (
-              <Suspense fallback={<h1>Loading...</h1>}>
+              <Grid item xs={4}>
                 <MetroCar
+                  state={state}
                   key={metroCar.num}
                   getAllCars={getAllCars}
                   number={metroCar.num}
@@ -219,11 +235,12 @@ function MetroApp() {
                   heavy={metroCar.heavy}
                   clear={metroCar.clear}
                   keys={metroCar.keyz}
+                  volume={metroCar.volume}
                 ></MetroCar>
-              </Suspense>
+              </Grid>
             );
           })}
-        </Grid>
+        </Suspense>
       </Grid>
       <MetroFooter />
     </div>

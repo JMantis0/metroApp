@@ -16,13 +16,15 @@ import RadioGroup from "@material-ui/core/RadioGroup";
 
 import { makeStyles } from "@material-ui/core/styles";
 
-const MetroCar = ({ number, heavy, keys, flashers, clear, getAllCars }) => {
-  const [carState, setCarState] = useState({
-    heavyX: heavy,
-    keysX: keys,
-    flashersX: flashers,
-    clearX: clear,
-  });
+const MetroCar = ({
+  number,
+  heavy,
+  keys,
+  flashers,
+  clear,
+  getAllCars,
+  volume,
+}) => {
   const [radioState, setRadioState] = useState(null);
 
   const useStyles = makeStyles(() => ({
@@ -34,10 +36,10 @@ const MetroCar = ({ number, heavy, keys, flashers, clear, getAllCars }) => {
 
   const toggleHeavyDB = () => {
     axios
-      .put("/api/toggleHeavy", { newHeavy: !carState.heavyX, num: number })
+      .put("/api/toggleHeavy", { newHeavy: !heavy, num: number })
       .then((response) => {
         console.log("Response from toggleHeavy", response);
-        // getAllCars();
+        getAllCars();
       })
       .catch((err) => {
         console.log("There was an error in the toggleHeavy route: ", err);
@@ -47,47 +49,19 @@ const MetroCar = ({ number, heavy, keys, flashers, clear, getAllCars }) => {
   const toggleFlashersDB = () => {
     axios
       .put("/api/toggleFlashers", {
-        newFlashers: !carState.flashersX,
+        newFlashers: !flashers,
         num: number,
       })
       .then((response) => {
         console.log("Response from toggleFlashers", response);
-        // getAllCars();
+        getAllCars();
       })
       .catch((err) => {
         console.log("There was an error in the toggleFlashers route: ", err);
       });
   };
 
-  const handleHeavyChange = () => {
-    console.log("carState", carState);
-    //  If currently false, then we are making it true.  So... set flashers (light) to false.
-    console.log(!carState.heavyX);
-    if (!carState.heavyX && carState.flashersX) {
-      console.log("inside !!!");
-      toggleHeavyDB();
-      toggleFlashersDB();
-      setCarState({ ...carState, flashersX: false, heavyX: !carState.heavyX });
-    } else {
-      toggleHeavyDB();
-      setCarState({ ...carState, heavyX: !carState.heavyX });
-    }
-  };
-
-  const handleEmptyChange = () => {};
-  const handleFlashersChange = () => {
-    if (!carState.flashersX && carState.heavyX) {
-      toggleFlashersDB();
-      toggleHeavyDB();
-      setCarState({ ...carState, flashersX: true, heavyX: !carState.heavyX });
-    } else {
-      toggleFlashersDB();
-      setCarState({ ...carState, flashersX: !carState.flashersX });
-    }
-  };
-
   const handleKeysChange = () => {
-    setCarState({ ...carState, keysX: !carState.keysX });
     axios
       .put("/api/toggleKeys", { newKeys: !keys, num: number })
       .then((response) => {
@@ -100,91 +74,71 @@ const MetroCar = ({ number, heavy, keys, flashers, clear, getAllCars }) => {
   };
 
   const handleRadioChange = (event) => {
-    console.log(event.target.value)
     setRadioState(event.target.value);
+    axios
+      .put("/api/setVolumeRadio", {
+        newVolume: event.target.value,
+        num: number,
+      })
+      .then((setVolumeRadioResponse) => {
+        console.log("setVolumeRadioResponse: ", setVolumeRadioResponse);
+        getAllCars();
+      })
+      .catch((setVolumeRadioError) => {
+        console.log(
+          ("There was an error in the setVolumeRadio route: ",
+          setVolumeRadioError)
+        );
+      });
   };
 
   return (
     <div>
-      <Grid container>
-        <Grid item>number</Grid>
-        <Grid item>volume radio</Grid>
-        <Grid item>keys</Grid>
-      </Grid>
-      <FormControl>
-        <FormLabel>Volume</FormLabel>
-        <RadioGroup row onChange={handleRadioChange}>
-          <Radio value="light" />
-          <Radio value="heavy" />
-          <Radio value="empty" />
-        </RadioGroup>
-      </FormControl>
+      {/* <Grid container>
+        <Grid xs={4} item>
+          number
+        </Grid>
+        <Grid xs={4} item>
+          volume radio
+        </Grid>
+        <Grid xs={4} item>
+          keys
+        </Grid>
+      </Grid> */}
       <Paper>
         <FormGroup row>
-          <FormLabel>
-            <LocalShippingRoundedIcon />
-            {number}
-            {/* {" "} */}
-            {/* {!carState.heavyX &&
-          !carState.flashersX &&
-          !carState.keysX &&
-          !carState.clearX
-            ? "Unchecked"
-            : carState.heavyX && carState.keysX
-            ? "Heavy (keys inside)"
-            : carState.heavyX && !carState.keysX
-            ? "Heavy (no keys)"
-            : carState.flashersX
-            ? "Consolidate"
-            : null} */}
-          </FormLabel>
-          <FormGroup row>
-            <FormControlLabel
-              control={
-                <Switch
-                  size="small"
-                  checked={carState.heavyX}
-                  onChange={handleHeavyChange}
-                  name="heavy"
-                />
-              }
-              label="Heavy"
-            />
-            <FormControlLabel
-              control={
-                <Switch
-                  size="small"
-                  checked={carState.flashersX}
-                  onChange={handleFlashersChange}
-                  name="flashers"
-                />
-              }
-              label="Light"
-            />
-            <FormControlLabel
-              control={
-                <Switch
-                  size="small"
-                  checked={carState.keysX}
-                  onChange={handleKeysChange}
-                  name="keys"
-                />
-              }
-              label="Keys"
-            />
-            <FormControlLabel
-              control={
-                <Switch
-                  size="small"
-                  checked={carState.keysX}
-                  onChange={handleEmptyChange}
-                  name="empty"
-                />
-              }
-              label="Empty"
-            />
-          </FormGroup>
-          <FormHelperText></FormHelperText>
+          <Grid container>
+            <Grid item xs={4}>
+              <FormLabel>
+                <LocalShippingRoundedIcon />
+                {number}
+              </FormLabel>
+            </Grid>
+            <Grid item xs={4}>
+              <FormLabel>Volume</FormLabel>
+              <RadioGroup row value={volume} onChange={handleRadioChange}>
+                <Radio value="heavy" />
+                <Radio value="light" />
+                <Radio value="empty" />
+              </RadioGroup>
+            </Grid>
+            <Grid item xs={4}>
+              <FormControlLabel
+                control={
+                  <Switch
+                    size="small"
+                    checked={keys}
+                    onChange={handleKeysChange}
+                    name="keys"
+                  />
+                }
+                label="Keys"
+              />
+            </Grid>
+          </Grid>
+          <FormControl>
+            <FormHelperText>Updated by: user at 5:00</FormHelperText>
+          </FormControl>
         </FormGroup>
       </Paper>
     </div>
