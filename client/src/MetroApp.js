@@ -68,11 +68,12 @@ function MetroApp() {
   };
 
   const checkForNewData = () => {
+    console.log("Checking for new data");
     return new Promise((resolve, reject) => {
       axios
         .get(`/api/checkForNewData/${lastStateUpdateTime}`)
         .then((dataCheckResponse) => {
-          // console.log("Response from Datacheck route: ", dataCheckResponse);
+          console.log("Response from Datacheck route: ", dataCheckResponse);
           const newData = dataCheckResponse.data.newData;
           // console.log("newData is:", newData);
           resolve(newData);
@@ -84,6 +85,11 @@ function MetroApp() {
           );
           reject(dataCheckErr);
         });
+    }).catch((promiseError) => {
+      console.log(
+        "there was an error in the checkForNewData promise",
+        promiseError
+      );
     });
   };
 
@@ -128,7 +134,7 @@ function MetroApp() {
   };
 
   const deleteDB = () => {
-    console.log("deleteDB triggered")
+    console.log("deleteDB triggered");
     axios
       .delete("/api/deleteDB", {})
       .then((response) => {

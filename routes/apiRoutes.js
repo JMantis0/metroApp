@@ -18,7 +18,13 @@ const metroCarObject = XLSX.utils.sheet_to_json(
 console.log(metroCarObject);
 console.log(metroCarObject[0]["num"]);
 
-const updateLatestPut = () => {
+//  Developer Functions
+
+const displayLogs = (log) => {
+  return
+}
+
+const updateLatestPut = (res) => {
   const response = new Promise((resolve, reject) => {
     models.LatestPut.update(
       { latestPut: moment().toString() },
@@ -28,26 +34,30 @@ const updateLatestPut = () => {
         console.log("response from latestPut update", response);
         resolve(response);
       })
-      .catch((latestPutErr) => {
-        console.log("Error in the latestPut call: ", latestPutErr);
-        reject(latestPutErr);
+      .catch((latestPutSQLErr) => {
+        console.log("Error in the latestPut call: ", latestPutSQLErr);
+        console.log("-----------------------------------------");
+        reject(latestPutSQLErr);
       });
+  }).catch((promiseError) => {
+    console.log("There was a promise error: ", promiseError);
+    res.status(400).send(promiseError);
   });
   console.log("response from updateLatestPut", response);
   return response;
 };
 
 router.put("/testLatestPut", (req, res) => {
-  updateLatestPut().then((response) =>
-    console.log("42updateLatestPut response", response)
-  );
+  updateLatestPut(res).then((response) => {
+    console.log("42updateLatestPut response", response);
+    res.status(202).send(response);
+  });
 });
 
 router.get("/test", (req, res) => {
   // Use a regular expression to search titles for req.query.q
   // using case insensitive match. https://docs.mongodb.com/manual/reference/operator/query/regex/index.html
   console.log("This is the test route");
-
   res.send(200);
 });
 
@@ -84,7 +94,7 @@ router.delete("/deleteDB", (req, res) => {
 router.get("/getAllCars", (req, res) => {
   console.log("getAllCars route apiRoutes.js");
   models.Car.findAll({})
-  //finds the whole set
+    //finds the whole set
     .then((response) => {
       // console.log("getAllCars response from MySQL: ", response);
       res.status(202).send(response);
@@ -141,7 +151,7 @@ router.put("/toggleHeavy", (req, res) => {
     }
   )
     .then((sqlResponse) => {
-      updateLatestPut().then((response) => {
+      updateLatestPut(res).then((response) => {
         console.log(
           "UpdateLatestPut response in toggleHeavy route: ",
           response
@@ -166,7 +176,7 @@ router.put("/toggleFlashers", (req, res) => {
     }
   )
     .then((sqlResponse) => {
-      updateLatestPut().then((response) => {
+      updateLatestPut(res).then((response) => {
         console.log(
           "UpdateLatestPut response in toggleHeavy route: ",
           response
@@ -194,7 +204,7 @@ router.put("/toggleKeys", (req, res) => {
     }
   )
     .then((sqlResponse) => {
-      updateLatestPut().then((response) => {
+      updateLatestPut(res).then((response) => {
         console.log(
           "UpdateLatestPut response in toggleHeavy route: ",
           response
