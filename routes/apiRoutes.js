@@ -17,12 +17,7 @@ const metroCarObject = XLSX.utils.sheet_to_json(
 );
 console.log(metroCarObject);
 console.log(metroCarObject[0]["num"]);
-
-//  Developer Functions
-
-const displayLogs = (log) => {
-  return;
-};
+console.log("********** HELLO  ***********\n**** YOU ARE DEVELOPING ******\n**** METRO APP, JESSE!! ******");
 
 const updateLatestPut = (res) => {
   const response = new Promise((resolve, reject) => {

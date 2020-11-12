@@ -214,16 +214,17 @@ function MetroApp() {
         >
           Console.log(state)
         </Button>
-        <Button variant="filled" color="primary" onClick={checkForNewData}>
+        <Button variant="contained" color="primary" onClick={checkForNewData}>
           Check for new data
         </Button>
         <Button onClick={testLatestPut}>update latest put</Button>
       </Collapse>
+
       <Grid container>
-        <Grid item xs={12}>
+        <Suspense fallback={<h1>Loading...</h1>}>
           {filteredCarState.map((metroCar) => {
             return (
-              <Suspense fallback={<h1>Loading...</h1>}>
+              <Grid item xs={4}>
                 <MetroCar
                   state={state}
                   key={metroCar.num}
@@ -236,10 +237,10 @@ function MetroApp() {
                   keys={metroCar.keyz}
                   volume={metroCar.volume}
                 ></MetroCar>
-              </Suspense>
+              </Grid>
             );
           })}
-        </Grid>
+        </Suspense>
       </Grid>
       <MetroFooter />
     </div>

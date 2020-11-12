@@ -94,49 +94,50 @@ const MetroCar = ({
 
   return (
     <div>
-      <Grid container>
-        <Grid item>number</Grid>
-        <Grid item>volume radio</Grid>
-        <Grid item>keys</Grid>
-      </Grid>
+      {/* <Grid container>
+        <Grid xs={4} item>
+          number
+        </Grid>
+        <Grid xs={4} item>
+          volume radio
+        </Grid>
+        <Grid xs={4} item>
+          keys
+        </Grid>
+      </Grid> */}
       <Paper>
         <FormGroup row>
-          <FormLabel>
-            <LocalShippingRoundedIcon />
-            {number}
-            {/* {" "} */}
-            {/* {!carState.heavyX &&
-          !carState.flashersX &&
-          !carState.keysX &&
-          !carState.clearX
-          ? "Unchecked"
-          : carState.heavyX && carState.keysX
-          ? "Heavy (keys inside)"
-          : carState.heavyX && !carState.keysX
-          ? "Heavy (no keys)"
-          : carState.flashersX
-          ? "Consolidate"
-        : null} */}
-          </FormLabel>
+          <Grid container>
+            <Grid item xs={4}>
+              <FormLabel>
+                <LocalShippingRoundedIcon />
+                {number}
+              </FormLabel>
+            </Grid>
+            <Grid item xs={4}>
+              <FormLabel>Volume</FormLabel>
+              <RadioGroup row value={volume} onChange={handleRadioChange}>
+                <Radio value="heavy" />
+                <Radio value="light" />
+                <Radio value="empty" />
+              </RadioGroup>
+            </Grid>
+            <Grid item xs={4}>
+              <FormControlLabel
+                control={
+                  <Switch
+                    size="small"
+                    checked={keys}
+                    onChange={handleKeysChange}
+                    name="keys"
+                  />
+                }
+                label="Keys"
+              />
+            </Grid>
+          </Grid>
           <FormControl>
-            <FormLabel>Volume</FormLabel>
-            <RadioGroup row value={volume} onChange={handleRadioChange}>
-              <Radio value="light" />
-              <Radio value="heavy" />
-              <Radio value="empty" />
-            </RadioGroup>
-            <FormControlLabel
-              control={
-                <Switch
-                  size="small"
-                  checked={keys}
-                  onChange={handleKeysChange}
-                  name="keys"
-                />
-              }
-              label="Keys"
-            />
-            <FormHelperText></FormHelperText>
+            <FormHelperText>Updated by: user at 5:00</FormHelperText>
           </FormControl>
         </FormGroup>
       </Paper>
