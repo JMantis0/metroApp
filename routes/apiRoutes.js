@@ -116,7 +116,7 @@ router.get("/checkForNewData/:latestRenderTime", (req, res) => {
   models.LatestPut.findAll({ where: { id: 1 } })
     .then((response) => {
       const updatedAtMoment = moment(response[0].dataValues.updatedAt);
-      console.log(`The last render was at ${frontEndMoment}`);
+      console.log(`The last user update was at ${frontEndMoment}`);
       console.log(`The latest db PUT was at ${updatedAtMoment}`);
       console.log(frontEndMoment.diff(updatedAtMoment, "seconds"));
       if (frontEndMoment.diff(updatedAtMoment, "seconds") <= 0) {

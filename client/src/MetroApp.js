@@ -4,7 +4,7 @@ import axios from "axios";
 import { useState, useEffect, useRef } from "react";
 //     Component imports
 // import MetroCar from "./components/MetroCar";
-import Search from "./components/Search";
+import MetroSearch from "./components/MetroSearch";
 //     Mui imports
 import Grid from "@material-ui/core/Grid";
 import Button from "@material-ui/core/Button";
@@ -176,7 +176,7 @@ function MetroApp() {
         inputRef={inputRef}
         onChange={() => console.log("inputString", inputRef.current.value)}
       ></Input> */}
-      <Search
+      <MetroSearch
         searchRef={searchRef}
         filteredCarState={filteredCarState}
         setFilteredCarState={setFilteredCarState}

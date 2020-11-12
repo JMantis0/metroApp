@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import Input from "@material-ui/core/Input";
 
-const Search = ({
+const MetroSearch = ({
   filteredCarState,
   setFilteredCarState,
   getFilteredCars,
@@ -30,4 +30,4 @@ const Search = ({
   );
 };
 
-export default Search;
+export default MetroSearch;
