@@ -24,13 +24,13 @@ function MetroApp() {
   const [lastStateUpdateTime, setLastStateUpdateTime] = useState(0);
   const searchRef = useRef("");
 
-  //  Onload, getAllCars one time.
+  //  Onload, getCarNumbers one time.
   useEffect(() => {
     console.log("Getting car data");
     /**
-     * getAllCars updates state and lastStateUpdateTime
+     * getCarNumbers updates state and lastStateUpdateTime
      */
-    getAllCars();
+    getCarNumbers();
   }, []);
 
   useEffect(() => {
@@ -40,7 +40,7 @@ function MetroApp() {
       // console.log(checkForNewData());
       if (await checkForNewData()) {
         console.log("There is new Data");
-        getAllCars();
+        getCarNumbers();
       }
     }, 5000);
     const cleanup = () => {
@@ -113,23 +113,26 @@ function MetroApp() {
       });
   };
 
-  const getAllCars = async () => {
+  const getCarNumbers = async () => {
+    console.log("Function getCarNumbers triggered");
     axios
-      .get("/api/getAllCars")
-      .then((allCars) => {
-        console.log("Response from get all cars route: ", allCars.data);
-        setState(allCars.data);
+      .get("/api/getCarNumbers")
+      .then((allCarNumbers) => {
+        console.log("Response from getCarNumbers route: ", allCarNumbers.data);
+        setState(allCarNumbers.data);
         //get current input
         //set filtered car state to be allCars.data with current filter applied.
-        setFilteredCarState(
-          allCars.data.filter((car) =>
-            car.num.includes(searchRef.current.value)
-          )
-        );
+
+
+        // setFilteredCarState(
+        //   allCars.data.filter((car) =>
+        //     car.num.includes(searchRef.current.value)
+        //   )
+        // );
         setLastStateUpdateTime(Math.floor(Date.now() / 1000));
       })
       .catch((err) => {
-        console.log("There was an error in the getAllCars route: ", err);
+        console.log("There was an error in the getCarNumbers route: ", err);
       });
   };
 
@@ -201,7 +204,7 @@ function MetroApp() {
         <Button variant="outlined" color="secondary" onClick={deleteDB}>
           Delete DB
         </Button>
-        <Button onClick={getAllCars}>Get All Cars</Button>
+        <Button onClick={getCarNumbers}>Get Car Numbers</Button>
 
         <Button
           onClick={() => {
@@ -228,7 +231,7 @@ function MetroApp() {
                 <MetroCar
                   state={state}
                   key={metroCar.num}
-                  getAllCars={getAllCars}
+                  getCarNumbers={getCarNumbers}
                   number={metroCar.num}
                   key={metroCar.id}
                   flashers={metroCar.flashers}

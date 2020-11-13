@@ -17,7 +17,9 @@ const metroCarObject = XLSX.utils.sheet_to_json(
 );
 console.log(metroCarObject);
 console.log(metroCarObject[0]["num"]);
-console.log("********** HELLO  ***********\n**** YOU ARE DEVELOPING ******\n**** METRO APP, JESSE!! ******");
+console.log(
+  "********** HELLO  ***********\n**** YOU ARE DEVELOPING ******\n**** METRO APP, JESSE!! ******"
+);
 
 const updateLatestPut = (res) => {
   const response = new Promise((resolve, reject) => {
@@ -41,6 +43,22 @@ const updateLatestPut = (res) => {
   console.log("response from updateLatestPut", response);
   return response;
 };
+
+//  This route will be used by each MetroCar individually to reduce mass renders
+router.get("/updateMetroCar/:carNumber", (req, res) => {
+  models.Car.findOne({ where: { num: req.params.carNumber } })
+    .then((car) => {
+      console.log("Car found: ", car);
+      res.status(202).send(car);
+    })
+    .catch((updateCarError) => {
+      console.log(
+        "There was an error in the updateMetroCar route: ",
+        updateCarError
+      );
+      res.status(400).send(updateCarError);
+    });
+});
 
 router.put("/testLatestPut", (req, res) => {
   updateLatestPut(res).then((response) => {
@@ -86,16 +104,18 @@ router.delete("/deleteDB", (req, res) => {
     });
 });
 
-router.get("/getAllCars", (req, res) => {
-  console.log("getAllCars route apiRoutes.js");
+router.get("/getCarNumbers", (req, res) => {
+  console.log("getCarNumbers route apiRoutes.js");
   models.Car.findAll({})
     //finds the whole set
-    .then((response) => {
-      // console.log("getAllCars response from MySQL: ", response);
-      res.status(202).send(response);
+    .then((allCars) => {
+      console.log("getCarNumbers response from MySQL: ", allCars);
+      const allCarNumbers = allCars.map((car) => car.dataValues.num);
+      console.log("numbers array is: ", allCarNumbers);
+      res.status(202).send(allCarNumbers);
     })
     .catch((err) => {
-      console.log("There was an error in the MySQL getAllCars route", err);
+      console.log("There was an error in the MySQL getCarNumbers route", err);
       res.status(400).send(err);
     });
 });

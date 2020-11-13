@@ -16,57 +16,69 @@ import RadioGroup from "@material-ui/core/RadioGroup";
 
 import { makeStyles } from "@material-ui/core/styles";
 
-const MetroCar = ({
-  number,
-  heavy,
-  keys,
-  flashers,
-  clear,
-  getAllCars,
-  volume,
-}) => {
+const MetroCar = ({ number }) => {
   const [radioState, setRadioState] = useState(null);
+  const [metroCarState, setMetroCarState] = useState({});
 
   const useStyles = makeStyles(() => ({
     root: {
       width: "100%",
     },
   }));
+
   const classes = useStyles();
+
+  //  This will be the updateState route
+  const updateMetroCarState = () => {
+    console.log("Function updateMetroCarState triggered.");
+    axios
+      .get(`/api/updateMetroCar/${number}`)
+      .then((updateCarResponse) => {
+        console.log(
+          "The response from updateMetroCar request is: ",
+          updateCarResponse
+        );
+      })
+      .catch((updateCarError) => {
+        console.log("Error from updateMetroCar route: ", updateCarError);
+      });
+  };
 
   const toggleHeavyDB = () => {
     axios
-      .put("/api/toggleHeavy", { newHeavy: !heavy, num: number })
+      .put("/api/toggleHeavy", { newHeavy: !metroCarState.heavy, num: number })
       .then((response) => {
         console.log("Response from toggleHeavy", response);
-        getAllCars();
+        updateMetroCarState();
       })
       .catch((err) => {
         console.log("There was an error in the toggleHeavy route: ", err);
       });
   };
 
-  const toggleFlashersDB = () => {
-    axios
-      .put("/api/toggleFlashers", {
-        newFlashers: !flashers,
-        num: number,
-      })
-      .then((response) => {
-        console.log("Response from toggleFlashers", response);
-        getAllCars();
-      })
-      .catch((err) => {
-        console.log("There was an error in the toggleFlashers route: ", err);
-      });
-  };
+  //  THIS ROUTE MAY BECOME OBSOLETE SOON
+  // const toggleFlashersDB = () => {
+  //   axios
+  //     .put("/api/toggleFlashers", {
+  //       newFlashers: !flashers,
+  //       num: number,
+  //     })
+  //     .then((response) => {
+  //       console.log("Response from toggleFlashers", response);
+  //       getAllCars();
+  //     })
+  //     .catch((err) => {
+  //       console.log("There was an error in the toggleFlashers route: ", err);
+  //     });
+  // };
 
   const handleKeysChange = () => {
     axios
-      .put("/api/toggleKeys", { newKeys: !keys, num: number })
+      .put("/api/toggleKeys", { newKeys: !metroCarState.keys, num: number })
       .then((response) => {
         console.log("Response from toggleKeys", response);
         // getAllCars();
+        
       })
       .catch((err) => {
         console.log("There was an error in the toggleKeys route: ", err);
@@ -82,7 +94,7 @@ const MetroCar = ({
       })
       .then((setVolumeRadioResponse) => {
         console.log("setVolumeRadioResponse: ", setVolumeRadioResponse);
-        getAllCars();
+        updateMetroCarState();
       })
       .catch((setVolumeRadioError) => {
         console.log(
@@ -116,7 +128,7 @@ const MetroCar = ({
             </Grid>
             <Grid item xs={4}>
               <FormLabel>Volume</FormLabel>
-              <RadioGroup row value={volume} onChange={handleRadioChange}>
+              <RadioGroup row value={metroCarState.volume} onChange={handleRadioChange}>
                 <Radio value="heavy" />
                 <Radio value="light" />
                 <Radio value="empty" />
@@ -127,7 +139,7 @@ const MetroCar = ({
                 control={
                   <Switch
                     size="small"
-                    checked={keys}
+                    checked={metroCarState.keys}
                     onChange={handleKeysChange}
                     name="keys"
                   />
