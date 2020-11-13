@@ -40,22 +40,23 @@ function MetroApp() {
     getCarNumbers();
   }, []);
 
-  useEffect(() => {
-    console.log("inside useEffect2");
-    const carTicker = setInterval(async () => {
-      // console.log("lastUpdateTime: ", lastStateUpdateTime);
-      // console.log(checkForNewData());
-      if (await checkForNewData()) {
-        console.log("There is new Data");
-        getCarNumbers();
-      }
-    }, 5000);
-    const cleanup = () => {
-      console.log("Cleaning up and clearing interval");
-      clearInterval(carTicker);
-    };
-    return cleanup;
-  }, [lastStateUpdateTime]);
+  // useEffect(() => {
+  //   console.log(
+  //     "UseEffect triggered from change to lastStateUpdateTime... setting new interval."
+  //   );
+  //   const carTicker = setInterval(async () => {
+  //     console.log("lastUpdateTime: ", lastStateUpdateTime);
+  //     console.log(checkForNewData());
+  //     if (await checkForNewData()) {
+  //       console.log("There is new Data");
+  //     }
+  //   }, 10000);
+  //   const cleanup = () => {
+  //     console.log("Cleaning up and clearing interval");
+  //     clearInterval(carTicker);
+  //   };
+  //   return cleanup;
+  // }, [lastStateUpdateTime]);
 
   const testBackend = () => {
     axios
@@ -74,31 +75,7 @@ function MetroApp() {
     setChecked(!checked);
   };
 
-  const checkForNewData = () => {
-    console.log("Checking for new data");
-    return new Promise((resolve, reject) => {
-      axios
-        .get(`/api/checkForNewData/${lastStateUpdateTime}`)
-        .then((dataCheckResponse) => {
-          console.log("Response from Datacheck route: ", dataCheckResponse);
-          const newData = dataCheckResponse.data.newData;
-          // console.log("newData is:", newData);
-          resolve(newData);
-        })
-        .catch((dataCheckErr) => {
-          console.log(
-            "There was an error in the dataCheck route",
-            dataCheckErr
-          );
-          reject(dataCheckErr);
-        });
-    }).catch((promiseError) => {
-      console.log(
-        "there was an error in the checkForNewData promise",
-        promiseError
-      );
-    });
-  };
+  
 
   const initializeDB = () => {
     axios
@@ -130,13 +107,11 @@ function MetroApp() {
         //get current input
         //set filtered car state to be allCars.data with current filter applied.
 
-
         // setFilteredCarState(
         //   allCars.data.filter((car) =>
         //     car.num.includes(searchRef.current.value)
         //   )
         // );
-        setLastStateUpdateTime(Math.floor(Date.now() / 1000));
       })
       .catch((err) => {
         console.log("There was an error in the getCarNumbers route: ", err);
@@ -177,7 +152,6 @@ function MetroApp() {
   //   console.log("childData is false");
   //   return state;
   // };
-
   return (
     <div className="App">
       <CssBaseline />
@@ -224,22 +198,25 @@ function MetroApp() {
         >
           Console.log(state)
         </Button>
-        <Button variant="contained" color="primary" onClick={checkForNewData}>
+        {/* <Button variant="contained" color="primary" onClick={checkForNewData}>
           Check for new data
-        </Button>
+        </Button> */}
         <Button onClick={testLatestPut}>update latest put</Button>
       </Collapse>
 
       <Grid container>
         <Suspense fallback={<h1>Loading...</h1>}>
-          {filteredCarState.map((metroCar) => {
+          {state.map((carData) => {
             return (
-              <Grid item xs={4}>
+              <Grid item xs={6}>
                 <MetroCar
+                  key={carData.number}
+                  updatedAt={carData.updatedAt}
+                  setLastStateUpdateTime={setLastStateUpdateTime}
+                  number={carData.number}
+                  volume={carData.volume}
+                  keys={carData.keys}
                   getCarNumbers={getCarNumbers}
-                  key={metroCar.id}
-                  keys={metroCar.keyz}
-                  volume={metroCar.volume}
                 ></MetroCar>
               </Grid>
             );

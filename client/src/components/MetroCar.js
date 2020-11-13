@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useMemo } from "react";
 
 import axios from "axios";
 
@@ -16,10 +16,14 @@ import RadioGroup from "@material-ui/core/RadioGroup";
 
 import { makeStyles } from "@material-ui/core/styles";
 
-const MetroCar = ({ number }) => {
-  const [radioState, setRadioState] = useState(null);
+const MetroCar = ({
+  number,
+  keys,
+  volume,
+  updatedAt,
+  setLastStateUpdateTime,
+}) => {
   const [metroCarState, setMetroCarState] = useState({});
-
   const useStyles = makeStyles(() => ({
     root: {
       width: "100%",
@@ -28,57 +32,95 @@ const MetroCar = ({ number }) => {
 
   const classes = useStyles();
 
+  useEffect(() => {}, []);
+
+  // useEffect(() => {
+  //   console.log(
+  //     "UseEffect triggered from change to lastStateUpdateTime... setting new interval."
+  //   );
+  //   const carTicker = setInterval(async () => {
+  //     console.log("lastUpdateTime: ", metroCarState.updatedAt);
+  //     console.log(checkForNewData());
+  //     if (await checkForNewData()) {
+  //       console.log("There is new Data");
+  //     }
+  //   }, 10000);
+  //   const cleanup = () => {
+  //     console.log("Cleaning up and clearing interval");
+  //     clearInterval(carTicker);
+  //   };
+  //   return cleanup;
+  // }, [metroCarState]);
+
+  // const checkForNewData = () => {
+  //   console.log("Checking for new data");
+  //   return new Promise((resolve, reject) => {
+  //     axios
+  //       .get(`/api/checkForNewData/${metroCarState.updatedAt}`)
+  //       .then((dataCheckResponse) => {
+  //         console.log("Response from Datacheck route: ", dataCheckResponse);
+  //         const newData = dataCheckResponse.data.newData;
+  //         // console.log("newData is:", newData);
+  //         resolve(newData);
+  //       })
+  //       .catch((dataCheckErr) => {
+  //         console.log(
+  //           "There was an error in the dataCheck route",
+  //           dataCheckErr
+  //         );
+  //         reject(dataCheckErr);
+  //       });
+  //   }).catch((promiseError) => {
+  //     console.log(
+  //       "there was an error in the checkForNewData promise",
+  //       promiseError
+  //     );
+  //   });
+  // };
+
+  // const initialState =
+  useMemo(() => {
+    console.log("inside useMemo");
+    setMetroCarState({
+      carNumber: number,
+      carKeys: keys,
+      carVolume: volume,
+      carUpdatedAt: updatedAt,
+    });
+  }, []);
+
   //  This will be the updateState route
   const updateMetroCarState = () => {
-    console.log("Function updateMetroCarState triggered.");
+    console.log("Function updateMetroCarState triggered for car", number);
     axios
       .get(`/api/updateMetroCar/${number}`)
       .then((updateCarResponse) => {
         console.log(
-          "The response from updateMetroCar request is: ",
+          "The response from updateMetroCar for car " +
+            number +
+            " request is: ",
           updateCarResponse
         );
+        setMetroCarState({
+          ...metroCarState,
+          carVolume: updateCarResponse.data.volume,
+        });
       })
       .catch((updateCarError) => {
         console.log("Error from updateMetroCar route: ", updateCarError);
       });
   };
 
-  const toggleHeavyDB = () => {
+  const handleKeysChange = (event) => {
+    console.log("event.target.value", event);
+    console.log("metroCarState.keys", metroCarState.carKeys);
+    const newCarKeysValue = !metroCarState.carKeys;
     axios
-      .put("/api/toggleHeavy", { newHeavy: !metroCarState.heavy, num: number })
-      .then((response) => {
-        console.log("Response from toggleHeavy", response);
-        updateMetroCarState();
-      })
-      .catch((err) => {
-        console.log("There was an error in the toggleHeavy route: ", err);
-      });
-  };
-
-  //  THIS ROUTE MAY BECOME OBSOLETE SOON
-  // const toggleFlashersDB = () => {
-  //   axios
-  //     .put("/api/toggleFlashers", {
-  //       newFlashers: !flashers,
-  //       num: number,
-  //     })
-  //     .then((response) => {
-  //       console.log("Response from toggleFlashers", response);
-  //       getAllCars();
-  //     })
-  //     .catch((err) => {
-  //       console.log("There was an error in the toggleFlashers route: ", err);
-  //     });
-  // };
-
-  const handleKeysChange = () => {
-    axios
-      .put("/api/toggleKeys", { newKeys: !metroCarState.keys, num: number })
+      .put("/api/toggleKeys", { newKeys: !metroCarState.carKeys, num: number })
       .then((response) => {
         console.log("Response from toggleKeys", response);
-        // getAllCars();
-        
+        setMetroCarState({ ...metroCarState, carKeys: newCarKeysValue });
+        setLastStateUpdateTime(Math.floor(Date.now() / 1000));
       })
       .catch((err) => {
         console.log("There was an error in the toggleKeys route: ", err);
@@ -86,15 +128,17 @@ const MetroCar = ({ number }) => {
   };
 
   const handleRadioChange = (event) => {
-    setRadioState(event.target.value);
+    const newRadioValue = event.target.value;
+    console.log("newRadioValue: ", newRadioValue);
     axios
       .put("/api/setVolumeRadio", {
-        newVolume: event.target.value,
+        newVolume: newRadioValue,
         num: number,
       })
       .then((setVolumeRadioResponse) => {
         console.log("setVolumeRadioResponse: ", setVolumeRadioResponse);
-        updateMetroCarState();
+        setMetroCarState({ ...metroCarState, carVolume: newRadioValue });
+        setLastStateUpdateTime(Math.floor(Date.now() / 1000));
       })
       .catch((setVolumeRadioError) => {
         console.log(
@@ -128,18 +172,28 @@ const MetroCar = ({ number }) => {
             </Grid>
             <Grid item xs={4}>
               <FormLabel>Volume</FormLabel>
-              <RadioGroup row value={metroCarState.volume} onChange={handleRadioChange}>
-                <Radio value="heavy" />
-                <Radio value="light" />
-                <Radio value="empty" />
-              </RadioGroup>
+              <FormControlLabel
+                control={
+                  <RadioGroup
+                    row
+                    value={metroCarState.carVolume}
+                    onChange={handleRadioChange}
+                  >
+                    <Radio value="unchecked" />
+                    <Radio value="heavy" />
+                    <Radio value="light" />
+                    <Radio value="empty" />
+                  </RadioGroup>
+                }
+                label="Volume"
+              />
             </Grid>
             <Grid item xs={4}>
               <FormControlLabel
                 control={
                   <Switch
                     size="small"
-                    checked={metroCarState.keys}
+                    checked={metroCarState.carKeys}
                     onChange={handleKeysChange}
                     name="keys"
                   />
@@ -149,7 +203,9 @@ const MetroCar = ({ number }) => {
             </Grid>
           </Grid>
           <FormControl>
-            <FormHelperText>Updated by: user at 5:00</FormHelperText>
+            <FormHelperText>
+              Updated at: {metroCarState.carUpdatedAt}{" "}
+            </FormHelperText>
           </FormControl>
         </FormGroup>
       </Paper>

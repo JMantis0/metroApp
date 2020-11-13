@@ -110,7 +110,14 @@ router.get("/getCarNumbers", (req, res) => {
     //finds the whole set
     .then((allCars) => {
       console.log("getCarNumbers response from MySQL: ", allCars);
-      const allCarNumbers = allCars.map((car) => car.dataValues.num);
+      const allCarNumbers = allCars.map((car) => {
+        return {
+          number: car.dataValues.num,
+          volume: car.dataValues.volume,
+          keys: car.dataValues.keyz,
+          updatedAt: car.dataValues.updatedAt
+        };
+      });
       console.log("numbers array is: ", allCarNumbers);
       res.status(202).send(allCarNumbers);
     })
