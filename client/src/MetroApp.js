@@ -18,10 +18,17 @@ import moment from "moment";
 const MetroCar = lazy(() => import("./components/MetroCar"));
 
 function MetroApp() {
+  //  Stores all car numbers
   const [state, setState] = useState([]);
+  //  used for the secret Dev Collapse
   const [checked, setChecked] = useState(false);
+  //  Used for filtering MetroCars
   const [filteredCarState, setFilteredCarState] = useState([]);
+  //  used to store the last time the state was update
+  //  DEPRECATING SOON
   const [lastStateUpdateTime, setLastStateUpdateTime] = useState(0);
+
+  //  Ref passed into the search components
   const searchRef = useRef("");
 
   //  Onload, getCarNumbers one time.
@@ -229,14 +236,8 @@ function MetroApp() {
             return (
               <Grid item xs={4}>
                 <MetroCar
-                  state={state}
-                  key={metroCar.num}
                   getCarNumbers={getCarNumbers}
-                  number={metroCar.num}
                   key={metroCar.id}
-                  flashers={metroCar.flashers}
-                  heavy={metroCar.heavy}
-                  clear={metroCar.clear}
                   keys={metroCar.keyz}
                   volume={metroCar.volume}
                 ></MetroCar>
