@@ -75,8 +75,6 @@ function MetroApp() {
     setChecked(!checked);
   };
 
-  
-
   const initializeDB = () => {
     axios
       .post("/api/initializeDB", {})
@@ -104,6 +102,7 @@ function MetroApp() {
       .then((allCarNumbers) => {
         console.log("Response from getCarNumbers route: ", allCarNumbers.data);
         setState(allCarNumbers.data);
+        setFilteredCarState(allCarNumbers.data);
         //get current input
         //set filtered car state to be allCars.data with current filter applied.
 
@@ -140,6 +139,11 @@ function MetroApp() {
       .catch((err) => {
         console.log("Error in the testLatestPut route: ", err);
       });
+  };
+
+  const changeOneCar = () => {
+    // setState({...state, state[0].volume: "empty"})
+    setState(...state, state[Object.keys(state)[0]]: { carVolume: "heavy" });
   };
 
   // const getFilteredCars = (childData) => {
@@ -190,10 +194,8 @@ function MetroApp() {
         <Button
           onClick={() => {
             console.log("state", state);
-            console.log(
-              "last state update time",
-              moment.unix(lastStateUpdateTime)._d
-            );
+            console.log(state["130598"]);
+            console.log("last state update time", lastStateUpdateTime);
           }}
         >
           Console.log(state)
@@ -202,20 +204,23 @@ function MetroApp() {
           Check for new data
         </Button> */}
         <Button onClick={testLatestPut}>update latest put</Button>
+        <Button onClick={changeOneCar}>ChangeOneCar</Button>
       </Collapse>
 
       <Grid container>
         <Suspense fallback={<h1>Loading...</h1>}>
-          {state.map((carData) => {
+          {/* Perhaps rendering directly from state is not the best way
+          and perhaps state should be defined as an object not an array */}
+          {Object.keys(filteredCarState).map((key) => {
             return (
-              <Grid item xs={6}>
+              <Grid item xs={12}>
                 <MetroCar
-                  key={carData.number}
-                  updatedAt={carData.updatedAt}
+                  key={filteredCarState[key].number}
+                  updatedAt={filteredCarState[key].updatedAt}
                   setLastStateUpdateTime={setLastStateUpdateTime}
-                  number={carData.number}
-                  volume={carData.volume}
-                  keys={carData.keys}
+                  number={filteredCarState[key].number}
+                  volume={filteredCarState[key].volume}
+                  keys={filteredCarState[key].keys}
                   getCarNumbers={getCarNumbers}
                 ></MetroCar>
               </Grid>

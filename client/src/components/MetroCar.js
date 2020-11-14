@@ -32,7 +32,9 @@ const MetroCar = ({
 
   const classes = useStyles();
 
-  useEffect(() => {}, []);
+  useEffect(() => {
+    console.log("This car is number", number, keys, volume);
+  }, []);
 
   // useEffect(() => {
   //   console.log(
@@ -104,7 +106,10 @@ const MetroCar = ({
         setMetroCarState({
           ...metroCarState,
           carVolume: updateCarResponse.data.volume,
+          carKeys: updateCarResponse.data.keys,
+          carUpdatedAt: updateCarResponse.data.updatedAt,
         });
+        setLastStateUpdateTime(updateCarResponse.data.updatedAt);
       })
       .catch((updateCarError) => {
         console.log("Error from updateMetroCar route: ", updateCarError);
@@ -119,8 +124,11 @@ const MetroCar = ({
       .put("/api/toggleKeys", { newKeys: !metroCarState.carKeys, num: number })
       .then((response) => {
         console.log("Response from toggleKeys", response);
-        setMetroCarState({ ...metroCarState, carKeys: newCarKeysValue });
-        setLastStateUpdateTime(Math.floor(Date.now() / 1000));
+        setMetroCarState({
+          ...metroCarState,
+          carKeys: response.data.keyz,
+          carUpdatedAt: response.data.updatedAt,
+        });
       })
       .catch((err) => {
         console.log("There was an error in the toggleKeys route: ", err);
@@ -137,8 +145,12 @@ const MetroCar = ({
       })
       .then((setVolumeRadioResponse) => {
         console.log("setVolumeRadioResponse: ", setVolumeRadioResponse);
-        setMetroCarState({ ...metroCarState, carVolume: newRadioValue });
-        setLastStateUpdateTime(Math.floor(Date.now() / 1000));
+        setMetroCarState({
+          ...metroCarState,
+          carVolume: setVolumeRadioResponse.data.volume,
+          carUpdatedAt: setVolumeRadioResponse.data.updatedAt,
+        });
+        setLastStateUpdateTime(setVolumeRadioResponse.data.updatedAt);
       })
       .catch((setVolumeRadioError) => {
         console.log(
@@ -162,6 +174,13 @@ const MetroCar = ({
         </Grid>
       </Grid> */}
       <Paper>
+        <button
+          onClick={() => {
+            console.log("metroCarState:", metroCarState);
+          }}
+        >
+          car state
+        </button>
         <FormGroup row>
           <Grid container>
             <Grid item xs={4}>

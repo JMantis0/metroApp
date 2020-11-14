@@ -110,16 +110,19 @@ router.get("/getCarNumbers", (req, res) => {
     //finds the whole set
     .then((allCars) => {
       console.log("getCarNumbers response from MySQL: ", allCars);
-      const allCarNumbers = allCars.map((car) => {
-        return {
+
+      const carObject = {};
+
+      allCars.forEach((car) => {
+        carObject[car.dataValues.num] = {
           number: car.dataValues.num,
           volume: car.dataValues.volume,
           keys: car.dataValues.keyz,
-          updatedAt: car.dataValues.updatedAt
+          updatedAt: car.dataValues.updatedAt,
         };
       });
-      console.log("numbers array is: ", allCarNumbers);
-      res.status(202).send(allCarNumbers);
+      console.log("numbers array is !!!!: ", carObject);
+      res.status(202).send(carObject);
     })
     .catch((err) => {
       console.log("There was an error in the MySQL getCarNumbers route", err);
@@ -195,9 +198,24 @@ router.put("/setVolumeRadio", (req, res) => {
     { where: { num: req.body.num } }
   )
     .then((setRadioRouteResponse) => {
+      models.Car.findOne({ where: { num: req.body.num } }).then((car) => {
+        console.log("The volume was just updated for car: ", car);
+        updateLatestPut(res)
+          .then((response) => {
+            console.log(
+              "UpdateLatestPut response in toggleHeavy route: ",
+              response
+            );
+            res.status(200).send(car);
+          })
+          .catch((err) => {
+            console.log("There was an error: ", err);
+            res.status(400).send(err);
+          });
+      });
+
       console.log("setRadioRouteResponse", setRadioRouteResponse);
       updateLatestPut(res);
-      res.status(200).send(setRadioRouteResponse);
     })
     .catch((setRadioSQLError) => {
       console.log("There was a SQL error: ", setRadioSQLError);
@@ -236,6 +254,7 @@ router.put("/toggleFlashers", (req, res) => {
 router.put("/toggleKeys", (req, res) => {
   console.log("toggleKeys route apiRoutes.js");
   console.log("req.body.num: ", req.body.num);
+  //  First update the key status
   models.Car.update(
     { keyz: req.body.newKeys },
     {
@@ -243,14 +262,24 @@ router.put("/toggleKeys", (req, res) => {
     }
   )
     .then((sqlResponse) => {
-      updateLatestPut(res).then((response) => {
-        console.log(
-          "UpdateLatestPut response in toggleHeavy route: ",
-          response
-        );
+      //  Then find the car that was just updated
+      models.Car.findOne({ where: { num: req.body.num } }).then((car) => {
+        console.log("The keys were just updated for car: ", car);
+        updateLatestPut(res)
+          .then((response) => {
+            console.log(
+              "UpdateLatestPut response in toggleHeavy route: ",
+              response
+            );
+            res.status(200).send(car);
+          })
+          .catch((err) => {
+            console.log("There was an error: ", err);
+            res.status(400).send(err);
+          });
       });
-      console.log("sqlResponse toggleKeys route: ", sqlResponse);
-      res.status(201).send(sqlResponse);
+      // console.log("sqlResponse toggleKeys route: ", sqlResponse);
+      // res.status(201).send(sqlResponse);
     })
     .catch((sqlErr) => {
       console.log("There was an error in the toggleKeys sql call: ", sqlErr);
