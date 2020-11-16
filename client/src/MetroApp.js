@@ -39,11 +39,11 @@ function MetroApp() {
   //  Onload, getCarNumbers one time.
   useEffect(() => {
     console.log("Getting car data");
-    getCarNumbers();
+    requestMetroCarDataAndSetStates();
   }, []);
 
-  const getCarNumbers = async () => {
-    console.log("Function getCarNumbers triggered");
+  const requestMetroCarDataAndSetStates = async () => {
+    console.log("Client requesting Metro Car data...");
     axios
       .get("/api/getCarNumbers")
       .then((allCarNumbers) => {
@@ -228,7 +228,7 @@ function MetroApp() {
         <Button variant="outlined" color="secondary" onClick={deleteDB}>
           Delete DB
         </Button>
-        <Button onClick={getCarNumbers}>Get Car Numbers</Button>
+        <Button onClick={requestMetroCarDataAndSetStates}>Get Car Numbers</Button>
 
         <Button
           onClick={() => {
