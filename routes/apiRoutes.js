@@ -5,10 +5,7 @@ const axios = require("axios");
 const Sequelize = require("sequelize");
 const moment = require("moment");
 moment().format();
-// apiKey = process.env.APIKEY;
-// const db = require("../models");
 
-// sheetjs xlsx
 const XLSX = require("xlsx");
 const metroBook = XLSX.readFile("./Master Car List.xlsx");
 const sheet_name_list = metroBook.SheetNames;
@@ -18,7 +15,13 @@ const metroCarObject = XLSX.utils.sheet_to_json(
 console.log(metroCarObject);
 console.log(metroCarObject[0]["num"]);
 console.log(
+  `███████████████████████████████████████████████████████████████████`
+);
+console.log(
   "********** HELLO  ***********\n**** YOU ARE DEVELOPING ******\n**** METRO APP, JESSE!! ******"
+);
+console.log(
+  `███████████████████████████████████████████████████████████████████`
 );
 
 const updateLatestPut = (res) => {
@@ -92,12 +95,18 @@ router.get("/test", (req, res) => {
 });
 
 router.post("/initializeDB", (req, res) => {
-  console.log("initializing the db");
-
+  console.log(
+    `███████████████████████████████████████████████████████████████████`
+  );
+  console.log(
+    `███████████████████████████████████████████████████████████████████`
+  );
+  console.log(`POST request from client: /api/initializeDB`);
+  console.log("Initializing the db...");
   models.Car.bulkCreate(metroCarObject)
     .then((response) => {
-      console.log("response from MySQL initilize route", { response });
-      res.send({ response });
+      console.log("Database initialized.  Sending response to client.");
+      res.sendStatus(200);
     })
     .catch((err) => {
       console.log("There was an error in the initialize route: ", { err });
@@ -112,7 +121,7 @@ router.delete("/deleteDB", (req, res) => {
   console.log(
     `███████████████████████████████████████████████████████████████████`
   );
-  console.log(`DELETE request from client: /api/gedeleteDB`);
+  console.log(`DELETE request from client: /api/deleteDB`);
   console.log("Removing all records in Car table...");
   models.Car.destroy({
     where: {},
@@ -122,11 +131,11 @@ router.delete("/deleteDB", (req, res) => {
       console.log(
         "All Car records destroyed.  Sending Sequelize response to client."
       );
-      res.status(201).send(response);
+      res.sendStatus(202);
     })
     .catch((err) => {
-      console.log("There was an error in the delete route: ", { err });
-      res.status(400).send({ err });
+      console.log("There was an error in the delete route: ", err);
+      res.status(400).send(err);
     });
 });
 
@@ -170,7 +179,7 @@ router.get("/checkForNewData/:lastStateUpdateTime", (req, res) => {
     `███████████████████████████████████████████████████████████████████`
   );
   console.log(
-    `GET request from client: /api/checkForNewData/${req.body.lastStateUpdateTime}}`
+    `GET request from client: /api/checkForNewData/${req.params.lastStateUpdateTime}}`
   );
   const frontEndMoment = moment.unix(req.params.lastStateUpdateTime);
   console.log(
@@ -209,7 +218,7 @@ router.get("/getOutOfDateCars/:lastStateUpdateTime", (req, res) => {
     `███████████████████████████████████████████████████████████████████`
   );
   console.log(
-    `GET request from client: /api/getOutOfDateCars/${req.body.lastStateUpdateTime}}`
+    `GET request from client: /api/getOutOfDateCars/${req.params.lastStateUpdateTime}`
   );
   console.log(`Checking database for updatedAt values...`);
   const lastStateUpdateTime = req.params.lastStateUpdateTime;
