@@ -1,10 +1,15 @@
-import React, { Suspense, lazy } from "react";
+import React, {
+  Suspense,
+  lazy,
+  useState,
+  useEffect,
+  useRef,
+  useMemo,
+} from "react";
 import "./MetroApp.css";
 import axios from "axios";
-import { useState, useEffect, useRef } from "react";
 //     Component imports
-// import MetroCar from "./components/MetroCar";
-import Search from "./components/Search";
+import MetroSearch from "./components/MetroSearch";
 //     Mui imports
 import Grid from "@material-ui/core/Grid";
 import Button from "@material-ui/core/Button";
@@ -18,29 +23,51 @@ import moment from "moment";
 const MetroCar = lazy(() => import("./components/MetroCar"));
 
 function MetroApp() {
+  //  Stores all car numbers
   const [state, setState] = useState([]);
+  //  used for the secret Dev Collapse
   const [checked, setChecked] = useState(false);
+  //  Used for filtering MetroCars
   const [filteredCarState, setFilteredCarState] = useState([]);
-  const [lastStateUpdateTime, setLastStateUpdateTime] = useState(0);
+  //  used to store the last time the state was update
+  //  DEPRECATING SOON
+  const [lastStateUpdateTime, setLastStateUpdateTime] = useState(
+    moment().unix()
+  );
+  const [carsNeedingUpdate, setCarsNeedingUpdate] = useState([]);
+  //  Ref passed into the search components
   const searchRef = useRef("");
 
-  //  Onload, getAllCars one time.
+  //  Onload, getCarNumbers one time.
   useEffect(() => {
     console.log("Getting car data");
-    /**
-     * getAllCars updates state and lastStateUpdateTime
-     */
-    getAllCars();
+    requestMetroCarDataAndSetStates();
   }, []);
 
+  const requestMetroCarDataAndSetStates = async () => {
+    console.log("Client requesting Metro Car data...");
+    axios
+      .get("/api/getCarNumbers")
+      .then((allCarNumbers) => {
+        console.log("Response from getCarNumbers route: ", allCarNumbers.data);
+        setState(allCarNumbers.data);
+        setFilteredCarState(allCarNumbers.data);
+      })
+      .catch((err) => {
+        console.log("There was an error in the getCarNumbers route: ", err);
+      });
+  };
+
   useEffect(() => {
-    console.log("inside useEffect2");
+    console.log(
+      "UseEffect triggered from change to lastStateUpdateTime... setting new interval."
+    );
     const carTicker = setInterval(async () => {
-      // console.log("lastUpdateTime: ", lastStateUpdateTime);
-      // console.log(checkForNewData());
-      if (await checkForNewData()) {
+      console.log("lastUpdateTime: ", lastStateUpdateTime);
+      const thereIsNewData = await checkForNewData();
+      console.log("thereIsNewData", thereIsNewData);
+      if (thereIsNewData) {
         console.log("There is new Data");
-        getAllCars();
       }
     }, 5000);
     const cleanup = () => {
@@ -49,6 +76,44 @@ function MetroApp() {
     };
     return cleanup;
   }, [lastStateUpdateTime]);
+
+  const checkForNewData = async () => {
+    console.log("Checking for new data", lastStateUpdateTime);
+
+    axios
+      .get(`/api/checkForNewData/${lastStateUpdateTime}`)
+      .then((dataCheckResponse) => {
+        console.log("dataCheckResponse ", dataCheckResponse);
+        const newData = dataCheckResponse.data.newData;
+        console.log("newData is:", newData);
+        if (newData) {
+          console.log(
+            `Now get the data only for the cars that have new data, updated after ${lastStateUpdateTime}`
+          );
+          getOutOfDateCars();
+        }
+        return newData;
+      })
+      .catch((dataCheckErr) => {
+        console.log("There was an error in the dataCheck route", dataCheckErr);
+      });
+  };
+
+  const getOutOfDateCars = () => {
+    axios
+      .get(`/api/getOutOfDateCars/${lastStateUpdateTime}`)
+      .then((carsToBeUpdated) => {
+        console.log("Array of cars to be updated: ", carsToBeUpdated.data);
+        console.log(carsToBeUpdated.data.length);
+        if (carsToBeUpdated.data.length !== 0) {
+          //  Changing this state automatically causes each MetroCar to run getNewMetroCarData
+          setCarsNeedingUpdate(carsToBeUpdated.data);
+        }
+      })
+      .catch((error) => {
+        console.log("There was an error: ", error);
+      });
+  };
 
   const testBackend = () => {
     axios
@@ -63,34 +128,8 @@ function MetroApp() {
 
   const handleCollapse = () => {
     console.log("inside handleCollapse");
-    console.log(checked);
+    console.log("current state", checked, "new state", !checked);
     setChecked(!checked);
-  };
-
-  const checkForNewData = () => {
-    console.log("Checking for new data");
-    return new Promise((resolve, reject) => {
-      axios
-        .get(`/api/checkForNewData/${lastStateUpdateTime}`)
-        .then((dataCheckResponse) => {
-          console.log("Response from Datacheck route: ", dataCheckResponse);
-          const newData = dataCheckResponse.data.newData;
-          // console.log("newData is:", newData);
-          resolve(newData);
-        })
-        .catch((dataCheckErr) => {
-          console.log(
-            "There was an error in the dataCheck route",
-            dataCheckErr
-          );
-          reject(dataCheckErr);
-        });
-    }).catch((promiseError) => {
-      console.log(
-        "there was an error in the checkForNewData promise",
-        promiseError
-      );
-    });
   };
 
   const initializeDB = () => {
@@ -113,26 +152,6 @@ function MetroApp() {
       });
   };
 
-  const getAllCars = async () => {
-    axios
-      .get("/api/getAllCars")
-      .then((allCars) => {
-        console.log("Response from get all cars route: ", allCars.data);
-        setState(allCars.data);
-        //get current input
-        //set filtered car state to be allCars.data with current filter applied.
-        setFilteredCarState(
-          allCars.data.filter((car) =>
-            car.num.includes(searchRef.current.value)
-          )
-        );
-        setLastStateUpdateTime(Math.floor(Date.now() / 1000));
-      })
-      .catch((err) => {
-        console.log("There was an error in the getAllCars route: ", err);
-      });
-  };
-
   const deleteDB = () => {
     console.log("deleteDB triggered");
     axios
@@ -145,16 +164,27 @@ function MetroApp() {
       });
   };
 
-  const testLatestPut = () => {
+  const updateDBLatestPut = () => {
     console.log("Initiating latest put Get");
     axios
       .put("api/testLatestPut")
       .then((response) => {
         console.log("Response from latestPut route: ", response);
+        console.log("response.status is: ", response.status);
+        if (response.status === 202) {
+          console.log(
+            "This is where you would do a get to update the state to match the DB"
+          );
+        }
       })
       .catch((err) => {
         console.log("Error in the testLatestPut route: ", err);
       });
+  };
+
+  const changeOneCar = () => {
+    // setState({...state, state[0].volume: "empty"})
+    setState({ ...state, "130598": { carVolume: "heavy" } });
   };
 
   // const getFilteredCars = (childData) => {
@@ -167,7 +197,6 @@ function MetroApp() {
   //   console.log("childData is false");
   //   return state;
   // };
-
   return (
     <div className="App">
       <CssBaseline />
@@ -176,7 +205,7 @@ function MetroApp() {
         inputRef={inputRef}
         onChange={() => console.log("inputString", inputRef.current.value)}
       ></Input> */}
-      <Search
+      <MetroSearch
         searchRef={searchRef}
         filteredCarState={filteredCarState}
         setFilteredCarState={setFilteredCarState}
@@ -201,15 +230,17 @@ function MetroApp() {
         <Button variant="outlined" color="secondary" onClick={deleteDB}>
           Delete DB
         </Button>
-        <Button onClick={getAllCars}>Get All Cars</Button>
+        <Button onClick={requestMetroCarDataAndSetStates}>
+          Get Car Numbers
+        </Button>
 
         <Button
           onClick={() => {
             console.log("state", state);
-            console.log(
-              "last state update time",
-              moment.unix(lastStateUpdateTime)._d
-            );
+            // console.log(state["130598"]);
+            console.log("last state update time", lastStateUpdateTime);
+            console.log("needingUpdate", carsNeedingUpdate);
+            console.log(moment.unix(lastStateUpdateTime));
           }}
         >
           Console.log(state)
@@ -217,25 +248,27 @@ function MetroApp() {
         <Button variant="contained" color="primary" onClick={checkForNewData}>
           Check for new data
         </Button>
-        <Button onClick={testLatestPut}>update latest put</Button>
+        <Button onClick={updateDBLatestPut}>update latest put</Button>
+        <Button onClick={changeOneCar}>ChangeOneCar</Button>
+        <Button onClick={getOutOfDateCars}>Get Out of Date Cars</Button>
       </Collapse>
 
       <Grid container>
         <Suspense fallback={<h1>Loading...</h1>}>
-          {filteredCarState.map((metroCar) => {
+          {Object.keys(filteredCarState).map((key) => {
             return (
-              <Grid item xs={4}>
+              <Grid item xs={12}>
                 <MetroCar
+                  key={filteredCarState[key].number}
+                  number={filteredCarState[key].number}
+                  volume={filteredCarState[key].volume}
+                  keys={filteredCarState[key].keys}
+                  updatedAt={filteredCarState[key].updatedAt}
                   state={state}
-                  key={metroCar.num}
-                  getAllCars={getAllCars}
-                  number={metroCar.num}
-                  key={metroCar.id}
-                  flashers={metroCar.flashers}
-                  heavy={metroCar.heavy}
-                  clear={metroCar.clear}
-                  keys={metroCar.keyz}
-                  volume={metroCar.volume}
+                  carsNeedingUpdate={carsNeedingUpdate}
+                  checkForNewData={checkForNewData}
+                  setLastStateUpdateTime={setLastStateUpdateTime}
+                  lastStateUpdateTime={lastStateUpdateTime}
                 ></MetroCar>
               </Grid>
             );

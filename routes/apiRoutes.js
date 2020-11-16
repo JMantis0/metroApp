@@ -17,7 +17,9 @@ const metroCarObject = XLSX.utils.sheet_to_json(
 );
 console.log(metroCarObject);
 console.log(metroCarObject[0]["num"]);
-console.log("********** HELLO  ***********\n**** YOU ARE DEVELOPING ******\n**** METRO APP, JESSE!! ******");
+console.log(
+  "********** HELLO  ***********\n**** YOU ARE DEVELOPING ******\n**** METRO APP, JESSE!! ******"
+);
 
 const updateLatestPut = (res) => {
   const response = new Promise((resolve, reject) => {
@@ -41,6 +43,22 @@ const updateLatestPut = (res) => {
   console.log("response from updateLatestPut", response);
   return response;
 };
+
+//  This route will be used by each MetroCar individually to reduce mass renders
+router.get("/updateMetroCar/:carNumber", (req, res) => {
+  models.Car.findOne({ where: { num: req.params.carNumber } })
+    .then((car) => {
+      console.log("Car found: ", car.dataValues.num);
+      res.status(202).send(car);
+    })
+    .catch((updateCarError) => {
+      console.log(
+        "There was an error in the updateMetroCar route: ",
+        updateCarError
+      );
+      res.status(400).send(updateCarError);
+    });
+});
 
 router.put("/testLatestPut", (req, res) => {
   updateLatestPut(res).then((response) => {
@@ -86,44 +104,60 @@ router.delete("/deleteDB", (req, res) => {
     });
 });
 
-router.get("/getAllCars", (req, res) => {
-  console.log("getAllCars route apiRoutes.js");
+router.get("/getCarNumbers", (req, res) => {
+  console.log("getCarNumbers route apiRoutes.js");
   models.Car.findAll({})
     //finds the whole set
-    .then((response) => {
-      // console.log("getAllCars response from MySQL: ", response);
-      res.status(202).send(response);
+    .then((allCars) => {
+      const carObject = {};
+      allCars.forEach((car) => {
+        carObject[car.dataValues.num] = {
+          number: car.dataValues.num,
+          volume: car.dataValues.volume,
+          keys: car.dataValues.keyz,
+          updatedAt: car.dataValues.updatedAt,
+        };
+      });
+      console.log("numbers array is !!!!: ", carObject);
+      res.status(202).send(carObject);
     })
     .catch((err) => {
-      console.log("There was an error in the MySQL getAllCars route", err);
+      console.log("There was an error in the MySQL getCarNumbers route", err);
       res.status(400).send(err);
     });
 });
 
-router.get("/checkForNewData/:latestRenderTime", (req, res) => {
+router.get("/checkForNewData/:lastStateUpdateTime", (req, res) => {
   // https://momentjs.com/docs/#/parsing/string-format/
-  // console.log("current moment()", moment());
   //  Timestamp from front end
-  console.log("UTC Timestamp from front end ", req.params.latestRenderTime);
-
-  console.log(
-    "moment created from front end",
-    moment.unix(req.params.latestRenderTime)
-  );
-  const frontEndMoment = moment.unix(req.params.latestRenderTime);
+  console.log("**********************");
+  console.log("timestamp from client", req.params.lastStateUpdateTime);
+  const frontEndMoment = moment.unix(req.params.lastStateUpdateTime);
+  console.log("moment created with timestamp", frontEndMoment);
 
   //  I want to compare this timestamp to the most recent updatedAt
   models.LatestPut.findAll({ where: { id: 1 } })
     .then((response) => {
       const updatedAtMoment = moment(response[0].dataValues.updatedAt);
-      console.log(`The last render was at ${frontEndMoment}`);
-      console.log(`The latest db PUT was at ${updatedAtMoment}`);
+      console.log(`frontEndMoment ${frontEndMoment}`);
+      console.log(`updatedAtMoment ${updatedAtMoment}`);
       console.log(frontEndMoment.diff(updatedAtMoment, "seconds"));
-      if (frontEndMoment.diff(updatedAtMoment, "seconds") <= 0) {
-        console.log("There is new data");
+      if (frontEndMoment.diff(updatedAtMoment, "seconds") < 0) {
+        console.log(
+          `There is new data that was added ${-frontEndMoment.diff(
+            updatedAtMoment,
+            "seconds"
+          )} seconds after our last state update`
+        );
         res.status(200).send({ newData: true });
       } else {
         console.log("There is no new data");
+        console.log(
+          `The newest data is from ${updatedAtMoment}, which is ${frontEndMoment.diff(
+            updatedAtMoment,
+            "seconds"
+          )} seconds older than our last update`
+        );
         res.status(200).send({ newData: false });
       }
     })
@@ -136,79 +170,82 @@ router.get("/checkForNewData/:latestRenderTime", (req, res) => {
     });
 });
 
-router.put("/toggleHeavy", (req, res) => {
-  console.log("toggleHeavy route apiRoutes.js");
-  console.log("req.body.num: ", req.body.num);
-  models.Car.update(
-    { heavy: req.body.newHeavy },
-    {
-      where: { num: req.body.num },
-    }
-  )
-    .then((sqlResponse) => {
-      updateLatestPut(res).then((response) => {
-        console.log(
-          "UpdateLatestPut response in toggleHeavy route: ",
-          response
-        );
+router.get("/getOutOfDateCars/:lastStateUpdateTime", (req, res) => {
+  const lastStateUpdateTime = req.params.lastStateUpdateTime;
+  models.Car.findAll({})
+    .then((allCars) => {
+      const carsToBeUpdated = [];
+      allCars.forEach((car) => {
+        const carUpdatedAtInUnix = moment(car.dataValues.updatedAt).unix();
+        if (lastStateUpdateTime < carUpdatedAtInUnix) {
+          // console.log(
+          //   `Car ${car.dataValues.num} is out of date and has  new data in the db`
+          // );
+          carsToBeUpdated.push(car.dataValues.num);
+        }
+        // else {
+        // console.log(`Car ${car.dataValues.num} is already up to date`);
+        // }
       });
-      console.log("sqlResponse toggleHeavy route: ", sqlResponse);
-      res.status(201).send(sqlResponse);
+      console.log("carsToBeUpdated: ", carsToBeUpdated);
+      res.status(200).send(carsToBeUpdated);
     })
-    .catch((sqlErr) => {
-      console.log("There was an error in the toggleHeavy sql call: ", sqlErr);
-      res.status(400).send(sqlErr);
+    .catch((error) => {
+      console.log("There was an error: ", error);
+      res.status(400).send(error);
     });
 });
 
 router.put("/setVolumeRadio", (req, res) => {
-  console.log("setVolumeRadio route apiRoutes.js");
+  
+  console.log(`*********************************************************`);
+  console.log(`*********************************************************`);
+  console.log(
+    `PUT request from client: /api/setVolumeRadio with object body: ${JSON.stringify(
+      req.body
+    )}`
+  );
+  console.log(`updating database for car ${req.body.num}`);
   models.Car.update(
     { volume: req.body.newVolume },
     { where: { num: req.body.num } }
   )
     .then((setRadioRouteResponse) => {
-      console.log("setRadioRouteResponse", setRadioRouteResponse);
-      updateLatestPut(res);
-      res.status(200).send(setRadioRouteResponse);
+      models.Car.findOne({ where: { num: req.body.num } }).then((car) => {
+        console.log(
+          "The volume was just updated for car: ",
+          car.dataValues.num
+        );
+        updateLatestPut(res)
+          .then((response) => {
+            console.log(
+              "UpdateLatestPut response in toggleHeavy route: ",
+              response
+            );
+            res.status(200).send(car);
+          })
+          .catch((err) => {
+            console.log("There was an error: ", err);
+            res.status(400).send(err);
+          });
+      });
     })
     .catch((setRadioSQLError) => {
-      console.log("There was a SQL error: ", setRadioSQLError);
+      console.log("Error setRadioSQLErrpor: ", setRadioSQLError);
       res.status(400).send(setRadioSQLError);
     });
 });
 
-router.put("/toggleFlashers", (req, res) => {
-  console.log("toggleFlashers route apiRoutes.js");
-  console.log("req.body.num: ", req.body.num);
-  models.Car.update(
-    { flashers: req.body.newFlashers },
-    {
-      where: { num: req.body.num },
-    }
-  )
-    .then((sqlResponse) => {
-      updateLatestPut(res).then((response) => {
-        console.log(
-          "UpdateLatestPut response in toggleHeavy route: ",
-          response
-        );
-      });
-      console.log("sqlResponse toggleFlashers route: ", sqlResponse);
-      res.status(201).send(sqlResponse);
-    })
-    .catch((sqlErr) => {
-      console.log(
-        "There was an error in the toggleFlashers sql call: ",
-        sqlErr
-      );
-      res.status(400).send(sqlErr);
-    });
-});
-
 router.put("/toggleKeys", (req, res) => {
-  console.log("toggleKeys route apiRoutes.js");
-  console.log("req.body.num: ", req.body.num);
+  
+  console.log(`*********************************************************`);
+  console.log(`*********************************************************`);
+  console.log(
+    `PUT request from client: /api/toggleKeys with object body: ${JSON.stringify(
+      req.body
+    )}`
+  );
+  console.log(`updating database for car ${req.body.num}`);
   models.Car.update(
     { keyz: req.body.newKeys },
     {
@@ -216,14 +253,27 @@ router.put("/toggleKeys", (req, res) => {
     }
   )
     .then((sqlResponse) => {
-      updateLatestPut(res).then((response) => {
+      //  Then find the car that was just updated
+      models.Car.findOne({ where: { num: req.body.num } }).then((car) => {
         console.log(
-          "UpdateLatestPut response in toggleHeavy route: ",
-          response
+          `Database record for car ${car.dataValues.num} has been updated`
         );
+        console.log(
+          `The 'keyz' column has been updated to value ${car.dataValues.keyz}`
+        );
+        updateLatestPut(res)
+          .then((response) => {
+            console.log(
+              "UpdateLatestPut response in toggleKeys route: ",
+              response
+            );
+            res.status(200).send(car);
+          })
+          .catch((err) => {
+            console.log("There was an error: ", err);
+            res.status(400).send(err);
+          });
       });
-      console.log("sqlResponse toggleKeys route: ", sqlResponse);
-      res.status(201).send(sqlResponse);
     })
     .catch((sqlErr) => {
       console.log("There was an error in the toggleKeys sql call: ", sqlErr);
