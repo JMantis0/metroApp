@@ -36,29 +36,6 @@ const MetroCar = ({
 
   const classes = useStyles();
 
-  // useEffect(() => {
-  //   console.log("This car is number", number, keys, volume);
-  // }, []);
-
-  // useEffect(() => {
-  //   console.log(
-  //     "UseEffect triggered from change to lastStateUpdateTime... setting new interval."
-  //   );
-  //   const carTicker = setInterval(async () => {
-  //     console.log("lastUpdateTime: ", metroCarState.updatedAt);
-  //     console.log(checkForNewData());
-  //     if (await checkForNewData()) {
-  //       console.log("There is new Data");
-  //     }
-  //   }, 10000);
-  //   const cleanup = () => {
-  //     console.log("Cleaning up and clearing interval");
-  //     clearInterval(carTicker);
-  //   };
-  //   return cleanup;
-  // }, [metroCarState]);
-
-  // const initialState =
   useMemo(() => {
     console.log("inside useMemo");
     setMetroCarState({

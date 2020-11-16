@@ -26,7 +26,7 @@ function MetroApp() {
   //  Stores all car numbers
   const [state, setState] = useState([]);
   //  used for the secret Dev Collapse
-  const [checked, setChecked] = useState(true);
+  const [checked, setChecked] = useState(false);
   //  Used for filtering MetroCars
   const [filteredCarState, setFilteredCarState] = useState([]);
   //  used to store the last time the state was update
@@ -111,12 +111,6 @@ function MetroApp() {
       .catch((error) => {
         console.log("There was an error: ", error);
       });
-  };
-
-  const updateThisMetroCarState = (carNumber, carArray, callback) => {
-    if (carArray.indexOf(carNumber) > -1) {
-      callback();
-    }
   };
 
   const testBackend = () => {
@@ -269,7 +263,6 @@ function MetroApp() {
                   state={state}
                   carsNeedingUpdate={carsNeedingUpdate}
                   checkForNewData={checkForNewData}
-                  updateThisMetroCarState={updateThisMetroCarState}
                   setLastStateUpdateTime={setLastStateUpdateTime}
                   lastStateUpdateTime={lastStateUpdateTime}
                 ></MetroCar>
