@@ -22,6 +22,14 @@ console.log(
 );
 
 const updateLatestPut = (res) => {
+  console.log(
+    `███████████████████████████████████████████████████████████████████`
+  );
+  console.log(
+    `███████████████████████████████████████████████████████████████████`
+  );
+  console.log(`THIS IS NOT A REQUEST FROM THE CLIENT`);
+  console.log(`Updating latest put record`);
   const response = new Promise((resolve, reject) => {
     models.LatestPut.update(
       { latestPut: moment().toString() },
@@ -46,9 +54,20 @@ const updateLatestPut = (res) => {
 
 //  This route will be used by each MetroCar individually to reduce mass renders
 router.get("/updateMetroCar/:carNumber", (req, res) => {
+  console.log(
+    `███████████████████████████████████████████████████████████████████`
+  );
+  console.log(
+    `███████████████████████████████████████████████████████████████████`
+  );
+  console.log(
+    `GET request from client: /api/updateMetroCar/${req.params.carNumber}`
+  );
+  console.log(`Getting db record for car ${req.params.carNumber}...`);
   models.Car.findOne({ where: { num: req.params.carNumber } })
     .then((car) => {
       console.log("Car found: ", car.dataValues.num);
+      console.loc("Sending car record to client");
       res.status(202).send(car);
     })
     .catch((updateCarError) => {
@@ -60,17 +79,15 @@ router.get("/updateMetroCar/:carNumber", (req, res) => {
     });
 });
 
-router.put("/testLatestPut", (req, res) => {
-  updateLatestPut(res).then((response) => {
-    console.log("42updateLatestPut response", response);
-    res.status(202).send(response);
-  });
-});
-
 router.get("/test", (req, res) => {
-  // Use a regular expression to search titles for req.query.q
-  // using case insensitive match. https://docs.mongodb.com/manual/reference/operator/query/regex/index.html
-  console.log("This is the test route");
+  console.log(
+    `███████████████████████████████████████████████████████████████████`
+  );
+  console.log(
+    `███████████████████████████████████████████████████████████████████`
+  );
+  console.log(`GET request from client: /api/test`);
+  console.log("Sending OK status to client.");
   res.send(200);
 });
 
@@ -89,14 +106,23 @@ router.post("/initializeDB", (req, res) => {
 });
 
 router.delete("/deleteDB", (req, res) => {
-  console.log("Delete route apiRoutes.js)");
+  console.log(
+    `███████████████████████████████████████████████████████████████████`
+  );
+  console.log(
+    `███████████████████████████████████████████████████████████████████`
+  );
+  console.log(`DELETE request from client: /api/gedeleteDB`);
+  console.log("Removing all records in Car table...");
   models.Car.destroy({
     where: {},
     truncate: true,
   })
     .then((response) => {
-      console.log("The response from MySQL is: ", { response });
-      res.status(201).send({ response });
+      console.log(
+        "All Car records destroyed.  Sending Sequelize response to client."
+      );
+      res.status(201).send(response);
     })
     .catch((err) => {
       console.log("There was an error in the delete route: ", { err });
@@ -105,7 +131,14 @@ router.delete("/deleteDB", (req, res) => {
 });
 
 router.get("/getCarNumbers", (req, res) => {
-  console.log("getCarNumbers route apiRoutes.js");
+  console.log(
+    `███████████████████████████████████████████████████████████████████`
+  );
+  console.log(
+    `███████████████████████████████████████████████████████████████████`
+  );
+  console.log(`GET request from client: /api/getCarNumbers`);
+  console.log("Getting car data ...");
   models.Car.findAll({})
     //finds the whole set
     .then((allCars) => {
@@ -118,7 +151,7 @@ router.get("/getCarNumbers", (req, res) => {
           updatedAt: car.dataValues.updatedAt,
         };
       });
-      console.log("numbers array is !!!!: ", carObject);
+      console.log("Car data obtained.  Sending data to client.");
       res.status(202).send(carObject);
     })
     .catch((err) => {
@@ -130,34 +163,32 @@ router.get("/getCarNumbers", (req, res) => {
 router.get("/checkForNewData/:lastStateUpdateTime", (req, res) => {
   // https://momentjs.com/docs/#/parsing/string-format/
   //  Timestamp from front end
-  console.log("**********************");
-  console.log("timestamp from client", req.params.lastStateUpdateTime);
+  console.log(
+    `███████████████████████████████████████████████████████████████████`
+  );
+  console.log(
+    `███████████████████████████████████████████████████████████████████`
+  );
+  console.log(
+    `GET request from client: /api/checkForNewData/${req.body.lastStateUpdateTime}}`
+  );
   const frontEndMoment = moment.unix(req.params.lastStateUpdateTime);
-  console.log("moment created with timestamp", frontEndMoment);
-
+  console.log(
+    "Comparing latest update time from client against most recent update time in db"
+  );
   //  I want to compare this timestamp to the most recent updatedAt
   models.LatestPut.findAll({ where: { id: 1 } })
     .then((response) => {
       const updatedAtMoment = moment(response[0].dataValues.updatedAt);
-      console.log(`frontEndMoment ${frontEndMoment}`);
-      console.log(`updatedAtMoment ${updatedAtMoment}`);
-      console.log(frontEndMoment.diff(updatedAtMoment, "seconds"));
+      console.log(`Last time client updated: ${frontEndMoment}`);
+      console.log(`Most recent update in DB: ${updatedAtMoment}`);
       if (frontEndMoment.diff(updatedAtMoment, "seconds") < 0) {
-        console.log(
-          `There is new data that was added ${-frontEndMoment.diff(
-            updatedAtMoment,
-            "seconds"
-          )} seconds after our last state update`
-        );
+        console.log(`There is new data.`);
+        console.log("Sending value true to client");
         res.status(200).send({ newData: true });
       } else {
-        console.log("There is no new data");
-        console.log(
-          `The newest data is from ${updatedAtMoment}, which is ${frontEndMoment.diff(
-            updatedAtMoment,
-            "seconds"
-          )} seconds older than our last update`
-        );
+        console.log("There is no new data.");
+        console.log("Sending value false to client");
         res.status(200).send({ newData: false });
       }
     })
@@ -171,6 +202,16 @@ router.get("/checkForNewData/:lastStateUpdateTime", (req, res) => {
 });
 
 router.get("/getOutOfDateCars/:lastStateUpdateTime", (req, res) => {
+  console.log(
+    `███████████████████████████████████████████████████████████████████`
+  );
+  console.log(
+    `███████████████████████████████████████████████████████████████████`
+  );
+  console.log(
+    `GET request from client: /api/getOutOfDateCars/${req.body.lastStateUpdateTime}}`
+  );
+  console.log(`Checking database for updatedAt values...`);
   const lastStateUpdateTime = req.params.lastStateUpdateTime;
   models.Car.findAll({})
     .then((allCars) => {
@@ -178,16 +219,14 @@ router.get("/getOutOfDateCars/:lastStateUpdateTime", (req, res) => {
       allCars.forEach((car) => {
         const carUpdatedAtInUnix = moment(car.dataValues.updatedAt).unix();
         if (lastStateUpdateTime < carUpdatedAtInUnix) {
-          // console.log(
-          //   `Car ${car.dataValues.num} is out of date and has  new data in the db`
-          // );
           carsToBeUpdated.push(car.dataValues.num);
         }
-        // else {
-        // console.log(`Car ${car.dataValues.num} is already up to date`);
-        // }
       });
-      console.log("carsToBeUpdated: ", carsToBeUpdated);
+      console.log(
+        "Found cars updated after the last client update: ",
+        carsToBeUpdated
+      );
+      console.log("Sending car numbers to client.");
       res.status(200).send(carsToBeUpdated);
     })
     .catch((error) => {
@@ -197,15 +236,18 @@ router.get("/getOutOfDateCars/:lastStateUpdateTime", (req, res) => {
 });
 
 router.put("/setVolumeRadio", (req, res) => {
-  
-  console.log(`*********************************************************`);
-  console.log(`*********************************************************`);
+  console.log(
+    `███████████████████████████████████████████████████████████████████`
+  );
+  console.log(
+    `███████████████████████████████████████████████████████████████████`
+  );
   console.log(
     `PUT request from client: /api/setVolumeRadio with object body: ${JSON.stringify(
       req.body
     )}`
   );
-  console.log(`updating database for car ${req.body.num}`);
+  console.log(`Updating database for car ${req.body.num}`);
   models.Car.update(
     { volume: req.body.newVolume },
     { where: { num: req.body.num } }
@@ -213,15 +255,13 @@ router.put("/setVolumeRadio", (req, res) => {
     .then((setRadioRouteResponse) => {
       models.Car.findOne({ where: { num: req.body.num } }).then((car) => {
         console.log(
-          "The volume was just updated for car: ",
-          car.dataValues.num
+          `Volume column for car ${req.body.num} updated to ${req.body.newVolume}`
         );
+        console.log("Updating Latest PUT time...");
         updateLatestPut(res)
           .then((response) => {
-            console.log(
-              "UpdateLatestPut response in toggleHeavy route: ",
-              response
-            );
+            console.log("Latest PUT time updated.");
+
             res.status(200).send(car);
           })
           .catch((err) => {
@@ -237,9 +277,12 @@ router.put("/setVolumeRadio", (req, res) => {
 });
 
 router.put("/toggleKeys", (req, res) => {
-  
-  console.log(`*********************************************************`);
-  console.log(`*********************************************************`);
+  console.log(
+    `███████████████████████████████████████████████████████████████████`
+  );
+  console.log(
+    `███████████████████████████████████████████████████████████████████`
+  );
   console.log(
     `PUT request from client: /api/toggleKeys with object body: ${JSON.stringify(
       req.body
