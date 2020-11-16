@@ -31,7 +31,9 @@ function MetroApp() {
   const [filteredCarState, setFilteredCarState] = useState([]);
   //  used to store the last time the state was update
   //  DEPRECATING SOON
-  const [lastStateUpdateTime, setLastStateUpdateTime] = useState(0);
+  const [lastStateUpdateTime, setLastStateUpdateTime] = useState(
+    moment().unix()
+  );
   const [carsNeedingUpdate, setCarsNeedingUpdate] = useState([]);
   //  Ref passed into the search components
   const searchRef = useRef("");
@@ -49,7 +51,7 @@ function MetroApp() {
       .then((allCarNumbers) => {
         console.log("Response from getCarNumbers route: ", allCarNumbers.data);
         setState(allCarNumbers.data);
-        setFilteredCarState(allCarNumbers.data);        
+        setFilteredCarState(allCarNumbers.data);
       })
       .catch((err) => {
         console.log("There was an error in the getCarNumbers route: ", err);
@@ -228,7 +230,9 @@ function MetroApp() {
         <Button variant="outlined" color="secondary" onClick={deleteDB}>
           Delete DB
         </Button>
-        <Button onClick={requestMetroCarDataAndSetStates}>Get Car Numbers</Button>
+        <Button onClick={requestMetroCarDataAndSetStates}>
+          Get Car Numbers
+        </Button>
 
         <Button
           onClick={() => {

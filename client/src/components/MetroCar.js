@@ -145,38 +145,21 @@ const MetroCar = ({
       });
   };
 
+  //  A MetroCar is a row on the screen with car data and can be interacted with by a user.
   return (
     <div>
-      {/* <Grid container>
-        <Grid xs={4} item>
-          number
-        </Grid>
-        <Grid xs={4} item>
-          volume radio
-        </Grid>
-        <Grid xs={4} item>
-          keys
-        </Grid>
-      </Grid> */}
       <Paper>
-        <button
-          onClick={() => {
-            console.log("metroCarState:", metroCarState);
-          }}
-        >
-          car state
-        </button>
-        <button onClick={getNewMetroCarData}>get new data</button>
         <FormGroup row>
           <Grid container>
-            <Grid item xs={4}>
+            <Grid item xs={"auto"}>
               <FormLabel>
                 <LocalShippingRoundedIcon />
-                {number}
               </FormLabel>
             </Grid>
-            <Grid item xs={4}>
-              <FormLabel>Volume</FormLabel>
+            <Grid item xs={"auto"}>
+              {number}
+            </Grid>
+            <Grid item xs={"auto"}>
               <FormControlLabel
                 control={
                   <RadioGroup
@@ -193,7 +176,7 @@ const MetroCar = ({
                 label="Volume"
               />
             </Grid>
-            <Grid item xs={4}>
+            <Grid item xs={"auto"}>
               <FormControlLabel
                 control={
                   <Switch
@@ -206,12 +189,10 @@ const MetroCar = ({
                 label="Keys"
               />
             </Grid>
+            <Grid item xs={"auto"}>
+              Updated {moment(metroCarState.carUpdatedAt).format("hh:mm:ss a")}
+            </Grid>
           </Grid>
-          <FormControl>
-            <FormHelperText>
-              Updated at: {metroCarState.carUpdatedAt}{" "}
-            </FormHelperText>
-          </FormControl>
         </FormGroup>
       </Paper>
     </div>

@@ -197,7 +197,15 @@ router.get("/getOutOfDateCars/:lastStateUpdateTime", (req, res) => {
 });
 
 router.put("/setVolumeRadio", (req, res) => {
-  console.log("setVolumeRadio route apiRoutes.js");
+  
+  console.log(`*********************************************************`);
+  console.log(`*********************************************************`);
+  console.log(
+    `PUT request from client: /api/setVolumeRadio with object body: ${JSON.stringify(
+      req.body
+    )}`
+  );
+  console.log(`updating database for car ${req.body.num}`);
   models.Car.update(
     { volume: req.body.newVolume },
     { where: { num: req.body.num } }
@@ -221,17 +229,15 @@ router.put("/setVolumeRadio", (req, res) => {
             res.status(400).send(err);
           });
       });
-
-      console.log("setRadioRouteResponse", setRadioRouteResponse);
-      updateLatestPut(res);
     })
     .catch((setRadioSQLError) => {
-      console.log("There was a SQL error: ", setRadioSQLError);
+      console.log("Error setRadioSQLErrpor: ", setRadioSQLError);
       res.status(400).send(setRadioSQLError);
     });
 });
 
 router.put("/toggleKeys", (req, res) => {
+  
   console.log(`*********************************************************`);
   console.log(`*********************************************************`);
   console.log(
