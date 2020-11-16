@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useMemo } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 
 import axios from "axios";
 
@@ -13,15 +13,19 @@ import LocalShippingRoundedIcon from "@material-ui/icons/LocalShippingRounded";
 import Grid from "@material-ui/core/Grid";
 import Radio from "@material-ui/core/Radio";
 import RadioGroup from "@material-ui/core/RadioGroup";
+import moment from "moment";
 
 import { makeStyles } from "@material-ui/core/styles";
 
 const MetroCar = ({
   number,
-  keys,
   volume,
+  keys,
   updatedAt,
+  carsNeedingUpdate,
   setLastStateUpdateTime,
+  lastStateUpdateTime,
+  state,
 }) => {
   const [metroCarState, setMetroCarState] = useState({});
   const useStyles = makeStyles(() => ({
@@ -32,9 +36,9 @@ const MetroCar = ({
 
   const classes = useStyles();
 
-  useEffect(() => {
-    console.log("This car is number", number, keys, volume);
-  }, []);
+  // useEffect(() => {
+  //   console.log("This car is number", number, keys, volume);
+  // }, []);
 
   // useEffect(() => {
   //   console.log(
@@ -54,32 +58,6 @@ const MetroCar = ({
   //   return cleanup;
   // }, [metroCarState]);
 
-  // const checkForNewData = () => {
-  //   console.log("Checking for new data");
-  //   return new Promise((resolve, reject) => {
-  //     axios
-  //       .get(`/api/checkForNewData/${metroCarState.updatedAt}`)
-  //       .then((dataCheckResponse) => {
-  //         console.log("Response from Datacheck route: ", dataCheckResponse);
-  //         const newData = dataCheckResponse.data.newData;
-  //         // console.log("newData is:", newData);
-  //         resolve(newData);
-  //       })
-  //       .catch((dataCheckErr) => {
-  //         console.log(
-  //           "There was an error in the dataCheck route",
-  //           dataCheckErr
-  //         );
-  //         reject(dataCheckErr);
-  //       });
-  //   }).catch((promiseError) => {
-  //     console.log(
-  //       "there was an error in the checkForNewData promise",
-  //       promiseError
-  //     );
-  //   });
-  // };
-
   // const initialState =
   useMemo(() => {
     console.log("inside useMemo");
@@ -91,8 +69,20 @@ const MetroCar = ({
     });
   }, []);
 
+  useEffect(() => {
+    console.log("Inside useEffect with carsNeedingUpdate dependency");
+    // console.log("metroCarState.number", metroCarState.carNumber);
+    // console.log("carsNeedingUpdate", carsNeedingUpdate);
+    if (carsNeedingUpdate.indexOf(metroCarState.carNumber) > -1) {
+      console.log("cars needing update: ", carsNeedingUpdate);
+      console.log("this car needs updating: ", metroCarState.carNumber);
+      getNewMetroCarData();
+    }
+  }, [carsNeedingUpdate]);
+
   //  This will be the updateState route
-  const updateMetroCarState = () => {
+
+  const getNewMetroCarData = () => {
     console.log("Function updateMetroCarState triggered for car", number);
     axios
       .get(`/api/updateMetroCar/${number}`)
@@ -106,10 +96,11 @@ const MetroCar = ({
         setMetroCarState({
           ...metroCarState,
           carVolume: updateCarResponse.data.volume,
-          carKeys: updateCarResponse.data.keys,
+          carKeys: updateCarResponse.data.keyz,
           carUpdatedAt: updateCarResponse.data.updatedAt,
         });
-        setLastStateUpdateTime(updateCarResponse.data.updatedAt);
+        console.log(moment(updateCarResponse.data.updatedAt).unix());
+        setLastStateUpdateTime(moment(updateCarResponse.data.updatedAt).unix());
       })
       .catch((updateCarError) => {
         console.log("Error from updateMetroCar route: ", updateCarError);
@@ -117,11 +108,17 @@ const MetroCar = ({
   };
 
   const handleKeysChange = (event) => {
-    console.log("event.target.value", event);
-    console.log("metroCarState.keys", metroCarState.carKeys);
     const newCarKeysValue = !metroCarState.carKeys;
+    setMetroCarState({
+      ...metroCarState,
+      carKeys: newCarKeysValue,
+    });
+
     axios
-      .put("/api/toggleKeys", { newKeys: !metroCarState.carKeys, num: number })
+      .put("/api/toggleKeys", {
+        newKeys: !metroCarState.carKeys,
+        num: number,
+      })
       .then((response) => {
         console.log("Response from toggleKeys", response);
         setMetroCarState({
@@ -138,6 +135,10 @@ const MetroCar = ({
   const handleRadioChange = (event) => {
     const newRadioValue = event.target.value;
     console.log("newRadioValue: ", newRadioValue);
+    setMetroCarState({
+      ...metroCarState,
+      carVolume: newRadioValue,
+    });
     axios
       .put("/api/setVolumeRadio", {
         newVolume: newRadioValue,
@@ -145,12 +146,19 @@ const MetroCar = ({
       })
       .then((setVolumeRadioResponse) => {
         console.log("setVolumeRadioResponse: ", setVolumeRadioResponse);
+
+        const updatedAtUnix = moment(
+          setVolumeRadioResponse.data.updatedAt
+        ).unix();
+        console.log(
+          "trying to convert sequelize updatedAt into unix timestamp",
+          updatedAtUnix
+        );
         setMetroCarState({
           ...metroCarState,
           carVolume: setVolumeRadioResponse.data.volume,
           carUpdatedAt: setVolumeRadioResponse.data.updatedAt,
         });
-        setLastStateUpdateTime(setVolumeRadioResponse.data.updatedAt);
       })
       .catch((setVolumeRadioError) => {
         console.log(
@@ -181,6 +189,7 @@ const MetroCar = ({
         >
           car state
         </button>
+        <button onClick={getNewMetroCarData}>get new data</button>
         <FormGroup row>
           <Grid container>
             <Grid item xs={4}>
@@ -231,5 +240,4 @@ const MetroCar = ({
     </div>
   );
 };
-
 export default MetroCar;

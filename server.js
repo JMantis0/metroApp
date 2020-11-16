@@ -1,10 +1,11 @@
 const express = require("express");
 const path = require("path");
+const logger = require("morgan");
+
 const PORT = process.env.PORT || 4000;
 const app = express();
+app.use(logger("dev"));
 const apiRoutes = require("./routes/apiRoutes");
-
-
 
 // Define middleware here
 app.use(express.urlencoded({ extended: true }));

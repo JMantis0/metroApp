@@ -1,9 +1,14 @@
-import React, { Suspense, lazy } from "react";
+import React, {
+  Suspense,
+  lazy,
+  useState,
+  useEffect,
+  useRef,
+  useMemo,
+} from "react";
 import "./MetroApp.css";
 import axios from "axios";
-import { useState, useEffect, useRef } from "react";
 //     Component imports
-// import MetroCar from "./components/MetroCar";
 import MetroSearch from "./components/MetroSearch";
 //     Mui imports
 import Grid from "@material-ui/core/Grid";
@@ -21,42 +26,98 @@ function MetroApp() {
   //  Stores all car numbers
   const [state, setState] = useState([]);
   //  used for the secret Dev Collapse
-  const [checked, setChecked] = useState(false);
+  const [checked, setChecked] = useState(true);
   //  Used for filtering MetroCars
   const [filteredCarState, setFilteredCarState] = useState([]);
   //  used to store the last time the state was update
   //  DEPRECATING SOON
   const [lastStateUpdateTime, setLastStateUpdateTime] = useState(0);
-
+  const [carsNeedingUpdate, setCarsNeedingUpdate] = useState([]);
   //  Ref passed into the search components
   const searchRef = useRef("");
 
   //  Onload, getCarNumbers one time.
   useEffect(() => {
     console.log("Getting car data");
-    /**
-     * getCarNumbers updates state and lastStateUpdateTime
-     */
     getCarNumbers();
   }, []);
 
-  // useEffect(() => {
-  //   console.log(
-  //     "UseEffect triggered from change to lastStateUpdateTime... setting new interval."
-  //   );
-  //   const carTicker = setInterval(async () => {
-  //     console.log("lastUpdateTime: ", lastStateUpdateTime);
-  //     console.log(checkForNewData());
-  //     if (await checkForNewData()) {
-  //       console.log("There is new Data");
-  //     }
-  //   }, 10000);
-  //   const cleanup = () => {
-  //     console.log("Cleaning up and clearing interval");
-  //     clearInterval(carTicker);
-  //   };
-  //   return cleanup;
-  // }, [lastStateUpdateTime]);
+  const getCarNumbers = async () => {
+    console.log("Function getCarNumbers triggered");
+    axios
+      .get("/api/getCarNumbers")
+      .then((allCarNumbers) => {
+        console.log("Response from getCarNumbers route: ", allCarNumbers.data);
+        setState(allCarNumbers.data);
+        setFilteredCarState(allCarNumbers.data);        
+      })
+      .catch((err) => {
+        console.log("There was an error in the getCarNumbers route: ", err);
+      });
+  };
+
+  useEffect(() => {
+    console.log(
+      "UseEffect triggered from change to lastStateUpdateTime... setting new interval."
+    );
+    const carTicker = setInterval(async () => {
+      console.log("lastUpdateTime: ", lastStateUpdateTime);
+      const thereIsNewData = await checkForNewData();
+      console.log("thereIsNewData", thereIsNewData);
+      if (thereIsNewData) {
+        console.log("There is new Data");
+      }
+    }, 5000);
+    const cleanup = () => {
+      console.log("Cleaning up and clearing interval");
+      clearInterval(carTicker);
+    };
+    return cleanup;
+  }, [lastStateUpdateTime]);
+
+  const checkForNewData = async () => {
+    console.log("Checking for new data", lastStateUpdateTime);
+
+    axios
+      .get(`/api/checkForNewData/${lastStateUpdateTime}`)
+      .then((dataCheckResponse) => {
+        console.log("dataCheckResponse ", dataCheckResponse);
+        const newData = dataCheckResponse.data.newData;
+        console.log("newData is:", newData);
+        if (newData) {
+          console.log(
+            `Now get the data only for the cars that have new data, updated after ${lastStateUpdateTime}`
+          );
+          getOutOfDateCars();
+        }
+        return newData;
+      })
+      .catch((dataCheckErr) => {
+        console.log("There was an error in the dataCheck route", dataCheckErr);
+      });
+  };
+
+  const getOutOfDateCars = () => {
+    axios
+      .get(`/api/getOutOfDateCars/${lastStateUpdateTime}`)
+      .then((carsToBeUpdated) => {
+        console.log("Array of cars to be updated: ", carsToBeUpdated.data);
+        console.log(carsToBeUpdated.data.length);
+        if (carsToBeUpdated.data.length !== 0) {
+          //  Changing this state automatically causes each MetroCar to run getNewMetroCarData
+          setCarsNeedingUpdate(carsToBeUpdated.data);
+        }
+      })
+      .catch((error) => {
+        console.log("There was an error: ", error);
+      });
+  };
+
+  const updateThisMetroCarState = (carNumber, carArray, callback) => {
+    if (carArray.indexOf(carNumber) > -1) {
+      callback();
+    }
+  };
 
   const testBackend = () => {
     axios
@@ -71,7 +132,7 @@ function MetroApp() {
 
   const handleCollapse = () => {
     console.log("inside handleCollapse");
-    console.log(checked);
+    console.log("current state", checked, "new state", !checked);
     setChecked(!checked);
   };
 
@@ -95,28 +156,6 @@ function MetroApp() {
       });
   };
 
-  const getCarNumbers = async () => {
-    console.log("Function getCarNumbers triggered");
-    axios
-      .get("/api/getCarNumbers")
-      .then((allCarNumbers) => {
-        console.log("Response from getCarNumbers route: ", allCarNumbers.data);
-        setState(allCarNumbers.data);
-        setFilteredCarState(allCarNumbers.data);
-        //get current input
-        //set filtered car state to be allCars.data with current filter applied.
-
-        // setFilteredCarState(
-        //   allCars.data.filter((car) =>
-        //     car.num.includes(searchRef.current.value)
-        //   )
-        // );
-      })
-      .catch((err) => {
-        console.log("There was an error in the getCarNumbers route: ", err);
-      });
-  };
-
   const deleteDB = () => {
     console.log("deleteDB triggered");
     axios
@@ -129,12 +168,18 @@ function MetroApp() {
       });
   };
 
-  const testLatestPut = () => {
+  const updateDBLatestPut = () => {
     console.log("Initiating latest put Get");
     axios
       .put("api/testLatestPut")
       .then((response) => {
         console.log("Response from latestPut route: ", response);
+        console.log("response.status is: ", response.status);
+        if (response.status === 202) {
+          console.log(
+            "This is where you would do a get to update the state to match the DB"
+          );
+        }
       })
       .catch((err) => {
         console.log("Error in the testLatestPut route: ", err);
@@ -143,7 +188,7 @@ function MetroApp() {
 
   const changeOneCar = () => {
     // setState({...state, state[0].volume: "empty"})
-    setState(...state, state[Object.keys(state)[0]]: { carVolume: "heavy" });
+    setState({ ...state, "130598": { carVolume: "heavy" } });
   };
 
   // const getFilteredCars = (childData) => {
@@ -194,34 +239,39 @@ function MetroApp() {
         <Button
           onClick={() => {
             console.log("state", state);
-            console.log(state["130598"]);
+            // console.log(state["130598"]);
             console.log("last state update time", lastStateUpdateTime);
+            console.log("needingUpdate", carsNeedingUpdate);
+            console.log(moment.unix(lastStateUpdateTime));
           }}
         >
           Console.log(state)
         </Button>
-        {/* <Button variant="contained" color="primary" onClick={checkForNewData}>
+        <Button variant="contained" color="primary" onClick={checkForNewData}>
           Check for new data
-        </Button> */}
-        <Button onClick={testLatestPut}>update latest put</Button>
+        </Button>
+        <Button onClick={updateDBLatestPut}>update latest put</Button>
         <Button onClick={changeOneCar}>ChangeOneCar</Button>
+        <Button onClick={getOutOfDateCars}>Get Out of Date Cars</Button>
       </Collapse>
 
       <Grid container>
         <Suspense fallback={<h1>Loading...</h1>}>
-          {/* Perhaps rendering directly from state is not the best way
-          and perhaps state should be defined as an object not an array */}
           {Object.keys(filteredCarState).map((key) => {
             return (
               <Grid item xs={12}>
                 <MetroCar
                   key={filteredCarState[key].number}
-                  updatedAt={filteredCarState[key].updatedAt}
-                  setLastStateUpdateTime={setLastStateUpdateTime}
                   number={filteredCarState[key].number}
                   volume={filteredCarState[key].volume}
                   keys={filteredCarState[key].keys}
-                  getCarNumbers={getCarNumbers}
+                  updatedAt={filteredCarState[key].updatedAt}
+                  state={state}
+                  carsNeedingUpdate={carsNeedingUpdate}
+                  checkForNewData={checkForNewData}
+                  updateThisMetroCarState={updateThisMetroCarState}
+                  setLastStateUpdateTime={setLastStateUpdateTime}
+                  lastStateUpdateTime={lastStateUpdateTime}
                 ></MetroCar>
               </Grid>
             );
