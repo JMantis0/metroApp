@@ -23,17 +23,15 @@ import moment from "moment";
 const MetroCar = lazy(() => import("./components/MetroCar"));
 
 function MetroApp() {
-  //  Stores all car numbers
+  //  Car data object.
   const [state, setState] = useState([]);
-  //  used for the secret Dev Collapse
-  const [checked, setChecked] = useState(false);
+  //  Dev Collapse
+  const [checked, setChecked] = useState(true);
   //  Used for filtering MetroCars
   const [filteredCarState, setFilteredCarState] = useState([]);
   //  used to store the last time the state was update
   //  DEPRECATING SOON
-  const [lastStateUpdateTime, setLastStateUpdateTime] = useState(
-    moment().unix()
-  );
+  const [lastStateUpdateTime, setLastStateUpdateTime] = useState(0);
   const [carsNeedingUpdate, setCarsNeedingUpdate] = useState([]);
   //  Ref passed into the search components
   const searchRef = useRef("");
@@ -41,6 +39,7 @@ function MetroApp() {
   //  Onload, getCarNumbers one time.
   useEffect(() => {
     console.log("Getting car data");
+    setLastStateUpdateTime(moment().unix());
     requestMetroCarDataAndSetStates();
   }, []);
 
@@ -63,7 +62,6 @@ function MetroApp() {
       "UseEffect triggered from change to lastStateUpdateTime... setting new interval."
     );
     const carTicker = setInterval(async () => {
-      console.log("lastUpdateTime: ", lastStateUpdateTime);
       const thereIsNewData = await checkForNewData();
       console.log("thereIsNewData", thereIsNewData);
       if (thereIsNewData) {
@@ -76,6 +74,8 @@ function MetroApp() {
     };
     return cleanup;
   }, [lastStateUpdateTime]);
+
+  //What can change lastStateUpdateTime?
 
   const checkForNewData = async () => {
     console.log("Checking for new data", lastStateUpdateTime);
@@ -187,24 +187,10 @@ function MetroApp() {
     setState({ ...state, "130598": { carVolume: "heavy" } });
   };
 
-  // const getFilteredCars = (childData) => {
-  //   console.log("childData", childData);
-  //   console.log("insideGetFilteredCars  ");
-  //   if (childData) {
-  //     console.log("inside if(childData)");
-  //     return childData;
-  //   }
-  //   console.log("childData is false");
-  //   return state;
-  // };
   return (
     <div className="App">
       <CssBaseline />
       <div onClick={handleCollapse}>METRO APP</div>
-      {/* <Input
-        inputRef={inputRef}
-        onChange={() => console.log("inputString", inputRef.current.value)}
-      ></Input> */}
       <MetroSearch
         searchRef={searchRef}
         filteredCarState={filteredCarState}
@@ -265,6 +251,7 @@ function MetroApp() {
                   keys={filteredCarState[key].keys}
                   updatedAt={filteredCarState[key].updatedAt}
                   state={state}
+                  searchRef={searchRef}
                   carsNeedingUpdate={carsNeedingUpdate}
                   checkForNewData={checkForNewData}
                   setLastStateUpdateTime={setLastStateUpdateTime}

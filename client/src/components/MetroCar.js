@@ -26,11 +26,15 @@ const MetroCar = ({
   setLastStateUpdateTime,
   lastStateUpdateTime,
   state,
+  searchRef,
 }) => {
   const [metroCarState, setMetroCarState] = useState({});
   const useStyles = makeStyles(() => ({
     root: {
       width: "100%",
+    },
+    invisible: {
+      display: "none",
     },
   }));
 
