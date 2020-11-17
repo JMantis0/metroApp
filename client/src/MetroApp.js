@@ -35,9 +35,7 @@ function MetroApp() {
   }, []);
 
   useEffect(() => {
-    console.log(
-      "Setting data-check interval"
-    );
+    console.log("Setting data-check interval");
     const carTicker = setInterval(async () => {
       checkForNewData();
     }, 5000);
@@ -63,13 +61,13 @@ function MetroApp() {
 
   const checkForNewData = async () => {
     console.log("Checking for new data...", lastStateUpdateTime);
+
     axios
       .get(`/api/checkForNewData/${lastStateUpdateTime}`)
       .then((dataCheckResponse) => {
         const newData = dataCheckResponse.data.newData;
         if (newData) {
           console.log("There is new data in the database.");
-          console.log("Requesting new Metro Car data...");
           getOutOfDateCars();
         } else {
           console.log("Client is already up to date.");
@@ -83,11 +81,14 @@ function MetroApp() {
   };
 
   const getOutOfDateCars = () => {
-    console.log("Requesting list of cars with new data on server...")
+    console.log("Requesting list of cars with new data on server...");
     axios
       .get(`/api/getOutOfDateCars/${lastStateUpdateTime}`)
       .then((carsToBeUpdated) => {
-        console.log("Array of cars to be updated: ", carsToBeUpdated.data);
+        console.log(
+          "Found " + carsToBeUpdated.data.length + " cars to be updated: ",
+          carsToBeUpdated.data
+        );
         console.log(carsToBeUpdated.data.length);
         if (carsToBeUpdated.data.length !== 0) {
           //  Changing this state automatically causes each MetroCar to run getNewMetroCarData

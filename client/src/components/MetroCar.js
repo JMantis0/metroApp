@@ -69,8 +69,8 @@ const MetroCar = ({
   //  if so, updates.
   useEffect(() => {
     if (carsNeedingUpdate.indexOf(metroCarState.carNumber) > -1) {
-      console.log("cars needing update: ", carsNeedingUpdate);
-      console.log("this car needs updating: ", metroCarState.carNumber);
+      console.log("Cars to update: ", carsNeedingUpdate);
+      console.log("Updating car ", metroCarState.carNumber);
       getNewMetroCarData();
     }
   }, [carsNeedingUpdate]);
@@ -78,16 +78,12 @@ const MetroCar = ({
   //  This will be the updateState route
 
   const getNewMetroCarData = () => {
-    console.log("Function updateMetroCarState triggered for car", number);
+    console.log(`Requesting new data for car ${number}...`);
     axios
       .get(`/api/updateMetroCar/${number}`)
       .then((updateCarResponse) => {
-        console.log(
-          "The response from updateMetroCar for car " +
-            number +
-            " request is: ",
-          updateCarResponse
-        );
+        console.log("Car data obtained", updateCarResponse);
+        console.log(`Setting state for car ${number} `);
         setMetroCarState({
           ...metroCarState,
           carVolume: updateCarResponse.data.volume,
@@ -95,6 +91,7 @@ const MetroCar = ({
           carUpdatedAt: updateCarResponse.data.updatedAt,
         });
         console.log(moment(updateCarResponse.data.updatedAt).unix());
+        console.log(`Set lastStateUpdateTime to ${moment(updateCarResponse.data.updatedAt).unix()}`)
         setLastStateUpdateTime(moment(updateCarResponse.data.updatedAt).unix());
       })
       .catch((updateCarError) => {
@@ -104,18 +101,20 @@ const MetroCar = ({
 
   const handleKeysChange = (event) => {
     const newCarKeysValue = !metroCarState.carKeys;
+    console.log(`Client changed car ${number} keys to ${newCarKeysValue}`);
     setMetroCarState({
       ...metroCarState,
       carKeys: newCarKeysValue,
     });
-
+    console.log("Sending PUT request to server with new keys value...");
     axios
       .put("/api/toggleKeys", {
         newKeys: !metroCarState.carKeys,
         num: number,
       })
       .then((response) => {
-        console.log("Response from toggleKeys", response);
+        console.log("Car data in DB has been updated: ", response.data);
+        //  Important to set carUpdatedAt
         setMetroCarState({
           ...metroCarState,
           carKeys: response.data.keyz,
@@ -123,38 +122,36 @@ const MetroCar = ({
         });
       })
       .catch((err) => {
-        console.log("There was an error in the toggleKeys route: ", err);
+        console.log("There was an error: ", err);
       });
   };
 
-  const handleRadioChange = (event) => {
-    const newRadioValue = event.target.value;
-    console.log(`Client changed car ${number} volume to ${newRadioValue}`);
+  const handleVolumeChange = (event) => {
+    const newVolume = event.target.value;
+    console.log(`Client changed car ${number} volume to ${newVolume}`);
     setMetroCarState({
       ...metroCarState,
-      carVolume: newRadioValue,
+      carVolume: newVolume,
     });
+    console.log("Sending PUT request to server with new volume value...");
     axios
       .put("/api/setVolumeRadio", {
-        newVolume: newRadioValue,
+        newVolume: newVolume,
         num: number,
       })
-      .then((setVolumeRadioResponse) => {
-        console.log("setVolumeRadioResponse: ", setVolumeRadioResponse);
+      .then((setVolumeResponse) => {
+        console.log("setVolumeResponse: ", setVolumeResponse);
 
-        const updatedAtUnix = moment(
-          setVolumeRadioResponse.data.updatedAt
-        ).unix();
+        const updatedAtUnix = moment(setVolumeResponse.data.updatedAt).unix();
         setMetroCarState({
           ...metroCarState,
-          carVolume: setVolumeRadioResponse.data.volume,
-          carUpdatedAt: setVolumeRadioResponse.data.updatedAt,
+          carVolume: setVolumeResponse.data.volume,
+          carUpdatedAt: setVolumeResponse.data.updatedAt,
         });
       })
-      .catch((setVolumeRadioError) => {
+      .catch((error) => {
         console.log(
-          ("There was an error in the setVolumeRadio route: ",
-          setVolumeRadioError)
+          ("There was an error in the setVolumeRadio route: ", error)
         );
       });
   };
@@ -192,7 +189,7 @@ const MetroCar = ({
                   <RadioGroup
                     row
                     value={metroCarState.carVolume}
-                    onChange={handleRadioChange}
+                    onChange={handleVolumeChange}
                   >
                     <Radio value="unchecked" />
                     <Radio value="heavy" />
