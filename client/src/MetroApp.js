@@ -19,7 +19,7 @@ function MetroApp() {
   //  Car data object.
   const [state, setState] = useState([]);
   //  Dev Collapse
-  const [checked, setChecked] = useState(true);
+  const [checked, setChecked] = useState(false);
   //  Stores the last time the state was updated
   const [lastStateUpdateTime, setLastStateUpdateTime] = useState(0);
   const [carsNeedingUpdate, setCarsNeedingUpdate] = useState([]);
