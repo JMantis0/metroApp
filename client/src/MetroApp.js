@@ -1,11 +1,4 @@
-import React, {
-  Suspense,
-  lazy,
-  useState,
-  useEffect,
-  useRef,
-  useMemo,
-} from "react";
+import React, { Suspense, lazy, useState, useEffect, useRef } from "react";
 import "./MetroApp.css";
 import axios from "axios";
 //     Component imports
@@ -28,7 +21,6 @@ function MetroApp() {
   //  Dev Collapse
   const [checked, setChecked] = useState(true);
   //  Used for filtering MetroCars
-  const [filteredCarState, setFilteredCarState] = useState([]);
   //  used to store the last time the state was update
   //  DEPRECATING SOON
   const [lastStateUpdateTime, setLastStateUpdateTime] = useState(0);
@@ -51,7 +43,6 @@ function MetroApp() {
       .then((allCarNumbers) => {
         console.log("Response from getCarNumbers route: ", allCarNumbers.data);
         setState(allCarNumbers.data);
-        setFilteredCarState(allCarNumbers.data);
       })
       .catch((err) => {
         console.log("There was an error in the getCarNumbers route: ", err);
@@ -194,20 +185,11 @@ function MetroApp() {
       <div onClick={handleCollapse}>METRO APP</div>
       <MetroSearch
         searchRef={searchRef}
-        filteredCarState={filteredCarState}
-        setFilteredCarState={setFilteredCarState}
         state={state}
         searchState={searchState}
         setSearchState={setSearchState}
       />
       <Collapse in={checked}>
-        <button
-          onClick={() => {
-            console.log("filteredCarState: ", filteredCarState);
-          }}
-        >
-          Filtered Car State
-        </button>
         <div>
           {"Last State Update Time: "}
           {moment.unix(lastStateUpdateTime)._d.toString()}
@@ -246,21 +228,18 @@ function MetroApp() {
 
       <Grid container>
         <Suspense fallback={<h1>Loading...</h1>}>
-          {Object.keys(filteredCarState).map((key) => {
+          {Object.keys(state).map((key) => {
             return (
               <Grid item xs={12}>
                 <MetroCar
-                  key={filteredCarState[key].number}
-                  number={filteredCarState[key].number}
-                  volume={filteredCarState[key].volume}
-                  keys={filteredCarState[key].keys}
-                  updatedAt={filteredCarState[key].updatedAt}
-                  state={state}
+                  key={state[key].number}
+                  number={state[key].number}
+                  volume={state[key].volume}
+                  keys={state[key].keys}
+                  updatedAt={state[key].updatedAt}
                   searchRef={searchRef}
                   carsNeedingUpdate={carsNeedingUpdate}
-                  checkForNewData={checkForNewData}
                   setLastStateUpdateTime={setLastStateUpdateTime}
-                  lastStateUpdateTime={lastStateUpdateTime}
                   searchState={searchState}
                 ></MetroCar>
               </Grid>

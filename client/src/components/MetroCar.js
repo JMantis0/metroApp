@@ -4,10 +4,8 @@ import axios from "axios";
 
 import Paper from "@material-ui/core/Paper";
 import FormLabel from "@material-ui/core/FormLabel";
-import FormControl from "@material-ui/core/FormControl";
 import FormGroup from "@material-ui/core/FormGroup";
 import FormControlLabel from "@material-ui/core/FormControlLabel";
-import FormHelperText from "@material-ui/core/FormHelperText";
 import Switch from "@material-ui/core/Switch";
 import LocalShippingRoundedIcon from "@material-ui/icons/LocalShippingRounded";
 import Grid from "@material-ui/core/Grid";
@@ -24,8 +22,6 @@ const MetroCar = ({
   updatedAt,
   carsNeedingUpdate,
   setLastStateUpdateTime,
-  lastStateUpdateTime,
-  state,
   searchRef,
   searchState,
 }) => {
