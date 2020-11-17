@@ -1,17 +1,38 @@
 const router = require("express").Router();
-const models = require("../models");
+
 const env = require("dotenv");
+
 const axios = require("axios");
+const models = require("../models");
 const Sequelize = require("sequelize");
+
+//  npm moment
 const moment = require("moment");
 moment().format();
 
+//  npm xlsx
 const XLSX = require("xlsx");
 const metroBook = XLSX.readFile("./Master Car List.xlsx");
 const sheet_name_list = metroBook.SheetNames;
 const metroCarObject = XLSX.utils.sheet_to_json(
   metroBook.Sheets[sheet_name_list[0]]
 );
+
+/*    ROUTE LIST:
+ *   *   *   *   *   *   *   *   *   *   *   *
+ *    GET: "/updateMetroCar/:carNumber"
+ *    GET: "/test"
+ *    GET: "/getCarNumbers"
+ *    GET: "/checkForNewData/:lastStateUpdateTime"
+ *    GET: "/getOutOfDateCars/:lastStateUpdateTime"
+ *    PUT: "/setVolumeRadio"
+ *    PUT: "/toggleKeys"
+ *   POST: "/initializeDB"
+ * DELETE: "/deleteDB"
+ *   *   *   *   *   *   *   *   *   *   *   *
+ *
+ */
+
 console.log("Current Metro Car numbers :");
 console.table(metroCarObject);
 console.log(
