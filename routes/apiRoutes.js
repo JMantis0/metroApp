@@ -56,7 +56,7 @@ const updateLatestPut = (res) => {
   console.log(`Updating latest put record`);
   const response = new Promise((resolve, reject) => {
     models.LatestPut.update(
-      { latestPut: moment().toString() },
+      { latestPut: moment().unix() },
       { where: { id: 1 } }
     )
       .then((response) => {
@@ -76,7 +76,6 @@ const updateLatestPut = (res) => {
   return response;
 };
 
-//  This route will be used by each MetroCar individually to reduce mass renders
 router.get("/updateMetroCar/:carNumber", (req, res) => {
   console.log(
     `███████████████████████████████████████████████████████████████████`
