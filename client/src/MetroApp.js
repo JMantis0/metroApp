@@ -20,21 +20,33 @@ function MetroApp() {
   const [state, setState] = useState([]);
   //  Dev Collapse
   const [checked, setChecked] = useState(true);
-  //  Used for filtering MetroCars
-  //  used to store the last time the state was update
-  //  DEPRECATING SOON
+  //  Stores the last time the state was updated
   const [lastStateUpdateTime, setLastStateUpdateTime] = useState(0);
   const [carsNeedingUpdate, setCarsNeedingUpdate] = useState([]);
-  //  Ref passed into the search components
+  //  Ref for search input within MetroSearch.  Used by MetroCar to control display value;
   const searchRef = useRef("");
   const [searchState, setSearchState] = useState("");
 
-  //  Onload, getCarNumbers one time.
+  //  On first render, get Metro Car data from server DB and set it to state.
   useEffect(() => {
     console.log("Getting car data");
     setLastStateUpdateTime(moment().unix());
     requestMetroCarDataAndSetStates();
   }, []);
+
+  useEffect(() => {
+    console.log(
+      "Setting data-check interval"
+    );
+    const carTicker = setInterval(async () => {
+      checkForNewData();
+    }, 5000);
+    const cleanup = () => {
+      console.log("Clearing data-check interval");
+      clearInterval(carTicker);
+    };
+    return cleanup;
+  }, [lastStateUpdateTime]);
 
   const requestMetroCarDataAndSetStates = async () => {
     console.log("Client requesting Metro Car data...");
@@ -49,40 +61,19 @@ function MetroApp() {
       });
   };
 
-  useEffect(() => {
-    console.log(
-      "UseEffect triggered from change to lastStateUpdateTime... setting new interval."
-    );
-    const carTicker = setInterval(async () => {
-      const thereIsNewData = await checkForNewData();
-      console.log("thereIsNewData", thereIsNewData);
-      if (thereIsNewData) {
-        console.log("There is new Data");
-      }
-    }, 5000);
-    const cleanup = () => {
-      console.log("Cleaning up and clearing interval");
-      clearInterval(carTicker);
-    };
-    return cleanup;
-  }, [lastStateUpdateTime]);
-
-  //What can change lastStateUpdateTime?
-
   const checkForNewData = async () => {
-    console.log("Checking for new data", lastStateUpdateTime);
-
+    console.log("Checking for new data...", lastStateUpdateTime);
     axios
       .get(`/api/checkForNewData/${lastStateUpdateTime}`)
       .then((dataCheckResponse) => {
-        console.log("dataCheckResponse ", dataCheckResponse);
         const newData = dataCheckResponse.data.newData;
-        console.log("newData is:", newData);
         if (newData) {
-          console.log(
-            `Now get the data only for the cars that have new data, updated after ${lastStateUpdateTime}`
-          );
+          console.log("There is new data in the database.");
+          console.log("Requesting new Metro Car data...");
           getOutOfDateCars();
+        } else {
+          console.log("Client is already up to date.");
+          console.log("There is no new data");
         }
         return newData;
       })
@@ -92,6 +83,7 @@ function MetroApp() {
   };
 
   const getOutOfDateCars = () => {
+    console.log("Requesting list of cars with new data on server...")
     axios
       .get(`/api/getOutOfDateCars/${lastStateUpdateTime}`)
       .then((carsToBeUpdated) => {

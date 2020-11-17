@@ -39,8 +39,10 @@ const MetroCar = ({
 
   const classes = useStyles();
 
+  // On first render, this useMemo
+  // sets the metroCarState to props values.
   useMemo(() => {
-    console.log("inside useMemo");
+    console.log(`Setting state for car ${number}`);
     setMetroCarState({
       carNumber: number,
       carKeys: keys,
@@ -50,20 +52,22 @@ const MetroCar = ({
     });
   }, []);
 
+  // When searchState changes, this useEffect
+  // checks if the car number includes the string from searchRef
+  // and then triggers a render by resetting state.
   useEffect(() => {
-    console.log("inside metrocar useEffect searchStatedependency");
     if (
       number.toString().includes(searchRef.current.value) ||
       searchRef.current.value === ""
     ) {
-      setMetroCarState({ ...metroCarState, carInvisible: false });
+      setMetroCarState({ ...metroCarState });
     }
   }, [searchState]);
 
+  //  When carsNeedingUpdate changes, this useEffect
+  //  checks to see if this MetroCar needs to update, and
+  //  if so, updates.
   useEffect(() => {
-    console.log("Inside useEffect with carsNeedingUpdate dependency");
-    // console.log("metroCarState.number", metroCarState.carNumber);
-    // console.log("carsNeedingUpdate", carsNeedingUpdate);
     if (carsNeedingUpdate.indexOf(metroCarState.carNumber) > -1) {
       console.log("cars needing update: ", carsNeedingUpdate);
       console.log("this car needs updating: ", metroCarState.carNumber);
@@ -125,7 +129,7 @@ const MetroCar = ({
 
   const handleRadioChange = (event) => {
     const newRadioValue = event.target.value;
-    console.log("newRadioValue: ", newRadioValue);
+    console.log(`Client changed car ${number} volume to ${newRadioValue}`);
     setMetroCarState({
       ...metroCarState,
       carVolume: newRadioValue,
@@ -141,10 +145,6 @@ const MetroCar = ({
         const updatedAtUnix = moment(
           setVolumeRadioResponse.data.updatedAt
         ).unix();
-        console.log(
-          "trying to convert sequelize updatedAt into unix timestamp",
-          updatedAtUnix
-        );
         setMetroCarState({
           ...metroCarState,
           carVolume: setVolumeRadioResponse.data.volume,
