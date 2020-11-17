@@ -1,11 +1,4 @@
-import React, {
-  Suspense,
-  lazy,
-  useState,
-  useEffect,
-  useRef,
-  useMemo,
-} from "react";
+import React, { Suspense, lazy, useState, useEffect, useRef } from "react";
 import "./MetroApp.css";
 import axios from "axios";
 //     Component imports
@@ -27,21 +20,33 @@ function MetroApp() {
   const [state, setState] = useState([]);
   //  Dev Collapse
   const [checked, setChecked] = useState(true);
-  //  Used for filtering MetroCars
-  const [filteredCarState, setFilteredCarState] = useState([]);
-  //  used to store the last time the state was update
-  //  DEPRECATING SOON
+  //  Stores the last time the state was updated
   const [lastStateUpdateTime, setLastStateUpdateTime] = useState(0);
   const [carsNeedingUpdate, setCarsNeedingUpdate] = useState([]);
-  //  Ref passed into the search components
+  //  Ref for search input within MetroSearch.  Used by MetroCar to control display value;
   const searchRef = useRef("");
+  const [searchState, setSearchState] = useState("");
 
-  //  Onload, getCarNumbers one time.
+  //  On first render, get Metro Car data from server DB and set it to state.
   useEffect(() => {
     console.log("Getting car data");
     setLastStateUpdateTime(moment().unix());
     requestMetroCarDataAndSetStates();
   }, []);
+
+  useEffect(() => {
+    console.log(
+      "Setting data-check interval"
+    );
+    const carTicker = setInterval(async () => {
+      checkForNewData();
+    }, 5000);
+    const cleanup = () => {
+      console.log("Clearing data-check interval");
+      clearInterval(carTicker);
+    };
+    return cleanup;
+  }, [lastStateUpdateTime]);
 
   const requestMetroCarDataAndSetStates = async () => {
     console.log("Client requesting Metro Car data...");
@@ -50,47 +55,25 @@ function MetroApp() {
       .then((allCarNumbers) => {
         console.log("Response from getCarNumbers route: ", allCarNumbers.data);
         setState(allCarNumbers.data);
-        setFilteredCarState(allCarNumbers.data);
       })
       .catch((err) => {
         console.log("There was an error in the getCarNumbers route: ", err);
       });
   };
 
-  useEffect(() => {
-    console.log(
-      "UseEffect triggered from change to lastStateUpdateTime... setting new interval."
-    );
-    const carTicker = setInterval(async () => {
-      const thereIsNewData = await checkForNewData();
-      console.log("thereIsNewData", thereIsNewData);
-      if (thereIsNewData) {
-        console.log("There is new Data");
-      }
-    }, 5000);
-    const cleanup = () => {
-      console.log("Cleaning up and clearing interval");
-      clearInterval(carTicker);
-    };
-    return cleanup;
-  }, [lastStateUpdateTime]);
-
-  //What can change lastStateUpdateTime?
-
   const checkForNewData = async () => {
-    console.log("Checking for new data", lastStateUpdateTime);
-
+    console.log("Checking for new data...", lastStateUpdateTime);
     axios
       .get(`/api/checkForNewData/${lastStateUpdateTime}`)
       .then((dataCheckResponse) => {
-        console.log("dataCheckResponse ", dataCheckResponse);
         const newData = dataCheckResponse.data.newData;
-        console.log("newData is:", newData);
         if (newData) {
-          console.log(
-            `Now get the data only for the cars that have new data, updated after ${lastStateUpdateTime}`
-          );
+          console.log("There is new data in the database.");
+          console.log("Requesting new Metro Car data...");
           getOutOfDateCars();
+        } else {
+          console.log("Client is already up to date.");
+          console.log("There is no new data");
         }
         return newData;
       })
@@ -100,6 +83,7 @@ function MetroApp() {
   };
 
   const getOutOfDateCars = () => {
+    console.log("Requesting list of cars with new data on server...")
     axios
       .get(`/api/getOutOfDateCars/${lastStateUpdateTime}`)
       .then((carsToBeUpdated) => {
@@ -193,18 +177,11 @@ function MetroApp() {
       <div onClick={handleCollapse}>METRO APP</div>
       <MetroSearch
         searchRef={searchRef}
-        filteredCarState={filteredCarState}
-        setFilteredCarState={setFilteredCarState}
         state={state}
+        searchState={searchState}
+        setSearchState={setSearchState}
       />
       <Collapse in={checked}>
-        <button
-          onClick={() => {
-            console.log("filteredCarState: ", filteredCarState);
-          }}
-        >
-          Filtered Car State
-        </button>
         <div>
           {"Last State Update Time: "}
           {moment.unix(lastStateUpdateTime)._d.toString()}
@@ -227,6 +204,8 @@ function MetroApp() {
             console.log("last state update time", lastStateUpdateTime);
             console.log("needingUpdate", carsNeedingUpdate);
             console.log(moment.unix(lastStateUpdateTime));
+            console.log("searchState", searchState);
+            console.log("searchRef", searchRef);
           }}
         >
           Console.log(state)
@@ -241,21 +220,19 @@ function MetroApp() {
 
       <Grid container>
         <Suspense fallback={<h1>Loading...</h1>}>
-          {Object.keys(filteredCarState).map((key) => {
+          {Object.keys(state).map((key) => {
             return (
               <Grid item xs={12}>
                 <MetroCar
-                  key={filteredCarState[key].number}
-                  number={filteredCarState[key].number}
-                  volume={filteredCarState[key].volume}
-                  keys={filteredCarState[key].keys}
-                  updatedAt={filteredCarState[key].updatedAt}
-                  state={state}
+                  key={state[key].number}
+                  number={state[key].number}
+                  volume={state[key].volume}
+                  keys={state[key].keys}
+                  updatedAt={state[key].updatedAt}
                   searchRef={searchRef}
                   carsNeedingUpdate={carsNeedingUpdate}
-                  checkForNewData={checkForNewData}
                   setLastStateUpdateTime={setLastStateUpdateTime}
-                  lastStateUpdateTime={lastStateUpdateTime}
+                  searchState={searchState}
                 ></MetroCar>
               </Grid>
             );

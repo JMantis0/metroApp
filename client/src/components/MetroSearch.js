@@ -1,34 +1,27 @@
-import React, { useState, useEffect, useRef }
- from "react";
+import React, { useState, useEffect, useRef } from "react";
 import Input from "@material-ui/core/Input";
 
 const MetroSearch = ({
   setFilteredCarState,
   searchRef,
   state,
+  searchState,
+  setSearchState,
 }) => {
   let inputTimeout;
   const handleInputChange = (event) => {
-    console.log("event", event);
-    //  I want to implement a timeout here that will delay the state being updated to avoid lag
-    clearTimeout(inputTimeout);
-    const filteredKeys = Object.keys(state).filter((key) =>
-      key.includes(searchRef.current.value)
-    );
+    console.log(`The searchRef.current.value is: ${searchRef.current.value}`);
+    console.log(`The event.target.value is ${event.target.value}`);
     console.log(
-      `The filtered keys containing ${searchRef.current.value} are: `,
-      filteredKeys
+      `searchRef.current.value === "" evaluates to ${searchRef.current.value ===
+        ""}`
     );
+    clearTimeout(inputTimeout);
 
-    const filteredStateObject = {};
-    filteredKeys.forEach((key) => {
-      filteredStateObject[key] = state[key];
-    });
-
-    console.log("The filteredStateObject is: ", filteredStateObject);
     inputTimeout = setTimeout(() => {
-      setFilteredCarState(filteredStateObject);
+      setSearchState(searchRef.current.value);
     }, 1500);
+    //  *********************** END OF OLD WAY ******************
   };
 
   return (
