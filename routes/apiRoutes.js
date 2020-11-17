@@ -125,12 +125,15 @@ router.post("/initializeDB", (req, res) => {
   console.log("Initializing the db...");
   models.Car.bulkCreate(metroCarObject)
     .then((response) => {
-      console.log("Database initialized.  Sending response to client.");
-      res.sendStatus(200);
+      const newRecordsInitialized = response.length;
+      console.log(
+        `Database initialized with ${newRecordsInitialized} entries.  Sending response to client.`
+      );
+      res.status(200).send({numberOfRecords: newRecordsInitialized});
     })
     .catch((err) => {
-      console.log("There was an error in the initialize route: ", { err });
-      res.status(400).send({ err });
+      console.log("There was an error in the initializeDB route: ", err);
+      res.status(400).send(err);
     });
 });
 

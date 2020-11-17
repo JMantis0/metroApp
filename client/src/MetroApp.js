@@ -117,37 +117,33 @@ function MetroApp() {
   };
 
   const initializeDB = () => {
+    console.log("Sending POST request to server to initialize Metro Cars...");
     axios
       .post("/api/initializeDB", {})
       .then((response) => {
-        console.log("Response from initialize call", response);
-        return new Promise((resolve, reject) => {
-          resolve(response);
-        });
+        console.log(
+          `Database has been initialized with ${response.data.numberOfRecords} new records`,
+          response
+        );
       })
       .catch((err) => {
         console.log("There was an error in the initialize call: ", err);
-        return new Promise((resolve, reject) => {
-          resolve(err);
-        });
-      })
-      .then((response) => {
-        console.log(response, "does this make sense?");
       });
   };
 
   const deleteDB = () => {
-    console.log("deleteDB triggered");
+    console.log("Sending DELETE request to server...");
     axios
       .delete("/api/deleteDB", {})
       .then((response) => {
-        console.log("response from delete call: ", response);
+        console.log("All car records in DB have been deleted.", response);
       })
       .catch((err) => {
         console.log("There was an error in the delete call: ", err);
       });
   };
 
+  // This function is only used for testing
   const updateDBLatestPut = () => {
     console.log("Initiating latest put Get");
     axios
@@ -166,6 +162,7 @@ function MetroApp() {
       });
   };
 
+  // This function is only used for testing
   const changeOneCar = () => {
     // setState({...state, state[0].volume: "empty"})
     setState({ ...state, "130598": { carVolume: "heavy" } });
