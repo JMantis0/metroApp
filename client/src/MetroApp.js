@@ -89,7 +89,6 @@ function MetroApp() {
           "Found " + carsToBeUpdated.data.length + " cars to be updated: ",
           carsToBeUpdated.data
         );
-        console.log(carsToBeUpdated.data.length);
         if (carsToBeUpdated.data.length !== 0) {
           //  Changing this state automatically causes each MetroCar to run getNewMetroCarData
           setCarsNeedingUpdate(carsToBeUpdated.data);

@@ -90,8 +90,11 @@ const MetroCar = ({
           carKeys: updateCarResponse.data.keyz,
           carUpdatedAt: updateCarResponse.data.updatedAt,
         });
-        console.log(moment(updateCarResponse.data.updatedAt).unix());
-        console.log(`Set lastStateUpdateTime to ${moment(updateCarResponse.data.updatedAt).unix()}`)
+        console.log(
+          `Set lastStateUpdateTime to ${moment(
+            updateCarResponse.data.updatedAt
+          ).unix()}`
+        );
         setLastStateUpdateTime(moment(updateCarResponse.data.updatedAt).unix());
       })
       .catch((updateCarError) => {
@@ -140,7 +143,10 @@ const MetroCar = ({
         num: number,
       })
       .then((setVolumeResponse) => {
-        console.log("setVolumeResponse: ", setVolumeResponse);
+        console.log(
+          "Car data in DB has been updated: ",
+          setVolumeResponse.data
+        );
 
         const updatedAtUnix = moment(setVolumeResponse.data.updatedAt).unix();
         setMetroCarState({
