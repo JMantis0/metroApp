@@ -1,4 +1,4 @@
-// Creating our User model
+// A Car has a number, volume, and model column.
 module.exports = function(sequelize, DataTypes) {
   const Car = sequelize.define("Car", {
     num: {
@@ -10,20 +10,7 @@ module.exports = function(sequelize, DataTypes) {
       type: DataTypes.TEXT,
       allowNull: false,
     },
-    // The email cannot be null, and must be a proper email before creation
-    heavy: {
-      type: DataTypes.BOOLEAN,
-      allowNull: false,
-    },
     keyz: {
-      type: DataTypes.BOOLEAN,
-      allowNull: false,
-    },
-    flashers: {
-      type: DataTypes.BOOLEAN,
-      allowNull: false,
-    },
-    clear: {
       type: DataTypes.BOOLEAN,
       allowNull: false,
     },
