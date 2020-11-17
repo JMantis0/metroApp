@@ -12,8 +12,8 @@ const sheet_name_list = metroBook.SheetNames;
 const metroCarObject = XLSX.utils.sheet_to_json(
   metroBook.Sheets[sheet_name_list[0]]
 );
-console.log(metroCarObject);
-console.log(metroCarObject[0]["num"]);
+console.log("Current Metro Car numbers :");
+console.table(metroCarObject);
 console.log(
   `███████████████████████████████████████████████████████████████████`
 );
