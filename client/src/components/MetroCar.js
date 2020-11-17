@@ -32,6 +32,7 @@ const MetroCar = ({
   const useStyles = makeStyles(() => ({
     root: {
       width: "100%",
+      backgroundColor: "#eeff00",
     },
     invisible: {
       display: "none",
@@ -151,7 +152,20 @@ const MetroCar = ({
 
   //  A MetroCar is a row on the screen with car data and can be interacted with by a user.
   return (
-    <div>
+    //  I would like to make the classname of the parent div dependent on searchRef.  If the
+    //  car number "includes" searchRef, then the className will be root.
+    //  if searchRef.current is nothing, then className will be root
+    //  If the car number
+    //  does not include searchRef, then the className will be invisible.
+    //  This should be achievable with a ternary expression
+    <div
+      className={
+        number.toString().includes(searchRef.current.value) ||
+        searchRef.current.value === ""
+          ? classes.root
+          : classes.invisible
+      }
+    >
       <Paper>
         <FormGroup row>
           <Grid container>
