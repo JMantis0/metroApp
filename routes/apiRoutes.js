@@ -70,7 +70,7 @@ router.get("/updateMetroCar/:carNumber", (req, res) => {
   models.Car.findOne({ where: { num: req.params.carNumber } })
     .then((car) => {
       console.log("Car found: ", car.dataValues.num);
-      console.loc("Sending car record to client");
+      console.log("Sending car record to client");
       res.status(202).send(car);
     })
     .catch((updateCarError) => {

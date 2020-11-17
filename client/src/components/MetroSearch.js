@@ -1,7 +1,13 @@
 import React, { useState, useEffect, useRef } from "react";
 import Input from "@material-ui/core/Input";
 
-const MetroSearch = ({ setFilteredCarState, searchRef, state }) => {
+const MetroSearch = ({
+  setFilteredCarState,
+  searchRef,
+  state,
+  searchState,
+  setSearchState,
+}) => {
   let inputTimeout;
   const handleInputChange = (event) => {
     console.log(`The searchRef.current.value is: ${searchRef.current.value}`);
@@ -10,6 +16,12 @@ const MetroSearch = ({ setFilteredCarState, searchRef, state }) => {
       `searchRef.current.value === "" evaluates to ${searchRef.current.value ===
         ""}`
     );
+    clearTimeout(inputTimeout);
+
+    inputTimeout = setTimeout(() => {
+      setSearchState(searchRef.current.value);
+    }, 1500);
+    //  *********************** END OF OLD WAY ******************
   };
 
   return (

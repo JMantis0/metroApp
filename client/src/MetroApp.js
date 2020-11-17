@@ -35,6 +35,7 @@ function MetroApp() {
   const [carsNeedingUpdate, setCarsNeedingUpdate] = useState([]);
   //  Ref passed into the search components
   const searchRef = useRef("");
+  const [searchState, setSearchState] = useState("");
 
   //  Onload, getCarNumbers one time.
   useEffect(() => {
@@ -196,6 +197,8 @@ function MetroApp() {
         filteredCarState={filteredCarState}
         setFilteredCarState={setFilteredCarState}
         state={state}
+        searchState={searchState}
+        setSearchState={setSearchState}
       />
       <Collapse in={checked}>
         <button
@@ -227,6 +230,8 @@ function MetroApp() {
             console.log("last state update time", lastStateUpdateTime);
             console.log("needingUpdate", carsNeedingUpdate);
             console.log(moment.unix(lastStateUpdateTime));
+            console.log("searchState", searchState);
+            console.log("searchRef", searchRef);
           }}
         >
           Console.log(state)
@@ -256,6 +261,7 @@ function MetroApp() {
                   checkForNewData={checkForNewData}
                   setLastStateUpdateTime={setLastStateUpdateTime}
                   lastStateUpdateTime={lastStateUpdateTime}
+                  searchState={searchState}
                 ></MetroCar>
               </Grid>
             );

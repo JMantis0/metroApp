@@ -27,8 +27,10 @@ const MetroCar = ({
   lastStateUpdateTime,
   state,
   searchRef,
+  searchState,
 }) => {
   const [metroCarState, setMetroCarState] = useState({});
+
   const useStyles = makeStyles(() => ({
     root: {
       width: "100%",
@@ -48,8 +50,19 @@ const MetroCar = ({
       carKeys: keys,
       carVolume: volume,
       carUpdatedAt: updatedAt,
+      carInvisible: true,
     });
   }, []);
+
+  useEffect(() => {
+    console.log("inside metrocar useEffect searchStatedependency");
+    if (
+      number.toString().includes(searchRef.current.value) ||
+      searchRef.current.value === ""
+    ) {
+      setMetroCarState({ ...metroCarState, carInvisible: false });
+    }
+  }, [searchState]);
 
   useEffect(() => {
     console.log("Inside useEffect with carsNeedingUpdate dependency");
