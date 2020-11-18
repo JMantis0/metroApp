@@ -11,6 +11,7 @@ import CssBaseline from "@material-ui/core/CssBaseline";
 
 // component imports
 import MetroFooter from "./components/MetroFooter";
+import MetroClock from "./components/MetroClock";
 
 import moment from "moment";
 const MetroCar = lazy(() => import("./components/MetroCar"));
@@ -18,6 +19,7 @@ const MetroCar = lazy(() => import("./components/MetroCar"));
 function MetroApp() {
   //  Car data object.
   const [state, setState] = useState([]);
+  const [heavyState, setHeavyState] = useState(0);
   //  Dev Collapse
   const [checked, setChecked] = useState(true);
   //  Stores the last time the state was updated
@@ -25,6 +27,7 @@ function MetroApp() {
   const [carsNeedingUpdate, setCarsNeedingUpdate] = useState([]);
   //  Ref for search input within MetroSearch.  Used by MetroCar to control display value;
   const searchRef = useRef("");
+  const renderRef = useRef(0);
   const [searchState, setSearchState] = useState("");
 
   //  On first render, get Metro Car data from server DB and set it to state.
@@ -32,6 +35,7 @@ function MetroApp() {
     console.log("Getting car data");
     setLastStateUpdateTime(moment().unix());
     requestMetroCarDataAndSetStates();
+    renderRef.current = renderRef.current + 1;
   }, []);
 
   useEffect(() => {
@@ -168,10 +172,16 @@ function MetroApp() {
     setState({ ...state, "130598": { carVolume: "heavy" } });
   };
 
+  const displayHeavies = () => {
+    Object.key(state).map((key) => {
+      if()
+    });
+  };
   return (
     <div className="App">
       <CssBaseline />
       <div onClick={handleCollapse}>METRO APP</div>
+      <MetroClock />
       <MetroSearch
         searchRef={searchRef}
         state={state}
@@ -221,6 +231,7 @@ function MetroApp() {
             return (
               <Grid item xs={12}>
                 <MetroCar
+                  renderRef={renderRef}
                   key={state[key].number}
                   number={state[key].number}
                   volume={state[key].volume}
@@ -236,7 +247,7 @@ function MetroApp() {
           })}
         </Suspense>
       </Grid>
-      <MetroFooter />
+      <MetroFooter renderRef={renderRef} />
     </div>
   );
 }
