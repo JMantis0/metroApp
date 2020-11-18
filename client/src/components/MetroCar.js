@@ -27,6 +27,8 @@ const MetroCar = memo(
     searchState,
     heavyOnly,
     renderRef,
+    state,
+    setState,
   }) => {
     const [metroCarState, setMetroCarState] = useState({});
 

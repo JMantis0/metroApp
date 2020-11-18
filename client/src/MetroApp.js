@@ -55,7 +55,7 @@ function MetroApp() {
     axios
       .get("/api/getCarNumbers")
       .then((allCarNumbers) => {
-        // console.log("Response from getCarNumbers route: ", allCarNumbers.data);
+        console.log("Response from getCarNumbers route: ", allCarNumbers.data);
         setState(allCarNumbers.data);
       })
       .catch((err) => {
@@ -241,6 +241,8 @@ function MetroApp() {
                   carsNeedingUpdate={carsNeedingUpdate}
                   setLastStateUpdateTime={setLastStateUpdateTime}
                   searchState={searchState}
+                  state={state}
+                  setState={setState}
                 ></MetroCar>
               </Grid>
             );

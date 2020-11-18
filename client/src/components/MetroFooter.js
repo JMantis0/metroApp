@@ -6,7 +6,7 @@ import BottomNavigationAction from "@material-ui/core/BottomNavigationAction";
 import FitnessCenterRoundedIcon from "@material-ui/icons/FitnessCenterRounded";
 import { makeStyles } from "@material-ui/core/styles";
 
-const MetroFooter = ({ heavyOnly, setHeavyOnly, renderRef }) => {
+const MetroFooter = ({ renderRef }) => {
   const useStyles = makeStyles(() => ({
     root: {
       position: "fixed",
@@ -29,7 +29,6 @@ const MetroFooter = ({ heavyOnly, setHeavyOnly, renderRef }) => {
           onChange={(event, value) => {
             handleChange(event, value);
             renderRef.current = renderRef.current + 1;
-            setHeavyOnly(heavyOnly + 1);
           }}
           showLabels
         >
