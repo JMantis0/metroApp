@@ -1,5 +1,6 @@
 import React from "react";
 import Input from "@material-ui/core/Input";
+import moment from "moment";
 
 const MetroSearch = ({
   setFilteredCarState,
@@ -9,6 +10,7 @@ const MetroSearch = ({
   setSearchState,
 }) => {
   let inputTimeout;
+
   const handleInputChange = (event) => {
     console.log(`The searchRef.current.value is: ${searchRef.current.value}`);
     console.log(`The event.target.value is ${event.target.value}`);
