@@ -11,7 +11,9 @@ const apiRoutes = require("./routes/apiRoutes");
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 // Serve up static assets (usually on heroku)
+app.use(express.static("public"));
 if (process.env.NODE_ENV === "production") {
+  console.log("serving in PRODUCTION MODE");
   app.use(express.static("client/build"));
 }
 

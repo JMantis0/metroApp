@@ -42,7 +42,7 @@ const MetroCar = ({
   // On first render, this useMemo
   // sets the metroCarState to props values.
   useMemo(() => {
-    console.log(`Setting state for car ${number}`);
+    // console.log(`Setting state for car ${number}`);
     setMetroCarState({
       carNumber: number,
       carKeys: keys,

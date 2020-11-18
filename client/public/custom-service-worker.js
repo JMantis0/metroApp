@@ -1,28 +1,29 @@
 const FILES_TO_CACHE = [
-  "/",
-  "/index.html",
-  "/js/index.js",
-  "/manifest.webmanifest",
-  "/css/styles.css",
-  "/icons/icon-72x72.png",
-  "/icons/icon-96x96.png",
-  "/icons/icon-128x128.png",
-  "/icons/icon-144x144.png",
-  "/icons/icon-152x152.png",
-  "/icons/icon-192x192.png",
-  "/icons/icon-384x384.png",
-  "/icons/icon-512x512.png",
+  // "/index.html",
+  // "../src/index.js",
+  // "../src/styles.css",
+  // "../src/metroApp.css",
+  // "/manifest.webmanifest",
+  // "/favicon.ico",
+  // "/icons/icon-72x72.png",
+  // "/icons/icon-96x96.png",
+  // "/icons/icon-128x128.png",
+  // "/icons/icon-144x144.png",
+  // "/icons/icon-152x152.png",
+  // "/icons/icon-192x192.png",
+  // "/icons/icon-384x384.png",
+  // "/icons/icon-512x512.png",
+  // "/icons/icon-1026x1026.png",
 ];
 
 const STATIC_CACHE = "static-cache-v2";
 const DATA_CACHE = "data-cache-v1";
-
 // install
-self.addEventListener("install", function (evt) {
-  // console.log("Attempting to install service worker and cache static assets");
+self.addEventListener("install", function(evt) {
+  console.log("Attempting to install service worker and cache static assets");
   evt.waitUntil(
     caches.open(STATIC_CACHE).then((cache) => {
-      // console.log("Static files pre-cached successfully!");
+      console.log("Static files pre-cached successfully!");
       return cache.addAll(FILES_TO_CACHE);
     })
   );
@@ -30,9 +31,8 @@ self.addEventListener("install", function (evt) {
   self.skipWaiting();
 });
 
-
-self.addEventListener("activate", function (evt) {
-  // console.log("Service worker activating")
+self.addEventListener("activate", function(evt) {
+  console.log("Service worker activating");
   evt.waitUntil(
     caches.keys().then((keyList) => {
       return Promise.all(
@@ -42,14 +42,14 @@ self.addEventListener("activate", function (evt) {
             return caches.delete(key);
           }
         })
-        );
-      })
-      );
-      
-      self.clients.claim();
+      ).catch((err) => console.log("there was an error:", err));
+    })
+  );
+
+  self.clients.claim();
 });
 
-self.addEventListener("fetch", function (evt) {
+self.addEventListener("fetch", function(evt) {
   // cache successful requests to the API
   if (evt.request.url.includes("/api/")) {
     evt.respondWith(
@@ -60,7 +60,7 @@ self.addEventListener("fetch", function (evt) {
             .then((response) => {
               // If the response was good, clone it and store it in the cache.
               if (response.status === 200) {
-                // console.log("Adding to data-cache: url - ", evt.request.url);
+                console.log("Adding to data-cache: url - ", evt.request.url);
                 cache.put(evt.request.url, response.clone());
               }
               return response;
@@ -78,10 +78,10 @@ self.addEventListener("fetch", function (evt) {
 
   //  Static files route through here.
   evt.respondWith(
-    caches.match(evt.request).then(function (response) {
+    caches.match(evt.request).then(function(response) {
       if (response) {
         // console.log("Match found in cache... responding with cache for ", evt.request.url);
-        return response
+        return response;
       } else {
         // console.log("No match in cache, fetching ", evt.request.url);
         return fetch(evt.request);

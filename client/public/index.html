@@ -8,7 +8,7 @@
       manifest.json provides metadata used when your web app is added to the
       homescreen on Android. See https://developers.google.com/web/fundamentals/engage-and-retain/web-app-manifest/
     -->
-    <link rel="manifest" href="/manifest.webmanifest">
+    <link rel="manifest" href="manifest.webmanifest">
     <link rel="shortcut icon" href="%PUBLIC_URL%/favicon.ico">
     <!-- sheetjs -->
     <!-- <script lang="javascript" src="../src/assets/xlsx.full.min.js"></script> -->
@@ -40,10 +40,13 @@
       To create a production bundle, use `npm run build` or `yarn build`.
     -->
   <script>
+    console.log(`"serviceWorker" in navigator ${"serviceWorker" in navigator}`)
+    console.log("nagivator", navigator)
     if ("serviceWorker" in navigator) {
       window.addEventListener("load", () => {
-        navigator.serviceWorker.register("service-worker.js").then(reg => {
-          // console.log("Service worker found.  Registering...");
+        console.log("Service worker found.  Registering...");
+        navigator.serviceWorker.register("custom-service-worker.js").then(reg => {
+          console.log("reg object: ", reg)
         });
       });
     }
