@@ -174,7 +174,7 @@ function MetroApp() {
 
   const displayHeavies = () => {
     Object.key(state).map((key) => {
-      if()
+      // if()
     });
   };
   return (
