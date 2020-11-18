@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from "react";
+import React, { memo, useState, useEffect, useMemo } from "react";
 
 import axios from "axios";
 
@@ -15,7 +15,7 @@ import moment from "moment";
 
 import { makeStyles } from "@material-ui/core/styles";
 
-const MetroCar = ({
+const MetroCar = memo(({
   number,
   volume,
   keys,
@@ -75,7 +75,7 @@ const MetroCar = ({
     }
   }, [carsNeedingUpdate]);
 
-  //  This will be the updateState route
+  //  This will be the setMetroCarState route
 
   const getNewMetroCarData = () => {
     console.log(`Requesting new data for car ${number}...`);
@@ -164,12 +164,6 @@ const MetroCar = ({
 
   //  A MetroCar is a row on the screen with car data and can be interacted with by a user.
   return (
-    //  I would like to make the classname of the parent div dependent on searchRef.  If the
-    //  car number "includes" searchRef, then the className will be root.
-    //  if searchRef.current is nothing, then className will be root
-    //  If the car number
-    //  does not include searchRef, then the className will be invisible.
-    //  This should be achievable with a ternary expression
     <div
       className={
         number.toString().includes(searchRef.current.value) ||
@@ -227,5 +221,5 @@ const MetroCar = ({
       </Paper>
     </div>
   );
-};
+});
 export default MetroCar;
