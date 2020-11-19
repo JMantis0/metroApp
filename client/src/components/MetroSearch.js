@@ -1,6 +1,5 @@
 import React from "react";
 import Input from "@material-ui/core/Input";
-import moment from "moment";
 
 const MetroSearch = ({
   setFilteredCarState,
@@ -23,7 +22,6 @@ const MetroSearch = ({
     inputTimeout = setTimeout(() => {
       setSearchState(searchRef.current.value);
     }, 1500);
-    //  *********************** END OF OLD WAY ******************
   };
 
   return (

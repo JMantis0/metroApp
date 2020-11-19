@@ -12,6 +12,7 @@ import Grid from "@material-ui/core/Grid";
 import Radio from "@material-ui/core/Radio";
 import RadioGroup from "@material-ui/core/RadioGroup";
 import moment from "moment";
+import classnames from "classnames";
 
 import { makeStyles } from "@material-ui/core/styles";
 
@@ -29,8 +30,34 @@ const MetroCar = memo(
     renderRef,
     state,
     setState,
+    filterState
   }) => {
     const [metroCarState, setMetroCarState] = useState({});
+
+    //  I feel like this is something that I've been missing in react.  In jQuery I tended to use
+    //  addClass(); and removeClass(); methods quite a lot.  the classnames npm is going to
+    //  be a wonderful library moving forward.
+    const carClasses = classnames({
+      //  HEAVIES ONLY
+      hidden: metroCarState.volume === "light" && filterState === "heavy",
+      hidden: metroCarState.volume === "empty" && filterState === "heavy",
+      hidden: metroCarState.volume === "unchecked" && filterState === "heavy",
+
+      //  LIGHTS ONLY
+      hidden: metroCarState.volume === "heavy" && filterState === "light",
+      hidden: metroCarState.volume === "empty" && filterState === "light",
+      hidden: metroCarState.volume === "unchecked" && filterState === "light",
+
+      // UNCHECKED ONLY
+      hidden: metroCarState.volume === "heavy" && filterState === "unchecked",
+      hidden: metroCarState.volume === "empty" && filterState === "unchecked",
+      hidden: metroCarState.volume === "light" && filterState === "unchecked",
+      
+      // EMPTY ONLY
+      hidden: metroCarState.volume === "heavy" && filterState === "empty",
+      hidden: metroCarState.volume === "unchecked" && filterState === "empty",
+      hidden: metroCarState.volume === "light" && filterState === "empty",
+    });
 
     const useStyles = makeStyles(() => ({
       root: {

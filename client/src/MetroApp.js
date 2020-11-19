@@ -19,7 +19,7 @@ const MetroCar = lazy(() => import("./components/MetroCar"));
 function MetroApp() {
   //  Car data object.
   const [state, setState] = useState([]);
-  const [heavyState, setHeavyState] = useState(0);
+  const [volumeFilterState, setVolumeFilterState] = useState(0);
   //  Dev Collapse
   const [checked, setChecked] = useState(true);
   //  Stores the last time the state was updated
@@ -243,6 +243,8 @@ function MetroApp() {
                   searchState={searchState}
                   state={state}
                   setState={setState}
+                  volumeFilterState={volumeFilterState}
+                  setVolumeFilterState={setVolumeFilterState}
                 ></MetroCar>
               </Grid>
             );
