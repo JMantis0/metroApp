@@ -194,33 +194,44 @@ const MetroCar = memo(
       <div className={carClasses}>
         <Paper>
           <FormGroup row>
-            <Grid container>
-              <Grid item xs={"auto"}>
+            <Grid container alignItems="center" justify="space-evenly">
+              <Grid item xs={1}>
                 <FormLabel>
-                  <LocalShippingRoundedIcon />
+                  <LocalShippingRoundedIcon className="shipcon" />
                 </FormLabel>
               </Grid>
-              <Grid item xs={"auto"}>
+              <Grid className="car-number" item xs={3}>
                 {number}
               </Grid>
-              <Grid item xs={"auto"}>
+              <Grid item xs={4}>
                 <FormControlLabel
                   control={
                     <RadioGroup
                       row
                       value={metroCarState.carVolume}
                       onChange={handleVolumeChange}
+                      justify="space-around"
                     >
-                      <Radio value="unchecked" />
-                      <Radio value="heavy" />
-                      <Radio value="light" />
-                      <Radio value="empty" />
+                      <Radio
+                        className="heavy-radio"
+                        size="small"
+                        value="heavy"
+                      />
+                      <Radio
+                        className="light-radio"
+                        size="small"
+                        value="light"
+                      />
+                      <Radio
+                        className="empty-radio"
+                        size="small"
+                        value="empty"
+                      />
                     </RadioGroup>
                   }
-                  label="Volume"
                 />
               </Grid>
-              <Grid item xs={"auto"}>
+              <Grid item xs={1}>
                 <FormControlLabel
                   control={
                     <Switch
@@ -230,11 +241,9 @@ const MetroCar = memo(
                       name="keys"
                     />
                   }
-                  label="Keys"
                 />
               </Grid>
               <Grid item xs={"auto"}>
-                Updated{" "}
                 {moment(metroCarState.carUpdatedAt).format("hh:mm:ss a")}
               </Grid>
             </Grid>

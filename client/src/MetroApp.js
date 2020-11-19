@@ -12,6 +12,7 @@ import CssBaseline from "@material-ui/core/CssBaseline";
 // component imports
 import MetroFooter from "./components/MetroFooter";
 import MetroClock from "./components/MetroClock";
+import MetroTitles from "./components/MetroTitles";
 
 import moment from "moment";
 const MetroCar = lazy(() => import("./components/MetroCar"));
@@ -223,6 +224,7 @@ function MetroApp() {
 
       <Grid container>
         <Suspense fallback={<h1>Loading...</h1>}>
+          <MetroTitles />
           {Object.keys(state).map((key) => {
             return (
               <Grid item xs={12}>
@@ -247,6 +249,7 @@ function MetroApp() {
           })}
         </Suspense>
       </Grid>
+      <div className={"bottom-space"}></div>
       <MetroFooter
         renderRef={renderRef}
         setVolumeFilterState={setVolumeFilterState}

@@ -26,3 +26,17 @@
   from { transform: rotate(0deg); }
   to { transform: rotate(360deg); }
 }
+
+.bottom-space {
+  height: 500px;
+}
+
+.car-number {
+  font-family: 'Cabin', sans-serif;
+  font-size: 18x;
+}
+
+.heavy-radio {
+
+}
+
