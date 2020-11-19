@@ -19,7 +19,7 @@ const MetroCar = lazy(() => import("./components/MetroCar"));
 function MetroApp() {
   //  Car data object.
   const [state, setState] = useState([]);
-  const [heavyState, setHeavyState] = useState(0);
+  const [volumeFilterState, setVolumeFilterState] = useState(0);
   //  Dev Collapse
   const [checked, setChecked] = useState(false);
   //  Stores the last time the state was updated
@@ -172,11 +172,6 @@ function MetroApp() {
     setState({ ...state, "130598": { carVolume: "heavy" } });
   };
 
-  const displayHeavies = () => {
-    Object.key(state).map((key) => {
-      // if()
-    });
-  };
   return (
     <div className="App">
       <CssBaseline />
@@ -213,6 +208,7 @@ function MetroApp() {
             console.log(moment.unix(lastStateUpdateTime));
             console.log("searchState", searchState);
             console.log("searchRef", searchRef);
+            console.log("volumeFilterState", volumeFilterState);
           }}
         >
           Console.log(state)
@@ -243,13 +239,18 @@ function MetroApp() {
                   searchState={searchState}
                   state={state}
                   setState={setState}
+                  volumeFilterState={volumeFilterState}
+                  setVolumeFilterState={setVolumeFilterState}
                 ></MetroCar>
               </Grid>
             );
           })}
         </Suspense>
       </Grid>
-      <MetroFooter renderRef={renderRef} />
+      <MetroFooter
+        renderRef={renderRef}
+        setVolumeFilterState={setVolumeFilterState}
+      />
     </div>
   );
 }

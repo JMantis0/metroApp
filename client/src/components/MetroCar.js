@@ -12,6 +12,7 @@ import Grid from "@material-ui/core/Grid";
 import Radio from "@material-ui/core/Radio";
 import RadioGroup from "@material-ui/core/RadioGroup";
 import moment from "moment";
+import classnames from "classnames";
 
 import { makeStyles } from "@material-ui/core/styles";
 
@@ -25,12 +26,37 @@ const MetroCar = memo(
     setLastStateUpdateTime,
     searchRef,
     searchState,
-    heavyOnly,
     renderRef,
     state,
     setState,
+    volumeFilterState,
   }) => {
     const [metroCarState, setMetroCarState] = useState({});
+
+    //  I feel like npm classnames is something that was available in jQuery
+    //  and haD been missing from React.  In jQuery I tended to use
+    //  addClass(); and removeClass(); methods quite a lot.
+    //  classnames npm is an even more useful version of these methods.
+    //  The classnames npm is going to  be a wonderful library moving forward.
+
+    //  npm classnames.  Here are the conditions where a car should be hidden
+    const carClasses = classnames({
+      hidden:
+        //  User wants to only display heavy cars
+        (metroCarState.carVolume !== "heavy" &&
+          volumeFilterState === "heavy") ||
+        //  User wants to display only light cars
+        (metroCarState.carVolume !== "light" &&
+          volumeFilterState === "light") ||
+        // User wants to display only unchecked cars
+        (metroCarState.carVolume !== "unchecked" &&
+          volumeFilterState === "unchecked") ||
+        // User wants to display only unchecked cars
+        (metroCarState.carVolume !== "empty" &&
+          volumeFilterState === "empty") ||
+        //  user wants to display only cars within search parameters
+        !number.includes(searchState),
+    });
 
     const useStyles = makeStyles(() => ({
       root: {
@@ -44,7 +70,7 @@ const MetroCar = memo(
 
     const classes = useStyles();
 
-    // On first render, this useMemo
+    // During render, this useMemo
     // sets the metroCarState to props values.
     useMemo(() => {
       // console.log(`Setting state for car ${number}`);
@@ -57,18 +83,6 @@ const MetroCar = memo(
       });
     }, []);
 
-    // When searchState changes, this useEffect
-    // checks if the car number includes the string from searchRef
-    // and then triggers a render by resetting state.
-    useEffect(() => {
-      if (
-        number.toString().includes(searchRef.current.value) ||
-        searchRef.current.value === ""
-      ) {
-        setMetroCarState({ ...metroCarState });
-      }
-    }, [searchState]);
-
     //  When carsNeedingUpdate changes, this useEffect
     //  checks to see if this MetroCar needs to update, and
     //  if so, updates.
@@ -79,21 +93,6 @@ const MetroCar = memo(
         getNewMetroCarData();
       }
     }, [carsNeedingUpdate]);
-
-    useEffect(() => {
-      console.log("renderRef.current", renderRef.current);
-      if (renderRef.current < 1) {
-        //  Render only heavies
-        console.log("heavyOnly changed");
-        console.log(
-          "is metroCarState.carVolume heavy?",
-          metroCarState.carVolume
-        );
-        if (metroCarState.carVolume !== "heavy") {
-          setMetroCarState({ ...metroCarState, carInvisible: true });
-        }
-      }
-    }, [heavyOnly]);
 
     //  This will be the setMetroCarState route
 
@@ -192,15 +191,7 @@ const MetroCar = memo(
 
     //  A MetroCar is a row on the screen with car data and can be interacted with by a user.
     return (
-      <div
-        className={
-          number.toString().includes(searchRef.current.value) ||
-          searchRef.current.value === ""
-            ? classes.root
-            : classes.invisible
-        }
-        style={metroCarState.carInvisible ? { display: "none" } : {}}
-      >
+      <div className={carClasses}>
         <Paper>
           <FormGroup row>
             <Grid container>
