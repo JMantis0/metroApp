@@ -83,18 +83,6 @@ const MetroCar = memo(
       });
     }, []);
 
-    // When searchState changes, this useEffect
-    // checks if the car number includes the string from searchRef
-    // and then triggers a render by resetting state.
-    // useEffect(() => {
-    //   if (
-    //     number.toString().includes(searchRef.current.value) ||
-    //     searchRef.current.value === ""
-    //   ) {
-    //     setMetroCarState({ ...metroCarState });
-    //   }
-    // }, [searchState]);
-
     //  When carsNeedingUpdate changes, this useEffect
     //  checks to see if this MetroCar needs to update, and
     //  if so, updates.
