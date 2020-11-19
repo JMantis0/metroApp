@@ -172,11 +172,6 @@ function MetroApp() {
     setState({ ...state, "130598": { carVolume: "heavy" } });
   };
 
-  const displayHeavies = () => {
-    Object.key(state).map((key) => {
-      // if()
-    });
-  };
   return (
     <div className="App">
       <CssBaseline />
@@ -213,6 +208,7 @@ function MetroApp() {
             console.log(moment.unix(lastStateUpdateTime));
             console.log("searchState", searchState);
             console.log("searchRef", searchRef);
+            console.log("volumeFilterState", volumeFilterState);
           }}
         >
           Console.log(state)
@@ -251,7 +247,10 @@ function MetroApp() {
           })}
         </Suspense>
       </Grid>
-      <MetroFooter renderRef={renderRef} />
+      <MetroFooter
+        renderRef={renderRef}
+        setVolumeFilterState={setVolumeFilterState}
+      />
     </div>
   );
 }
