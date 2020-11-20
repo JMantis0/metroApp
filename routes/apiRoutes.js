@@ -18,21 +18,6 @@ const metroCarObject = XLSX.utils.sheet_to_json(
   metroBook.Sheets[sheet_name_list[0]]
 );
 
-/*    ROUTE LIST:
- *   *   *   *   *   *   *   *   *   *   *   *
- *    GET: "/updateMetroCar/:carNumber"
- *    GET: "/test"
- *    GET: "/getCarNumbers"
- *    GET: "/checkForNewData/:lastStateUpdateTime"
- *    GET: "/getOutOfDateCars/:lastStateUpdateTime"
- *    PUT: "/setVolumeRadio"
- *    PUT: "/toggleKeys"
- *   POST: "/initializeDB"
- * DELETE: "/deleteDB"
- *   *   *   *   *   *   *   *   *   *   *   *
- *
- */
-
 console.log("Current Metro Car numbers :");
 console.table(metroCarObject);
 console.log(
@@ -75,6 +60,87 @@ const updateLatestPut = (res) => {
   console.log("response from updateLatestPut", response);
   return response;
 };
+
+/*    ROUTE LIST:
+ *   *   *   *   *   *   *   *   *   *   *   *
+ *    GET: "/updateMetroCar/:carNumber"
+ *    GET: "/test"
+ *    GET: "/getCarNumbers"
+ *    GET: "/checkForNewData/:lastStateUpdateTime"
+ *    GET: "/getOutOfDateCars/:lastStateUpdateTime"
+ *    PUT: "/setVolumeRadio"
+ *    PUT: "/toggleKeys"
+ *   POST: "/initializeDB"
+ * DELETE: "/deleteDB"
+ *   *   *   *   *   *   *   *   *   *   *   *
+ *
+ */
+
+router.get("/allFooterCounts", (req, res) => {
+  console.log(
+    `███████████████████████████████████████████████████████████████████`
+  );
+  console.log(
+    `███████████████████████████████████████████████████████████████████`
+  );
+  console.log(`GET request from client: /api/allFooterCounts`);
+  console.log("Querying DB for total counts for volume types...");
+
+  //  This query gets the count for each volume type
+  models.Car.findAll({
+    attributes: [
+      [Sequelize.fn(`COUNT`, Sequelize.col("volume")), "all_count"],
+      [
+        Sequelize.literal(`SUM(CASE WHEN volume = 'heavy' then 1 else 0 end)`),
+        "heavy_count",
+      ],
+      [
+        Sequelize.literal(`SUM(CASE WHEN volume = 'light' then 1 else 0 end)`),
+        "light_count",
+      ],
+      [
+        Sequelize.literal(
+          `SUM(CASE WHEN volume = 'unchecked' then 1 else 0 end)`
+        ),
+        "unchecked_count",
+      ],
+      [
+        Sequelize.literal(`SUM(CASE WHEN volume = 'empty' then 1 else 0 end)`),
+        "empty_count",
+      ],
+    ],
+  })
+    .then((response) => {
+      console.log("Volume type totals obtained: ", response);
+      res.status(200).send(response);
+    })
+    .catch((err) => {
+      console.log("there was an error: ", err);
+      res.status(400).send(err);
+    });
+});
+
+router.get("/totalHeavyCars", (req, res) => {
+  console.log(
+    `███████████████████████████████████████████████████████████████████`
+  );
+  console.log(
+    `███████████████████████████████████████████████████████████████████`
+  );
+  console.log(`GET request from client: /api/totalHeavyCars`);
+  console.log("Querying DB for total count of all cars with heavy volume...");
+  models.Car.count({ where: { volume: "heavy" } })
+    .then((response) => {
+      console.log("Count found: ", response);
+      //  the response is a number type.  res.send will throw an error if you pass a number
+      //  Convert to string before sending.
+      res.status(200).send(response.toString());
+    })
+    .catch((err) => {
+      console.log(("Error querying heavy car count: ", err));
+      res.status(400).send(err);
+    });
+});
 
 router.get("/updateMetroCar/:carNumber", (req, res) => {
   console.log(
@@ -129,7 +195,7 @@ router.post("/initializeDB", (req, res) => {
       console.log(
         `Database initialized with ${newRecordsInitialized} entries.  Sending response to client.`
       );
-      res.status(200).send({numberOfRecords: newRecordsInitialized});
+      res.status(200).send({ numberOfRecords: newRecordsInitialized });
     })
     .catch((err) => {
       console.log("There was an error in the initializeDB route: ", err);

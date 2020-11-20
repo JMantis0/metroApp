@@ -28,15 +28,15 @@ function MetroApp() {
   const [carsNeedingUpdate, setCarsNeedingUpdate] = useState([]);
   //  Ref for search input within MetroSearch.  Used by MetroCar to control display value;
   const searchRef = useRef("");
-  const renderRef = useRef(0);
   const [searchState, setSearchState] = useState("");
+  const [footerState, setFooterState] = useState({});
 
   //  On first render, get Metro Car data from server DB and set it to state.
   useEffect(() => {
     console.log("Getting car data");
     setLastStateUpdateTime(moment().unix());
     requestMetroCarDataAndSetStates();
-    renderRef.current = renderRef.current + 1;
+    requestCountsAndSetFooterState();
   }, []);
 
   useEffect(() => {
@@ -50,6 +50,27 @@ function MetroApp() {
     };
     return cleanup;
   }, [lastStateUpdateTime]);
+
+  const requestCountsAndSetFooterState = () => {
+    console.log("Getting all footer counts...");
+    axios
+      .get("/api/allFooterCounts")
+      .then((response) => {
+        console.log("Footer counts from server: ", response);
+        // Set up footer object
+        const footerStateObject = {
+          allCount: response.data[0].all_count,
+          heavyCount: response.data[0].heavy_count,
+          lightCount: response.data[0].light_count,
+          uncheckedCount: response.data[0].unchecked_count,
+          emptyCount: response.data[0].empty_count,
+        };
+        setFooterState(footerStateObject);
+      })
+      .catch((err) => {
+        console.log("There was an error: ", err);
+      });
+  };
 
   const requestMetroCarDataAndSetStates = async () => {
     console.log("Client requesting Metro Car data...");
@@ -73,6 +94,8 @@ function MetroApp() {
         const newData = dataCheckResponse.data.newData;
         if (newData) {
           console.log("There is new data in the database.");
+          //  At this point I want to to trigger the
+          //  Labels in the MetroFooter to update
           getOutOfDateCars();
         } else {
           console.log("Client is already up to date.");
@@ -169,7 +192,6 @@ function MetroApp() {
 
   // This function is only used for testing
   const changeOneCar = () => {
-    // setState({...state, state[0].volume: "empty"})
     setState({ ...state, "130598": { carVolume: "heavy" } });
   };
 
@@ -199,17 +221,20 @@ function MetroApp() {
         <Button onClick={requestMetroCarDataAndSetStates}>
           Get Car Numbers
         </Button>
+        <Button onClick={requestCountsAndSetFooterState}>
+          getCounts for footer
+        </Button>
 
         <Button
           onClick={() => {
             console.log("state", state);
-            // console.log(state["130598"]);
             console.log("last state update time", lastStateUpdateTime);
             console.log("needingUpdate", carsNeedingUpdate);
             console.log(moment.unix(lastStateUpdateTime));
             console.log("searchState", searchState);
             console.log("searchRef", searchRef);
             console.log("volumeFilterState", volumeFilterState);
+            console.log("footerState: ", footerState);
           }}
         >
           Console.log(state)
@@ -229,7 +254,6 @@ function MetroApp() {
             return (
               <Grid item xs={12}>
                 <MetroCar
-                  renderRef={renderRef}
                   key={state[key].number}
                   number={state[key].number}
                   volume={state[key].volume}
@@ -251,7 +275,7 @@ function MetroApp() {
       </Grid>
       <div className={"bottom-space"}></div>
       <MetroFooter
-        renderRef={renderRef}
+        footerState={footerState}
         setVolumeFilterState={setVolumeFilterState}
       />
     </div>
