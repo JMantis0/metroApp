@@ -5,6 +5,9 @@ import BottomNavigation from "@material-ui/core/BottomNavigation";
 import BottomNavigationAction from "@material-ui/core/BottomNavigationAction";
 import { makeStyles } from "@material-ui/core/styles";
 
+// import Icons
+import HeavyIcon from "./footerIcons/HeavyIcon";
+
 const MetroFooter = ({ renderRef, setVolumeFilterState }) => {
   const useStyles = makeStyles(() => ({
     root: {
@@ -39,7 +42,7 @@ const MetroFooter = ({ renderRef, setVolumeFilterState }) => {
           <BottomNavigationAction
             value="heavy"
             label="Heavy"
-            // icon={<FitnessCenterRoundedIcon />}
+            icon={<HeavyIcon />}
           />
           <BottomNavigationAction
             value="light"

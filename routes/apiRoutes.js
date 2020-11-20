@@ -18,21 +18,6 @@ const metroCarObject = XLSX.utils.sheet_to_json(
   metroBook.Sheets[sheet_name_list[0]]
 );
 
-/*    ROUTE LIST:
- *   *   *   *   *   *   *   *   *   *   *   *
- *    GET: "/updateMetroCar/:carNumber"
- *    GET: "/test"
- *    GET: "/getCarNumbers"
- *    GET: "/checkForNewData/:lastStateUpdateTime"
- *    GET: "/getOutOfDateCars/:lastStateUpdateTime"
- *    PUT: "/setVolumeRadio"
- *    PUT: "/toggleKeys"
- *   POST: "/initializeDB"
- * DELETE: "/deleteDB"
- *   *   *   *   *   *   *   *   *   *   *   *
- *
- */
-
 console.log("Current Metro Car numbers :");
 console.table(metroCarObject);
 console.log(
@@ -75,6 +60,36 @@ const updateLatestPut = (res) => {
   console.log("response from updateLatestPut", response);
   return response;
 };
+
+/*    ROUTE LIST:
+ *   *   *   *   *   *   *   *   *   *   *   *
+ *    GET: "/updateMetroCar/:carNumber"
+ *    GET: "/test"
+ *    GET: "/getCarNumbers"
+ *    GET: "/checkForNewData/:lastStateUpdateTime"
+ *    GET: "/getOutOfDateCars/:lastStateUpdateTime"
+ *    PUT: "/setVolumeRadio"
+ *    PUT: "/toggleKeys"
+ *   POST: "/initializeDB"
+ * DELETE: "/deleteDB"
+ *   *   *   *   *   *   *   *   *   *   *   *
+ *
+ */
+
+router.get("/totalHeavyCars", (req, res) => {
+  console.log(`GET request from client: /api/totalHeavyCars`);
+  console.log("Querying DB for total count of all cars with heavy volume...");
+  models.Car.count({ where: { volume: "heavy" } })
+    .then((response) => {
+      console.log("Count found: ", response);
+      console.log("Sending count data back to client");
+      res.status(200).send(response);
+    })
+    .catch((err) => {
+      console.log(("Error querying heavy car count: ", err));
+      res.status(400).send(err);
+    });
+});
 
 router.get("/updateMetroCar/:carNumber", (req, res) => {
   console.log(
@@ -129,7 +144,7 @@ router.post("/initializeDB", (req, res) => {
       console.log(
         `Database initialized with ${newRecordsInitialized} entries.  Sending response to client.`
       );
-      res.status(200).send({numberOfRecords: newRecordsInitialized});
+      res.status(200).send({ numberOfRecords: newRecordsInitialized });
     })
     .catch((err) => {
       console.log("There was an error in the initializeDB route: ", err);

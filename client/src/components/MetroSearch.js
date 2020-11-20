@@ -9,24 +9,17 @@ const MetroSearch = ({
   setSearchState,
 }) => {
   let inputTimeout;
-
   const handleInputChange = (event) => {
-    console.log(`The searchRef.current.value is: ${searchRef.current.value}`);
-    console.log(`The event.target.value is ${event.target.value}`);
-    console.log(
-      `searchRef.current.value === "" evaluates to ${searchRef.current.value ===
-        ""}`
-    );
     clearTimeout(inputTimeout);
-
     inputTimeout = setTimeout(() => {
       setSearchState(searchRef.current.value);
     }, 1500);
+    //  *********************** END OF OLD WAY ******************
   };
 
   return (
     <div>
-      <Input placeholder="Number Search" inputRef={searchRef} onChange={handleInputChange}></Input>
+      <Input inputRef={searchRef} onChange={handleInputChange}></Input>
     </div>
   );
 };

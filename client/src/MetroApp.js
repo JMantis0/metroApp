@@ -20,6 +20,7 @@ const MetroCar = lazy(() => import("./components/MetroCar"));
 function MetroApp() {
   //  Car data object.
   const [state, setState] = useState([]);
+  const currentStateRef = useRef([]);
   const [volumeFilterState, setVolumeFilterState] = useState(0);
   //  Dev Collapse
   const [checked, setChecked] = useState(false);
@@ -58,6 +59,7 @@ function MetroApp() {
       .then((allCarNumbers) => {
         console.log("Response from getCarNumbers route: ", allCarNumbers.data);
         setState(allCarNumbers.data);
+        currentStateRef.current = allCarNumbers.data;
       })
       .catch((err) => {
         console.log("There was an error in the getCarNumbers route: ", err);
@@ -169,7 +171,6 @@ function MetroApp() {
 
   // This function is only used for testing
   const changeOneCar = () => {
-    // setState({...state, state[0].volume: "empty"})
     setState({ ...state, "130598": { carVolume: "heavy" } });
   };
 
@@ -202,14 +203,14 @@ function MetroApp() {
 
         <Button
           onClick={() => {
-            console.log("state", state);
-            // console.log(state["130598"]);
-            console.log("last state update time", lastStateUpdateTime);
-            console.log("needingUpdate", carsNeedingUpdate);
-            console.log(moment.unix(lastStateUpdateTime));
-            console.log("searchState", searchState);
-            console.log("searchRef", searchRef);
-            console.log("volumeFilterState", volumeFilterState);
+            // console.log("state", state);
+            // console.log("last state update time", lastStateUpdateTime);
+            // console.log("needingUpdate", carsNeedingUpdate);
+            // console.log(moment.unix(lastStateUpdateTime));
+            // console.log("searchState", searchState);
+            // console.log("searchRef", searchRef);
+            // console.log("volumeFilterState", volumeFilterState);
+            console.log("currentStateRef", currentStateRef.current);
           }}
         >
           Console.log(state)

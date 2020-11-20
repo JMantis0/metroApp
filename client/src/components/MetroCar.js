@@ -1,4 +1,4 @@
-import React, { memo, useState, useEffect, useMemo, useCallback } from "react";
+import React, { memo, useState, useEffect, useMemo, useRef } from "react";
 
 import axios from "axios";
 
@@ -24,14 +24,13 @@ const MetroCar = memo(
     updatedAt,
     carsNeedingUpdate,
     setLastStateUpdateTime,
-    searchRef,
     searchState,
     renderRef,
-    state,
-    setState,
+    currentStateRef,
     volumeFilterState,
   }) => {
     const [metroCarState, setMetroCarState] = useState({});
+    const numberRef = useRef("");
 
     //  I feel like npm classnames is something that was available in jQuery
     //  and haD been missing from React.  In jQuery I tended to use
@@ -58,22 +57,11 @@ const MetroCar = memo(
         !number.includes(searchState),
     });
 
-    const useStyles = makeStyles(() => ({
-      root: {
-        width: "100%",
-        backgroundColor: "#eeff00",
-      },
-      invisible: {
-        display: "none",
-      },
-    }));
-
-    const classes = useStyles();
-
     // During render, this useMemo
     // sets the metroCarState to props values.
     useMemo(() => {
-      // console.log(`Setting state for car ${number}`);
+      console.log(`Setting state for car ${number}`);
+      numberRef.current = number;
       setMetroCarState({
         carNumber: number,
         carKeys: keys,
@@ -102,13 +90,14 @@ const MetroCar = memo(
         .get(`/api/updateMetroCar/${number}`)
         .then((updateCarResponse) => {
           console.log("Car data obtained", updateCarResponse);
-          console.log(`Setting state for car ${number} `);
-          setMetroCarState({
+          const newMetroCarState = {
             ...metroCarState,
             carVolume: updateCarResponse.data.volume,
             carKeys: updateCarResponse.data.keyz,
             carUpdatedAt: updateCarResponse.data.updatedAt,
-          });
+          };
+          console.log(`Set state for car ${number}`);
+          setMetroCarState(newMetroCarState);
           console.log(
             `Set lastStateUpdateTime to ${moment(
               updateCarResponse.data.updatedAt
@@ -181,12 +170,6 @@ const MetroCar = memo(
             ("There was an error in the setVolumeRadio route: ", error)
           );
         });
-    };
-
-    const hideIfNonHeavy = () => {
-      if (metroCarState.Volume !== "heavy") {
-        setMetroCarState({ ...metroCarState, carInvisible: true });
-      }
     };
 
     //  A MetroCar is a row on the screen with car data and can be interacted with by a user.
