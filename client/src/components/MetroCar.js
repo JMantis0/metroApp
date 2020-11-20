@@ -25,8 +25,6 @@ const MetroCar = memo(
     carsNeedingUpdate,
     setLastStateUpdateTime,
     searchState,
-    renderRef,
-    currentStateRef,
     volumeFilterState,
   }) => {
     const [metroCarState, setMetroCarState] = useState({});
@@ -60,8 +58,6 @@ const MetroCar = memo(
     // During render, this useMemo
     // sets the metroCarState to props values.
     useMemo(() => {
-      console.log(`Setting state for car ${number}`);
-      numberRef.current = number;
       setMetroCarState({
         carNumber: number,
         carKeys: keys,

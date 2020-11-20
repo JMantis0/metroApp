@@ -76,14 +76,65 @@ const updateLatestPut = (res) => {
  *
  */
 
+router.get("/allFooterCounts", (req, res) => {
+  console.log(
+    `███████████████████████████████████████████████████████████████████`
+  );
+  console.log(
+    `███████████████████████████████████████████████████████████████████`
+  );
+  console.log(`GET request from client: /api/allFooterCounts`);
+  console.log("Querying DB for total counts for volume types...");
+
+  //  This query gets the count for each volume type
+  models.Car.findAll({
+    attributes: [
+      [Sequelize.fn(`COUNT`, Sequelize.col("volume")), "all_count"],
+      [
+        Sequelize.literal(`SUM(CASE WHEN volume = 'heavy' then 1 else 0 end)`),
+        "heavy_count",
+      ],
+      [
+        Sequelize.literal(`SUM(CASE WHEN volume = 'light' then 1 else 0 end)`),
+        "light_count",
+      ],
+      [
+        Sequelize.literal(
+          `SUM(CASE WHEN volume = 'unchecked' then 1 else 0 end)`
+        ),
+        "unchecked_count",
+      ],
+      [
+        Sequelize.literal(`SUM(CASE WHEN volume = 'empty' then 1 else 0 end)`),
+        "empty_count",
+      ],
+    ],
+  })
+    .then((response) => {
+      console.log("Volume type totals obtained: ", response);
+      res.status(200).send(response);
+    })
+    .catch((err) => {
+      console.log("there was an error: ", err);
+      res.status(400).send(err);
+    });
+});
+
 router.get("/totalHeavyCars", (req, res) => {
+  console.log(
+    `███████████████████████████████████████████████████████████████████`
+  );
+  console.log(
+    `███████████████████████████████████████████████████████████████████`
+  );
   console.log(`GET request from client: /api/totalHeavyCars`);
   console.log("Querying DB for total count of all cars with heavy volume...");
   models.Car.count({ where: { volume: "heavy" } })
     .then((response) => {
       console.log("Count found: ", response);
-      console.log("Sending count data back to client");
-      res.status(200).send(response);
+      //  the response is a number type.  res.send will throw an error if you pass a number
+      //  Convert to string before sending.
+      res.status(200).send(response.toString());
     })
     .catch((err) => {
       console.log(("Error querying heavy car count: ", err));

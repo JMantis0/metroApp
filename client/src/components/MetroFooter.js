@@ -5,10 +5,7 @@ import BottomNavigation from "@material-ui/core/BottomNavigation";
 import BottomNavigationAction from "@material-ui/core/BottomNavigationAction";
 import { makeStyles } from "@material-ui/core/styles";
 
-// import Icons
-import HeavyIcon from "./footerIcons/HeavyIcon";
-
-const MetroFooter = ({ renderRef, setVolumeFilterState }) => {
+const MetroFooter = ({ setVolumeFilterState, footerState }) => {
   const useStyles = makeStyles(() => ({
     root: {
       position: "fixed",
@@ -36,28 +33,28 @@ const MetroFooter = ({ renderRef, setVolumeFilterState }) => {
         >
           <BottomNavigationAction
             value="unchecked"
-            label="Unchecked"
-            // icon={<FitnessCenterRoundedIcon />}
+            label={footerState.uncheckedCount}
+            icon="Unchecked"
           />
           <BottomNavigationAction
             value="heavy"
-            label="Heavy"
-            icon={<HeavyIcon />}
+            label={footerState.heavyCount}
+            icon="Heavy"
           />
           <BottomNavigationAction
             value="light"
-            label="Light"
-            // icon={<FitnessCenterRoundedIcon />}
+            label={footerState.lightCount}
+            icon={"Light"}
           />
           <BottomNavigationAction
             value="all"
-            label="All"
-            // icon={<FitnessCenterRoundedIcon />}
+            label={footerState.allCount}
+            icon={"All"}
           />
           <BottomNavigationAction
             value="empty"
-            label="Empty"
-            // icon={<FitnessCenterRoundedIcon />}
+            label={footerState.emptyCount}
+            icon="Empty"
           />
         </BottomNavigation>
       </Grid>
