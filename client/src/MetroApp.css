@@ -36,7 +36,19 @@
   font-size: 18x;
 }
 
-.heavy-radio {
-
+.bottom-navigation-container {
+  position: fixed;
+  bottom: 0;
 }
 
+.bottom-navigation {
+  width: "90%";
+}
+
+.bottom-navigation .navBtn {
+  align-items: center;
+  border: solid 1px black;
+  border-radius: 2px;
+  background-color: rgb(179, 179, 179);
+  font-weight: 700;
+}
