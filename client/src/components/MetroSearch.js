@@ -19,7 +19,7 @@ const MetroSearch = ({
 
   return (
     <div>
-      <Input inputRef={searchRef} onChange={handleInputChange}></Input>
+      <Input inputRef={searchRef} placeholder="Search" onChange={handleInputChange}></Input>
     </div>
   );
 };

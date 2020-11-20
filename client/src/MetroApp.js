@@ -29,7 +29,11 @@ function MetroApp() {
   //  Ref for search input within MetroSearch.  Used by MetroCar to control display value;
   const searchRef = useRef("");
   const [searchState, setSearchState] = useState("");
-  const [footerState, setFooterState] = useState({});
+  const [footerState, setFooterState] = useState({allCount: "Loading",
+    heavyCount:"Loading",
+    lightCount: "Loading",
+    uncheckedCount: "Loading",
+    emptyCount: "Loading"});
 
   //  On first render, get Metro Car data from server DB and set it to state.
   useEffect(() => {
@@ -97,6 +101,7 @@ function MetroApp() {
           //  At this point I want to to trigger the
           //  Labels in the MetroFooter to update
           getOutOfDateCars();
+          requestCountsAndSetFooterState();
         } else {
           console.log("Client is already up to date.");
           console.log("There is no new data");

@@ -6,16 +6,7 @@ import BottomNavigationAction from "@material-ui/core/BottomNavigationAction";
 import { makeStyles } from "@material-ui/core/styles";
 
 const MetroFooter = ({ setVolumeFilterState, footerState }) => {
-  const useStyles = makeStyles(() => ({
-    root: {
-      position: "fixed",
-      bottom: 0,
-    },
-    botNav: {
-      width: "100%",
-    },
-  }));
-  const classes = useStyles();
+ 
   const handleChange = (event, value) => {
     //  volumeFilterState filters (by setting display: none) by volume value
     console.log(`Displaying only ${value} cars.`);
@@ -23,37 +14,47 @@ const MetroFooter = ({ setVolumeFilterState, footerState }) => {
   };
 
   return (
-    <Grid container className={classes.root} style={{ zIndex: 10 }}>
+    <Grid
+      container
+      className={"bottom-navigation-container"}
+      style={{ zIndex: 10 }}
+    >
       <Grid item xs={12}>
         <BottomNavigation
+          className="bottom-navigation"
           onChange={(event, value) => {
             handleChange(event, value);
           }}
           showLabels
         >
           <BottomNavigationAction
+            className="navBtn"
             value="unchecked"
-            label={footerState.uncheckedCount}
+            label={`(${footerState.uncheckedCount})`}
             icon="Unchecked"
           />
           <BottomNavigationAction
+            className="navBtn"
             value="heavy"
-            label={footerState.heavyCount}
+            label={`(${footerState.heavyCount})`}
             icon="Heavy"
           />
           <BottomNavigationAction
+            className="navBtn"
             value="light"
-            label={footerState.lightCount}
+            label={`(${footerState.lightCount})`}
             icon={"Light"}
           />
           <BottomNavigationAction
+            className="navBtn"
             value="empty"
-            label={footerState.emptyCount}
+            label={`(${footerState.emptyCount})`}
             icon="Empty"
           />
           <BottomNavigationAction
+            className="navBtn"
             value="all"
-            label={footerState.allCount}
+            label={`(${footerState.allCount})`}
             icon={"All"}
           />
         </BottomNavigation>
