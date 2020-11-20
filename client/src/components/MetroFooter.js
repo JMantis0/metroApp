@@ -47,14 +47,14 @@ const MetroFooter = ({ setVolumeFilterState, footerState }) => {
             icon={"Light"}
           />
           <BottomNavigationAction
-            value="all"
-            label={footerState.allCount}
-            icon={"All"}
-          />
-          <BottomNavigationAction
             value="empty"
             label={footerState.emptyCount}
             icon="Empty"
+          />
+          <BottomNavigationAction
+            value="all"
+            label={footerState.allCount}
+            icon={"All"}
           />
         </BottomNavigation>
       </Grid>
