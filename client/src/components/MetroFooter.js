@@ -3,7 +3,7 @@ import React from "react";
 import Grid from "@material-ui/core/Grid";
 import BottomNavigation from "@material-ui/core/BottomNavigation";
 import BottomNavigationAction from "@material-ui/core/BottomNavigationAction";
-import { makeStyles } from "@material-ui/core/styles";""
+import { makeStyles } from "@material-ui/core/styles";
 
 const MetroFooter = ({ setVolumeFilterState, footerState }) => {
   const useStyles = makeStyles(() => ({
