@@ -29,12 +29,37 @@ function MetroApp() {
   //  Ref for search input within MetroSearch.  Used by MetroCar to control display value;
   const searchRef = useRef("");
   const [searchState, setSearchState] = useState("");
-  const [footerState, setFooterState] = useState({allCount: "Loading",
-    heavyCount:"Loading",
+  const [footerState, setFooterState] = useState({
+    allCount: "Loading",
+    heavyCount: "Loading",
     lightCount: "Loading",
     uncheckedCount: "Loading",
-    emptyCount: "Loading"});
+    emptyCount: "Loading",
+  });
 
+  // Listeners to detect offline and online status
+  window.addEventListener("offline", (event) => {
+    console.log("You are now disconnected from the network.");
+  });
+  window.addEventListener("online", async (event) => {
+    console.log("You are now connected to the network.");
+    // const indexedRecords = await getIndexedRecords();
+    // fetch("/api/transaction/bulk", {
+    //   method: "POST",
+    //   body: JSON.stringify(indexedRecords),
+    //   headers: {
+    //     Accept: "application/json, text/plain, */*",
+    //     "Content-Type": "application/json",
+    //   },
+    // })
+    // .then(async (response) => {
+    //   console.log("Offline entries uploaded to online MongoDB");
+    //     await deleteIndexedRecords();
+    //   })
+    //   .catch((error) => {
+    //     console.log(error);
+    //   });
+  });
   //  On first render, get Metro Car data from server DB and set it to state.
   useEffect(() => {
     console.log("Getting car data");
@@ -203,7 +228,9 @@ function MetroApp() {
   return (
     <div className="App">
       <CssBaseline />
-      <div className="title" onClick={handleCollapse}>METRO APP</div>
+      <div className="title" onClick={handleCollapse}>
+        METRO APP
+      </div>
       <MetroClock />
       <MetroSearch
         searchRef={searchRef}
