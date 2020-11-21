@@ -15,7 +15,28 @@ import MetroClock from "./components/MetroClock";
 import MetroTitles from "./components/MetroTitles";
 
 import moment from "moment";
+import Dexie from "dexie";
 const MetroCar = lazy(() => import("./components/MetroCar"));
+
+console.log(Dexie);
+var db = new Dexie("MetroDB");
+db.version(1).stores({
+  car: "++id,number,volume,keys,createdAt,updatedAt",
+  latestPut: "++id,latestPut,createdAt,updatedAt",
+});
+db.open();
+db.car.add({
+  number: "999999",
+  volume: "heavy",
+  keys: "3",
+  createdAt: moment().format("YYYY-MM-DD hh:mm:ss"),
+  updatedAt: moment().format("YYYY-MM-DD hh:mm:ss"),
+});
+db.latestPut.add({
+  latestPut: moment().unix(),
+  createdAt: moment().format("YYYY-MM-DD hh:mm:ss"),
+  updatedAt: moment().format("YYYY-MM-DD hh:mm:ss"),
+});
 
 function MetroApp() {
   //  Car data object.
@@ -36,36 +57,43 @@ function MetroApp() {
     uncheckedCount: "Loading",
     emptyCount: "Loading",
   });
+  const [online, setOnline] = useState(true);
 
   // Listeners to detect offline and online status
-  window.addEventListener("offline", (event) => {
-    console.log("You are now disconnected from the network.");
-  });
-  window.addEventListener("online", async (event) => {
-    console.log("You are now connected to the network.");
-    // const indexedRecords = await getIndexedRecords();
-    // fetch("/api/transaction/bulk", {
-    //   method: "POST",
-    //   body: JSON.stringify(indexedRecords),
-    //   headers: {
-    //     Accept: "application/json, text/plain, */*",
-    //     "Content-Type": "application/json",
-    //   },
-    // })
-    // .then(async (response) => {
-    //   console.log("Offline entries uploaded to online MongoDB");
-    //     await deleteIndexedRecords();
-    //   })
-    //   .catch((error) => {
-    //     console.log(error);
-    //   });
-  });
   //  On first render, get Metro Car data from server DB and set it to state.
   useEffect(() => {
+    if (!navigator.onLine) {
+      console.log("currently offline");
+    }
     console.log("Getting car data");
     setLastStateUpdateTime(moment().unix());
     requestMetroCarDataAndSetStates();
     requestCountsAndSetFooterState();
+    window.addEventListener("offline", handler);
+    window.addEventListener("online", handler);
+    console.log("navigator", navigator);
+    // const offlineHandler = (event) => {
+    //   console.log("You are now disconnected from the network.");
+    // };
+    // const onlineHandler = (event) => {
+    //   console.log("You are now connected to the network.");
+    // };
+    const handler = (event) => {
+      console.log("Inside online/offline handler.  The event is: ", event);
+      console.log("navigator.OnLine is: ", navigator.OnLine);
+      console.log("setting online state...");
+      setOnline(navigator.OnLine);
+      if (event.type === "online") {
+        console.log("Online stuff");
+      } else {
+        console.log("Offline stuff");
+      }
+    };
+    const cleanUp = () => {
+      window.removeEventListener("online", handler);
+      window.removeEventListener("offline", handler);
+    };
+    return cleanUp;
   }, []);
 
   useEffect(() => {
@@ -201,7 +229,11 @@ function MetroApp() {
       });
   };
 
+  
+  //
+
   // This function is only used for testing
+
   const updateDBLatestPut = () => {
     console.log("Initiating latest put Get");
     axios

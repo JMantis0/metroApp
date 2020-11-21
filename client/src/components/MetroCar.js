@@ -14,7 +14,25 @@ import RadioGroup from "@material-ui/core/RadioGroup";
 import moment from "moment";
 import classnames from "classnames";
 
-import { makeStyles } from "@material-ui/core/styles";
+import Dexie from "dexie";
+var db = new Dexie("MetroDB");
+db.version(1).stores({
+  car: "++id,number,volume,keys,createdAt,updatedAt",
+  latestPut: "++id,latestPut,createdAt,updatedAt",
+});
+db.open();
+db.car.add({
+  number: "199999",
+  volume: "heavy",
+  keys: "3",
+  createdAt: moment().format("YYYY-MM-DD hh:mm:ss"),
+  updatedAt: moment().format("YYYY-MM-DD hh:mm:ss"),
+});
+db.latestPut.add({
+  latestPut: moment().unix(),
+  createdAt: moment().format("YYYY-MM-DD hh:mm:ss"),
+  updatedAt: moment().format("YYYY-MM-DD hh:mm:ss"),
+});
 
 const MetroCar = memo(
   ({
@@ -115,24 +133,52 @@ const MetroCar = memo(
         ...metroCarState,
         carKeys: newCarKeysValue,
       });
-      console.log("Sending PUT request to server with new keys value...");
-      axios
-        .put("/api/toggleKeys", {
-          newKeys: !metroCarState.carKeys,
-          num: number,
-        })
-        .then((response) => {
-          console.log("Car data in DB has been updated: ", response.data);
-          //  Important to set carUpdatedAt
-          setMetroCarState({
-            ...metroCarState,
-            carKeys: response.data.keyz,
-            carUpdatedAt: response.data.updatedAt,
+
+      //  if online
+      if (navigator.isOnline) {
+        console.log("Sending PUT request to server with new keys value...");
+        axios
+          .put("/api/toggleKeys", {
+            newKeys: !metroCarState.carKeys,
+            num: number,
+          })
+          .then((response) => {
+            console.log("Car data in DB has been updated: ", response.data);
+            //  Important to set carUpdatedAt
+            setMetroCarState({
+              ...metroCarState,
+              carKeys: response.data.keyz,
+              carUpdatedAt: response.data.updatedAt,
+            });
+          })
+          .catch((err) => {
+            console.log("There was an error: ", err);
           });
-        })
-        .catch((err) => {
-          console.log("There was an error: ", err);
+      }
+      //  if offline
+      else {
+        console.log("offline!  indexxedDB transaction occuring...")
+        db.transaction("rw", db.car, () => {
+          db.car.where(metroCarState.carNumber, (response) => {
+            console.log("db.car.where: ", response);
+          });
+         
+        }).catch((err) => {
+          console.log("IndexedDB transaction error: ", err);
         });
+        // db.car
+        //   .add({
+        //     number: metroCarState.carNumber,
+        //     volume: metroCarState.carVolume,
+        //     keys: newCarKeysValue,
+        //   })
+        //   .then((response) => {
+        //     console.log("Response from dexie: ", response);
+        //   })
+        //   .catch((err) => {
+        //     console.log("there was a dexie error: ", err);
+        //   });
+      }
     };
 
     const handleVolumeChange = (event) => {
