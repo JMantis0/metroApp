@@ -63,6 +63,7 @@ const updateLatestPut = (res) => {
 
 /*    ROUTE LIST:
  *   *   *   *   *   *   *   *   *   *   *   *
+ *    GET: "/allFooterCounts"
  *    GET: "/updateMetroCar/:carNumber"
  *    GET: "/test"
  *    GET: "/getCarNumbers"
@@ -116,28 +117,6 @@ router.get("/allFooterCounts", (req, res) => {
     })
     .catch((err) => {
       console.log("there was an error: ", err);
-      res.status(400).send(err);
-    });
-});
-
-router.get("/totalHeavyCars", (req, res) => {
-  console.log(
-    `███████████████████████████████████████████████████████████████████`
-  );
-  console.log(
-    `███████████████████████████████████████████████████████████████████`
-  );
-  console.log(`GET request from client: /api/totalHeavyCars`);
-  console.log("Querying DB for total count of all cars with heavy volume...");
-  models.Car.count({ where: { volume: "heavy" } })
-    .then((response) => {
-      console.log("Count found: ", response);
-      //  the response is a number type.  res.send will throw an error if you pass a number
-      //  Convert to string before sending.
-      res.status(200).send(response.toString());
-    })
-    .catch((err) => {
-      console.log(("Error querying heavy car count: ", err));
       res.status(400).send(err);
     });
 });

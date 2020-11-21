@@ -2,10 +2,7 @@ import React from "react";
 import Input from "@material-ui/core/Input";
 
 const MetroSearch = ({
-  setFilteredCarState,
   searchRef,
-  state,
-  searchState,
   setSearchState,
 }) => {
   let inputTimeout;
@@ -18,8 +15,8 @@ const MetroSearch = ({
   };
 
   return (
-    <div>
-      <Input inputRef={searchRef} placeholder="Search" onChange={handleInputChange}></Input>
+    <div className={"metro-search"}>
+      <Input fullWidth inputRef={searchRef} placeholder="Filter By Number" onChange={handleInputChange}></Input>
     </div>
   );
 };

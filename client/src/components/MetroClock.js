@@ -9,7 +9,7 @@ const MetroClock = () => {
     clock = setInterval(() => {
       setTime(moment().format("dddd, MMMM Do YYYY, h:mm:ss a"));
     }, 1000);
-  });
+  }, []);
   return <div id={"clock"}>{time}</div>;
 };
 

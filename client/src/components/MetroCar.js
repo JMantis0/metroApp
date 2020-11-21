@@ -1,4 +1,4 @@
-import React, { memo, useState, useEffect, useMemo, useRef } from "react";
+import React, { memo, useState, useEffect, useMemo } from "react";
 
 import axios from "axios";
 
@@ -17,22 +17,22 @@ import classnames from "classnames";
 import Dexie from "dexie";
 var db = new Dexie("MetroDB");
 db.version(1).stores({
-  car: "++id,number,volume,keys,createdAt,updatedAt",
-  latestPut: "++id,latestPut,createdAt,updatedAt",
+  car: "number,volume,keys,createdAt,updatedAt",
+  latestPut: "latestPut,createdAt,updatedAt",
 });
 db.open();
-db.car.add({
-  number: "199999",
-  volume: "heavy",
-  keys: "3",
-  createdAt: moment().format("YYYY-MM-DD hh:mm:ss"),
-  updatedAt: moment().format("YYYY-MM-DD hh:mm:ss"),
-});
-db.latestPut.add({
-  latestPut: moment().unix(),
-  createdAt: moment().format("YYYY-MM-DD hh:mm:ss"),
-  updatedAt: moment().format("YYYY-MM-DD hh:mm:ss"),
-});
+// db.car.add({
+//   number: "199999",
+//   volume: "heavy",
+//   keys: "3",
+//   createdAt: moment().format("YYYY-MM-DD hh:mm:ss"),
+//   updatedAt: moment().format("YYYY-MM-DD hh:mm:ss"),
+// });
+// db.latestPut.add({
+//   latestPut: moment().unix(),
+//   createdAt: moment().format("YYYY-MM-DD hh:mm:ss"),
+//   updatedAt: moment().format("YYYY-MM-DD hh:mm:ss"),
+// });
 
 const MetroCar = memo(
   ({
@@ -44,9 +44,9 @@ const MetroCar = memo(
     setLastStateUpdateTime,
     searchState,
     volumeFilterState,
+    online,
   }) => {
     const [metroCarState, setMetroCarState] = useState({});
-    const numberRef = useRef("");
 
     //  I feel like npm classnames is something that was available in jQuery
     //  and haD been missing from React.  In jQuery I tended to use
@@ -70,6 +70,21 @@ const MetroCar = memo(
         (metroCarState.carVolume !== "empty" &&
           volumeFilterState === "empty") ||
         //  user wants to display only cars within search parameters
+        !number.includes(searchState),
+      fadeOut:
+        //  only fade out heavy cars
+        (metroCarState.carVolume !== "heavy" &&
+          volumeFilterState === "heavy") ||
+        //  fade out only light cars
+        (metroCarState.carVolume !== "light" &&
+          volumeFilterState === "light") ||
+        // fade out only unchecked cars
+        (metroCarState.carVolume !== "unchecked" &&
+          volumeFilterState === "unchecked") ||
+        // fade out only unchecked cars
+        (metroCarState.carVolume !== "empty" &&
+          volumeFilterState === "empty") ||
+        //  fade out only cars within search parameters
         !number.includes(searchState),
     });
 
@@ -135,7 +150,7 @@ const MetroCar = memo(
       });
 
       //  if online
-      if (navigator.isOnline) {
+      if (online) {
         console.log("Sending PUT request to server with new keys value...");
         axios
           .put("/api/toggleKeys", {
@@ -157,27 +172,36 @@ const MetroCar = memo(
       }
       //  if offline
       else {
-        console.log("offline!  indexxedDB transaction occuring...")
+        console.log("offline!  indexxedDB transaction occuring...");
         db.transaction("rw", db.car, () => {
-          db.car.where(metroCarState.carNumber, (response) => {
+          console.log("Check if entry already exists in index db");
+
+          db.car.get(metroCarState.carNumber, (response) => {
             console.log("db.car.where: ", response);
+            if (response) {
+              console.log("response is true", response);
+              // db.car.upate
+            } else {
+              console.log("response is false: ", response);
+              db.car
+                .add({
+                  number: metroCarState.carNumber,
+                  volume: metroCarState.carVolume,
+                  keys: newCarKeysValue,
+                })
+                .then((response) => {
+                  console.log("Car added from dexie: ", response);
+                })
+                .catch((err) => {
+                  console.log("there was a dexie when adding car error: ", err);
+                });
+            }
           });
-         
+
+          console.log("Any output above this?");
         }).catch((err) => {
           console.log("IndexedDB transaction error: ", err);
         });
-        // db.car
-        //   .add({
-        //     number: metroCarState.carNumber,
-        //     volume: metroCarState.carVolume,
-        //     keys: newCarKeysValue,
-        //   })
-        //   .then((response) => {
-        //     console.log("Response from dexie: ", response);
-        //   })
-        //   .catch((err) => {
-        //     console.log("there was a dexie error: ", err);
-        //   });
       }
     };
 
@@ -188,6 +212,7 @@ const MetroCar = memo(
         ...metroCarState,
         carVolume: newVolume,
       });
+
       console.log("Sending PUT request to server with new volume value...");
       axios
         .put("/api/setVolumeRadio", {

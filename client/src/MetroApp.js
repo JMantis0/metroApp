@@ -21,22 +21,22 @@ const MetroCar = lazy(() => import("./components/MetroCar"));
 console.log(Dexie);
 var db = new Dexie("MetroDB");
 db.version(1).stores({
-  car: "++id,number,volume,keys,createdAt,updatedAt",
-  latestPut: "++id,latestPut,createdAt,updatedAt",
+  car: "number,volume,keys,createdAt,updatedAt",
+  latestPut: "latestPut,createdAt,updatedAt",
 });
 db.open();
-db.car.add({
-  number: "999999",
-  volume: "heavy",
-  keys: "3",
-  createdAt: moment().format("YYYY-MM-DD hh:mm:ss"),
-  updatedAt: moment().format("YYYY-MM-DD hh:mm:ss"),
-});
-db.latestPut.add({
-  latestPut: moment().unix(),
-  createdAt: moment().format("YYYY-MM-DD hh:mm:ss"),
-  updatedAt: moment().format("YYYY-MM-DD hh:mm:ss"),
-});
+// db.car.add({
+//   number: "999999",
+//   volume: "heavy",
+//   keys: "3",
+//   createdAt: moment().format("YYYY-MM-DD hh:mm:ss"),
+//   updatedAt: moment().format("YYYY-MM-DD hh:mm:ss"),
+// });
+// db.latestPut.add({
+//   latestPut: moment().unix(),
+//   createdAt: moment().format("YYYY-MM-DD hh:mm:ss"),
+//   updatedAt: moment().format("YYYY-MM-DD hh:mm:ss"),
+// });
 
 function MetroApp() {
   //  Car data object.
@@ -51,44 +51,40 @@ function MetroApp() {
   const searchRef = useRef("");
   const [searchState, setSearchState] = useState("");
   const [footerState, setFooterState] = useState({
-    allCount: "Loading",
-    heavyCount: "Loading",
-    lightCount: "Loading",
-    uncheckedCount: "Loading",
-    emptyCount: "Loading",
+    allCount: "...",
+    heavyCount: "...",
+    lightCount: "...",
+    uncheckedCount: "...",
+    emptyCount: "...",
   });
   const [online, setOnline] = useState(true);
 
   // Listeners to detect offline and online status
   //  On first render, get Metro Car data from server DB and set it to state.
   useEffect(() => {
-    if (!navigator.onLine) {
-      console.log("currently offline");
+    if (navigator.onLine) {
+      console.log("Connected to the network.");
+    } else {
+      console.log("Disconnected from the network.");
     }
     console.log("Getting car data");
     setLastStateUpdateTime(moment().unix());
     requestMetroCarDataAndSetStates();
     requestCountsAndSetFooterState();
-    window.addEventListener("offline", handler);
-    window.addEventListener("online", handler);
-    console.log("navigator", navigator);
-    // const offlineHandler = (event) => {
-    //   console.log("You are now disconnected from the network.");
-    // };
-    // const onlineHandler = (event) => {
-    //   console.log("You are now connected to the network.");
-    // };
+
     const handler = (event) => {
       console.log("Inside online/offline handler.  The event is: ", event);
-      console.log("navigator.OnLine is: ", navigator.OnLine);
+      console.log("navigator.onLine is: ", navigator.onLine);
       console.log("setting online state...");
-      setOnline(navigator.OnLine);
+      setOnline(navigator.onLine);
       if (event.type === "online") {
-        console.log("Online stuff");
+        console.log("Alert: Now connected to the network.");
       } else {
-        console.log("Offline stuff");
+        console.log("Alert: Now disconnected from the network.");
       }
     };
+    window.addEventListener("offline", handler);
+    window.addEventListener("online", handler);
     const cleanUp = () => {
       window.removeEventListener("online", handler);
       window.removeEventListener("offline", handler);
@@ -97,16 +93,21 @@ function MetroApp() {
   }, []);
 
   useEffect(() => {
-    console.log("Setting data-check interval");
-    const carTicker = setInterval(async () => {
-      checkForNewData();
-    }, 5000);
-    const cleanup = () => {
-      console.log("Clearing data-check interval");
-      clearInterval(carTicker);
-    };
-    return cleanup;
-  }, [lastStateUpdateTime]);
+    console.log("navigator.onLine: ", navigator.onLine);
+  }, [navigator.onLine]);
+
+  //  TEMP COMMENT OUT FOR OFFLINE TESTING
+  // useEffect(() => {
+  //   console.log("Setting data-check interval");
+  //   const carTicker = setInterval(async () => {
+  //     checkForNewData();
+  //   }, 5000);
+  //   const cleanup = () => {
+  //     console.log("Clearing data-check interval");
+  //     clearInterval(carTicker);
+  //   };
+  //   return cleanup;
+  // }, [lastStateUpdateTime]);
 
   const requestCountsAndSetFooterState = () => {
     console.log("Getting all footer counts...");
@@ -229,7 +230,6 @@ function MetroApp() {
       });
   };
 
-  
   //
 
   // This function is only used for testing
@@ -264,12 +264,6 @@ function MetroApp() {
         METRO APP
       </div>
       <MetroClock />
-      <MetroSearch
-        searchRef={searchRef}
-        state={state}
-        searchState={searchState}
-        setSearchState={setSearchState}
-      />
       <Collapse in={checked}>
         <div>
           {"Last State Update Time: "}
@@ -303,6 +297,13 @@ function MetroApp() {
         >
           Console.log(state)
         </Button>
+        <Button
+          onClick={() => {
+            console.log("searchRef: ", searchRef);
+          }}
+        >
+          console.log(searchRef)
+        </Button>
         <Button variant="contained" color="primary" onClick={checkForNewData}>
           Check for new data
         </Button>
@@ -314,9 +315,9 @@ function MetroApp() {
       <Grid container>
         <Suspense fallback={<h1>Loading...</h1>}>
           <MetroTitles />
-          {Object.keys(state).map((key) => {
-            return (
-              <Grid item xs={12}>
+          <Grid item xs={12}>
+            {Object.keys(state).map((key) => {
+              return (
                 <MetroCar
                   key={state[key].number}
                   number={state[key].number}
@@ -331,16 +332,19 @@ function MetroApp() {
                   setState={setState}
                   volumeFilterState={volumeFilterState}
                   setVolumeFilterState={setVolumeFilterState}
+                  online={online}
                 ></MetroCar>
-              </Grid>
-            );
-          })}
+              );
+            })}
+          </Grid>
         </Suspense>
       </Grid>
       <div className={"bottom-space"}></div>
       <MetroFooter
-        footerState={footerState}
+        searchRef={searchRef}
+        setSearchState={setSearchState}
         setVolumeFilterState={setVolumeFilterState}
+        footerState={footerState}
       />
     </div>
   );
