@@ -203,7 +203,7 @@ function MetroApp() {
   return (
     <div className="App">
       <CssBaseline />
-      <div onClick={handleCollapse}>METRO APP</div>
+      <div className="title" onClick={handleCollapse}>METRO APP</div>
       <MetroClock />
       <MetroSearch
         searchRef={searchRef}
