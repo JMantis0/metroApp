@@ -97,7 +97,7 @@ router.put("/transferIndexedDBRecords", async (req, res) => {
     console.log(`Checked mysql db for car ${indexedDBCar.number}`);
     console.log(`Comparing updateAt from backend DB to frontend DB...`);
     //  Convert both timestamps to moments and compare them with .diff()
-    const clientDBMoment = moment(indexedDBCar.updatedAt);
+    const clientDBMoment = moment(indexedDBCar.updatedAt).add(8, "h");
     const serverDBMoment = moment(mySqlCar.dataValues.updatedAt);
     console.log("Frontend record updated at time: ", clientDBMoment);
     console.log("Back end record updated at time: ", serverDBMoment);
@@ -113,7 +113,7 @@ router.put("/transferIndexedDBRecords", async (req, res) => {
           num: indexedDBCar.number,
           volume: indexedDBCar.volume,
           keyz: indexedDBCar.keys,
-          updatedAt: indexedDBCar.updatedAt,
+          updatedAt: clientDBMoment.format("YYYY-MM-DD HH:mm:ss"),
         },
         { where: { num: indexedDBCar.number } }
       );
