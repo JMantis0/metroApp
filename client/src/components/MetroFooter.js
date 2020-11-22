@@ -3,14 +3,20 @@ import React from "react";
 import Grid from "@material-ui/core/Grid";
 import BottomNavigation from "@material-ui/core/BottomNavigation";
 import BottomNavigationAction from "@material-ui/core/BottomNavigationAction";
-import { makeStyles } from "@material-ui/core/styles";
+import MetroSearch from "./MetroSearch";
 
-const MetroFooter = ({ setVolumeFilterState, footerState }) => {
- 
+const MetroFooter = ({
+  setVolumeFilterState,
+  footerState,
+  searchRef,
+  setSearchState,
+}) => {
   const handleChange = (event, value) => {
     //  volumeFilterState filters (by setting display: none) by volume value
     console.log(`Displaying only ${value} cars.`);
     setVolumeFilterState(value);
+    // searchRef.current = "";
+    // setSearchState("");
   };
 
   return (
@@ -19,6 +25,10 @@ const MetroFooter = ({ setVolumeFilterState, footerState }) => {
       className={"bottom-navigation-container"}
       style={{ zIndex: 10 }}
     >
+      <MetroSearch
+        searchRef={searchRef}
+        setSearchState={setSearchState}
+      />
       <Grid item xs={12}>
         <BottomNavigation
           className="bottom-navigation"

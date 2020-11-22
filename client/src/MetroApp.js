@@ -15,45 +15,149 @@ import MetroClock from "./components/MetroClock";
 import MetroTitles from "./components/MetroTitles";
 
 import moment from "moment";
+import Dexie from "dexie";
 const MetroCar = lazy(() => import("./components/MetroCar"));
+
+console.log(Dexie);
+var db = new Dexie("MetroDB");
+db.version(1).stores({
+  car: "number,volume,keys,createdAt,updatedAt",
+  latestPut: "latestPut,createdAt,updatedAt",
+});
+db.open();
 
 function MetroApp() {
   //  Car data object.
   const [state, setState] = useState([]);
   const [volumeFilterState, setVolumeFilterState] = useState(0);
   //  Dev Collapse
-  const [checked, setChecked] = useState(false);
+  const [checked, setChecked] = useState(true);
   //  Stores the last time the state was updated
   const [lastStateUpdateTime, setLastStateUpdateTime] = useState(0);
   const [carsNeedingUpdate, setCarsNeedingUpdate] = useState([]);
   //  Ref for search input within MetroSearch.  Used by MetroCar to control display value;
   const searchRef = useRef("");
   const [searchState, setSearchState] = useState("");
-  const [footerState, setFooterState] = useState({allCount: "Loading",
-    heavyCount:"Loading",
-    lightCount: "Loading",
-    uncheckedCount: "Loading",
-    emptyCount: "Loading"});
+  const [footerState, setFooterState] = useState({
+    allCount: "...",
+    heavyCount: "...",
+    lightCount: "...",
+    uncheckedCount: "...",
+    emptyCount: "...",
+  });
+  const [online, setOnline] = useState(true);
 
+  // Listeners to detect offline and online status
   //  On first render, get Metro Car data from server DB and set it to state.
   useEffect(() => {
+    if (navigator.onLine) {
+      console.log("Connected to the network.");
+    } else {
+      console.log("Disconnected from the network.");
+    }
     console.log("Getting car data");
     setLastStateUpdateTime(moment().unix());
     requestMetroCarDataAndSetStates();
     requestCountsAndSetFooterState();
+
+    //  Handles dexie records when connection is lost and regained.
+    const networkEventHandler = (event) => {
+      console.log(
+        "Inside online/offline networkEventHandler.  The event is: ",
+        event
+      );
+      console.log("navigator.onLine is: ", navigator.onLine);
+      console.log("setting online state...");
+      setOnline(navigator.onLine);
+      if (event.type === "online") {
+        console.log("Alert: Now connected to the network.");
+        //  Check for indexedDB records.
+        //  If they exist attempt a put request.
+        const carCollection = db.car.toCollection();
+        const recordsExist = new Promise((resolve, reject) => {
+          carCollection.count((count) => {
+            console.log(`if ${count} is 0, there are no records`);
+            if (count !== 0) {
+              console.log(`There are ${count} records in the indexedDB`);
+              resolve(true);
+            } else if (count === 0) {
+              console.log("There are no records in the indexedDB");
+              resolve(false);
+            } else {
+              reject(
+                "Error: count was neither !== 0 nor === 0.  count: ",
+                count
+              );
+            }
+          });
+        });
+        recordsExist.then((answer) => {
+          if (recordsExist) {
+            //  use collection.toArray to get convert records in
+            //  the indexedDB to an array.
+            carCollection.toArray((dexieCarData) => {
+              console.log("Sending records saved while offline to server...");
+              //Put request goes here with toArray()
+              axios
+                .put("/api/transferIndexedDBRecords", {
+                  data: dexieCarData,
+                })
+                .then((response) => {
+                  console.log(
+                    "Response from /transferIndexedDBRecords: ",
+                    response
+                  );
+                  //  If OKAY response, then delete all records from indexedDB
+                  const carCollection = db.car.toCollection();
+                  db.transaction("rw", db.car, () => {
+                    carCollection.eachPrimaryKey((key) => {
+                      console.log("key: ", key);
+                      console.log("Deleting dexie record for car ", key);
+                      db.car.delete(key);
+                    });
+                  }).catch((err) => {
+                    console.log("There was an error: ", err);
+                  });
+                })
+                .catch((err) => {
+                  console.log("There was an error: ", err);
+                });
+            });
+          } else {
+            console.log("No dexie records to send.");
+          }
+        });
+        //  recordsExist can now be used as a trigger
+        console.log("recordsExist", recordsExist);
+      } else {
+        console.log("Alert: Now disconnected from the network.");
+      }
+    };
+    window.addEventListener("offline", networkEventHandler);
+    window.addEventListener("online", networkEventHandler);
+    const cleanUp = () => {
+      window.removeEventListener("online", networkEventHandler);
+      window.removeEventListener("offline", networkEventHandler);
+    };
+    return cleanUp;
   }, []);
 
   useEffect(() => {
-    console.log("Setting data-check interval");
-    const carTicker = setInterval(async () => {
-      checkForNewData();
-    }, 5000);
-    const cleanup = () => {
-      console.log("Clearing data-check interval");
-      clearInterval(carTicker);
-    };
-    return cleanup;
-  }, [lastStateUpdateTime]);
+    console.log("navigator.onLine: ", navigator.onLine);
+  }, [navigator.onLine]);
+
+  //  TEMP COMMENT OUT FOR OFFLINE TESTING
+  // useEffect(() => {
+  //   console.log("Setting data-check interval");
+  //   const carTicker = setInterval(async () => {
+  //     checkForNewData();
+  //   }, 5000);
+  //   const cleanup = () => {
+  //     console.log("Clearing data-check interval");
+  //     clearInterval(carTicker);
+  //   };
+  //   return cleanup;
+  // }, [lastStateUpdateTime]);
 
   const requestCountsAndSetFooterState = () => {
     console.log("Getting all footer counts...");
@@ -176,7 +280,10 @@ function MetroApp() {
       });
   };
 
+  //
+
   // This function is only used for testing
+
   const updateDBLatestPut = () => {
     console.log("Initiating latest put Get");
     axios
@@ -203,19 +310,31 @@ function MetroApp() {
   return (
     <div className="App">
       <CssBaseline />
-      <div onClick={handleCollapse}>METRO APP</div>
+      <div className="title" onClick={handleCollapse}>
+        METRO APP
+      </div>
       <MetroClock />
-      <MetroSearch
-        searchRef={searchRef}
-        state={state}
-        searchState={searchState}
-        setSearchState={setSearchState}
-      />
       <Collapse in={checked}>
         <div>
           {"Last State Update Time: "}
           {moment.unix(lastStateUpdateTime)._d.toString()}
         </div>
+        <Button
+          onClick={() => {
+            const carCollection = db.car.toCollection();
+            db.transaction("rw", db.car, () => {
+              carCollection.eachPrimaryKey((key) => {
+                console.log("key: ", key);
+                console.log("Deleting dexie record for car ", key);
+                db.car.delete(key);
+              });
+            }).catch((err) => {
+              console.log("There was an error: ", err);
+            });
+          }}
+        >
+          Get Dexie Keys
+        </Button>
         <Button onClick={testBackend}>Test Backend (check console)</Button>
         <Button variant="outlined" onClick={initializeDB}>
           Initialize DB
@@ -244,20 +363,38 @@ function MetroApp() {
         >
           Console.log(state)
         </Button>
+        <Button
+          onClick={() => {
+            console.log("searchRef: ", searchRef);
+          }}
+        >
+          console.log(searchRef)
+        </Button>
         <Button variant="contained" color="primary" onClick={checkForNewData}>
           Check for new data
         </Button>
         <Button onClick={updateDBLatestPut}>update latest put</Button>
         <Button onClick={changeOneCar}>ChangeOneCar</Button>
         <Button onClick={getOutOfDateCars}>Get Out of Date Cars</Button>
+        <Button
+          onClick={() => {
+            const carCollection = db.car.toCollection();
+            carCollection.count((count) => console.log(count));
+            carCollection.toArray((array) => {
+              console.log("array", array);
+            });
+          }}
+        >
+          get array of car table.
+        </Button>
       </Collapse>
 
       <Grid container>
         <Suspense fallback={<h1>Loading...</h1>}>
           <MetroTitles />
-          {Object.keys(state).map((key) => {
-            return (
-              <Grid item xs={12}>
+          <Grid item xs={12}>
+            {Object.keys(state).map((key) => {
+              return (
                 <MetroCar
                   key={state[key].number}
                   number={state[key].number}
@@ -272,16 +409,19 @@ function MetroApp() {
                   setState={setState}
                   volumeFilterState={volumeFilterState}
                   setVolumeFilterState={setVolumeFilterState}
+                  online={online}
                 ></MetroCar>
-              </Grid>
-            );
-          })}
+              );
+            })}
+          </Grid>
         </Suspense>
       </Grid>
       <div className={"bottom-space"}></div>
       <MetroFooter
-        footerState={footerState}
+        searchRef={searchRef}
+        setSearchState={setSearchState}
         setVolumeFilterState={setVolumeFilterState}
+        footerState={footerState}
       />
     </div>
   );
