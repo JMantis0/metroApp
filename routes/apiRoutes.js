@@ -117,6 +117,7 @@ router.put("/transferIndexedDBRecords", async (req, res) => {
         },
         { where: { num: indexedDBCar.number } }
       );
+      updateLatestPut(res);
       console.log(
         `Updated Mysql record for car ${indexedDBCar.number}: `,
         updatedCar
