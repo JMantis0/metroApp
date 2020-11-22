@@ -18,8 +18,6 @@ const metroCarObject = XLSX.utils.sheet_to_json(
   metroBook.Sheets[sheet_name_list[0]]
 );
 
-console.log("Current Metro Car numbers :");
-console.table(metroCarObject);
 console.log(
   `███████████████████████████████████████████████████████████████████`
 );
@@ -63,6 +61,7 @@ const updateLatestPut = (res) => {
 
 /*    ROUTE LIST:
  *   *   *   *   *   *   *   *   *   *   *   *
+ *    PUT: "/transferIndexedDBRecords"
  *    GET: "/allFooterCounts"
  *    GET: "/updateMetroCar/:carNumber"
  *    GET: "/test"
@@ -76,6 +75,65 @@ const updateLatestPut = (res) => {
  *   *   *   *   *   *   *   *   *   *   *   *
  *
  */
+router.put("/transferIndexedDBRecords", async (req, res) => {
+  console.log(
+    `███████████████████████████████████████████████████████████████████`
+  );
+  console.log(
+    `███████████████████████████████████████████████████████████████████`
+  );
+  console.log(`PUT request from client: /transferIndexedDBRecords`);
+  //  The req.body.data is an array version of the indexedDB records from the front end.
+  //  Now compare the updatedAt from the IndexedDB with the updatedAt from the MySQL db.
+  //  Then update the server DB only if the client record is newer.
+  const indexedRecordsArray = req.body.data;
+  const carsUpdated = [];
+
+  for (indexedDBCar of indexedRecordsArray) {
+    console.log("indexedDBCar: ", indexedDBCar);
+    const mySqlCar = await models.Car.findOne({
+      where: { num: indexedDBCar.number },
+    });
+    console.log(`Checked mysql db for car ${indexedDBCar.number}`);
+    console.log(`Comparing updateAt from backend DB to frontend DB...`);
+    //  Convert both timestamps to moments and compare them with .diff()
+    const clientDBMoment = moment(indexedDBCar.updatedAt);
+    const serverDBMoment = moment(mySqlCar.dataValues.updatedAt);
+    console.log("Frontend record updated at time: ", clientDBMoment);
+    console.log("Back end record updated at time: ", serverDBMoment);
+    //  If clientDBMoment.diff(serverDBMoment) is non-negative, update the record,
+    //  to match the data from client.
+    const updateRecord = clientDBMoment.diff(serverDBMoment) >= 0;
+    if (updateRecord) {
+      console.log(
+        "Record from client is newer than record on server.  Updating..."
+      );
+      const updatedCar = await models.Car.update(
+        {
+          num: indexedDBCar.number,
+          volume: indexedDBCar.volume,
+          keyz: indexedDBCar.keys,
+          updatedAt: indexedDBCar.updatedAt,
+        },
+        { where: { num: indexedDBCar.number } }
+      );
+      console.log(
+        `Updated Mysql record for car ${indexedDBCar.number}: `,
+        updatedCar
+      );
+      carsUpdated.push(indexedDBCar.number);
+      console.log("carsUpdated", carsUpdated);
+    } else {
+      console.log(
+        "Record in server DB is newer than record from client.  Not updating."
+      );
+    }
+  }
+  console.log(
+    "Sending numbers of client cars that were saved to serverDB to client.."
+  );
+  res.status(202).send({ carsUpdated });
+});
 
 router.get("/allFooterCounts", (req, res) => {
   console.log(
@@ -112,7 +170,11 @@ router.get("/allFooterCounts", (req, res) => {
     ],
   })
     .then((response) => {
-      console.log("Volume type totals obtained: ", response);
+      console.log("Volume type totals obtained: ");
+      console.log("Heavy: ", response[0].dataValues.heavy_count);
+      console.log("Light: ", response[0].dataValues.light_count);
+      console.log("Unchecked: ", response[0].dataValues.unchecked_count);
+      console.log("Empty: ", response[0].dataValues.empty_count);
       res.status(200).send(response);
     })
     .catch((err) => {

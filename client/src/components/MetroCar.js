@@ -25,13 +25,13 @@ db.open();
 //   number: "199999",
 //   volume: "heavy",
 //   keys: "3",
-//   createdAt: moment().format("YYYY-MM-DD hh:mm:ss"),
-//   updatedAt: moment().format("YYYY-MM-DD hh:mm:ss"),
+//   createdAt: moment().format("YYYY-MM-DD HH:mm:ss"),
+//   updatedAt: moment().format("YYYY-MM-DD HH:mm:ss"),
 // });
 // db.latestPut.add({
 //   latestPut: moment().unix(),
-//   createdAt: moment().format("YYYY-MM-DD hh:mm:ss"),
-//   updatedAt: moment().format("YYYY-MM-DD hh:mm:ss"),
+//   createdAt: moment().format("YYYY-MM-DD HH:mm:ss"),
+//   updatedAt: moment().format("YYYY-MM-DD HH:mm:ss"),
 // });
 
 const MetroCar = memo(
@@ -170,24 +170,60 @@ const MetroCar = memo(
             console.log("There was an error: ", err);
           });
       }
-      //  if offline
+      //  If offline:
+      //  1) Check to see if any indexedDB records exist for this car, then
+      //  2) If so, update the indexedDB record for that car
+      //  3) If no, add an indexedDB record that that car
       else {
         console.log("offline!  indexxedDB transaction occuring...");
-        db.transaction("rw", db.car, () => {
-          console.log("Check if entry already exists in index db");
 
+        //  a DB transaction handles a group of
+        //  db operations with only one catch.  Very useful
+        db.transaction("rw", db.car, () => {
+          console.log(
+            `Checking indexedDB for record with car ${metroCarState.carNumber}...`
+          );
           db.car.get(metroCarState.carNumber, (response) => {
             console.log("db.car.where: ", response);
             if (response) {
-              console.log("response is true", response);
-              // db.car.upate
+              console.log(
+                `Record found for car ${metroCarState.carNumber} found in indexedDB`,
+                response
+              );
+              console.log(`Updating entry for ${metroCarState.carNumber}...`);
+              db.car
+                .update(metroCarState.carNumber, {
+                  number: metroCarState.carNumber,
+                  volume: metroCarState.carVolume,
+                  keys: newCarKeysValue,
+                  updatedAt: moment().format("YYYY-MM-DD HH:mm:ss"),
+                })
+                .then((response) => {
+                  console.log(
+                    `Update to dexie record for car ${metroCarState.carNumber} complete.  Result: `,
+                    response
+                  );
+                })
+                .catch((err) => {
+                  console.log(
+                    `There was an error updating car ${metroCarState.carNumber}`,
+                    err
+                  );
+                });
             } else {
-              console.log("response is false: ", response);
+              console.log(
+                `No record for car ${metroCarState.carNumber} found in indexedDB`
+              );
+              console.log(
+                `Adding record for car ${metroCarState.carNumber} to indexeDB...`
+              );
               db.car
                 .add({
                   number: metroCarState.carNumber,
                   volume: metroCarState.carVolume,
                   keys: newCarKeysValue,
+                  createdAt: moment().format("YYYY-MM-DD HH:mm:ss"),
+                  updatedAt: moment().format("YYYY-MM-DD HH:mm:ss"),
                 })
                 .then((response) => {
                   console.log("Car added from dexie: ", response);
@@ -197,8 +233,6 @@ const MetroCar = memo(
                 });
             }
           });
-
-          console.log("Any output above this?");
         }).catch((err) => {
           console.log("IndexedDB transaction error: ", err);
         });
@@ -213,30 +247,101 @@ const MetroCar = memo(
         carVolume: newVolume,
       });
 
-      console.log("Sending PUT request to server with new volume value...");
-      axios
-        .put("/api/setVolumeRadio", {
-          newVolume: newVolume,
-          num: number,
-        })
-        .then((setVolumeResponse) => {
-          console.log(
-            "Car data in DB has been updated: ",
-            setVolumeResponse.data
-          );
+      if (online) {
+        console.log("Sending PUT request to server with new volume value...");
+        axios
+          .put("/api/setVolumeRadio", {
+            newVolume: newVolume,
+            num: number,
+          })
+          .then((setVolumeResponse) => {
+            console.log(
+              "Car data in DB has been updated: ",
+              setVolumeResponse.data
+            );
 
-          const updatedAtUnix = moment(setVolumeResponse.data.updatedAt).unix();
-          setMetroCarState({
-            ...metroCarState,
-            carVolume: setVolumeResponse.data.volume,
-            carUpdatedAt: setVolumeResponse.data.updatedAt,
+            const updatedAtUnix = moment(
+              setVolumeResponse.data.updatedAt
+            ).unix();
+            setMetroCarState({
+              ...metroCarState,
+              carVolume: setVolumeResponse.data.volume,
+              carUpdatedAt: setVolumeResponse.data.updatedAt,
+            });
+          })
+          .catch((error) => {
+            console.log(
+              ("There was an error in the setVolumeRadio route: ", error)
+            );
           });
-        })
-        .catch((error) => {
+      }
+      //  If offline:
+      //  1) Check to see if any indexedDB records exist for this car, then
+      //  2) If so, update the indexedDB record for that car
+      //  3) If no, add an indexedDB record that that car
+      else {
+        console.log("offline!  indexxedDB transaction occuring...");
+
+        //  a DB transaction handles a group of
+        //  db operations with only one catch.  Very useful
+        db.transaction("rw", db.car, () => {
           console.log(
-            ("There was an error in the setVolumeRadio route: ", error)
+            `Checking indexedDB for record with car ${metroCarState.carNumber}...`
           );
+          db.car.get(metroCarState.carNumber, (response) => {
+            console.log("db.car.where: ", response);
+            if (response) {
+              console.log(
+                `Record found for car ${metroCarState.carNumber} found in indexedDB`,
+                response
+              );
+              console.log(`Updating entry for ${metroCarState.carNumber}...`);
+              db.car
+                .update(metroCarState.carNumber, {
+                  number: metroCarState.carNumber,
+                  volume: newVolume,
+                  keys: metroCarState.carKeys,
+                  updatedAt: moment().format("YYYY-MM-DD HH:mm:ss"),
+                })
+                .then((response) => {
+                  console.log(
+                    `Update to car ${metroCarState.carNumber} complete.  Result: `,
+                    response
+                  );
+                })
+                .catch((err) => {
+                  console.log(
+                    `There was an error updating car ${metroCarState.carNumber}`,
+                    err
+                  );
+                });
+            } else {
+              console.log(
+                `No record for car ${metroCarState.carNumber} found in indexedDB`
+              );
+              console.log(
+                `Adding record for car ${metroCarState.carNumber} to indexeDB...`
+              );
+              db.car
+                .add({
+                  number: metroCarState.carNumber,
+                  volume: newVolume,
+                  keys: metroCarState.carKeys,
+                  createdAt: moment().format("YYYY-MM-DD HH:mm:ss"),
+                  updatedAt: moment().format("YYYY-MM-DD HH:mm:ss"),
+                })
+                .then((response) => {
+                  console.log("Car added from dexie: ", response);
+                })
+                .catch((err) => {
+                  console.log("there was a dexie when adding car error: ", err);
+                });
+            }
+          });
+        }).catch((err) => {
+          console.log("IndexedDB transaction error: ", err);
         });
+      }
     };
 
     //  A MetroCar is a row on the screen with car data and can be interacted with by a user.

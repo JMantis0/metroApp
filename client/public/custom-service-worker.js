@@ -47,30 +47,30 @@ self.addEventListener("activate", function(evt) {
 
 self.addEventListener("fetch", function(evt) {
   // cache successful requests to the API
-  if (evt.request.url.includes("/api/")) {
-    evt.respondWith(
-      caches
-        .open(DATA_CACHE)
-        .then((cache) => {
-          return fetch(evt.request)
-            .then((response) => {
-              // If the response was good, clone it and store it in the cache.
-              if (response.status === 200) {
-                console.log("Adding to data-cache: url - ", evt.request.url);
-                cache.put(evt.request.url, response.clone());
-              }
-              return response;
-            })
-            .catch((err) => {
-              // Network request failed, try to get it from the cache.
-              return cache.match(evt.request);
-            });
-        })
-        .catch((err) => console.log(err))
-    );
+  // if (evt.request.url.includes("/api/")) {
+  //   evt.respondWith(
+  //     caches
+  //       .open(DATA_CACHE)
+  //       .then((cache) => {
+  //         return fetch(evt.request)
+  //           .then((response) => {
+  //             // If the response was good, clone it and store it in the cache.
+  //             if (response.status === 200) {
+  //               console.log("Adding to data-cache: url - ", evt.request.url);
+  //               cache.put(evt.request.url, response.clone());
+  //             }
+  //             return response;
+  //           })
+  //           .catch((err) => {
+  //             // Network request failed, try to get it from the cache.
+  //             return cache.match(evt.request);
+  //           });
+  //       })
+  //       .catch((err) => console.log(err))
+  //   );
 
-    return;
-  }
+  //   return;
+  // }
 
   //  Static files route through here.
   evt.respondWith(

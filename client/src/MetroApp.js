@@ -25,25 +25,13 @@ db.version(1).stores({
   latestPut: "latestPut,createdAt,updatedAt",
 });
 db.open();
-// db.car.add({
-//   number: "999999",
-//   volume: "heavy",
-//   keys: "3",
-//   createdAt: moment().format("YYYY-MM-DD hh:mm:ss"),
-//   updatedAt: moment().format("YYYY-MM-DD hh:mm:ss"),
-// });
-// db.latestPut.add({
-//   latestPut: moment().unix(),
-//   createdAt: moment().format("YYYY-MM-DD hh:mm:ss"),
-//   updatedAt: moment().format("YYYY-MM-DD hh:mm:ss"),
-// });
 
 function MetroApp() {
   //  Car data object.
   const [state, setState] = useState([]);
   const [volumeFilterState, setVolumeFilterState] = useState(0);
   //  Dev Collapse
-  const [checked, setChecked] = useState(false);
+  const [checked, setChecked] = useState(true);
   //  Stores the last time the state was updated
   const [lastStateUpdateTime, setLastStateUpdateTime] = useState(0);
   const [carsNeedingUpdate, setCarsNeedingUpdate] = useState([]);
@@ -72,22 +60,84 @@ function MetroApp() {
     requestMetroCarDataAndSetStates();
     requestCountsAndSetFooterState();
 
-    const handler = (event) => {
-      console.log("Inside online/offline handler.  The event is: ", event);
+    //  Handles dexie records when connection is lost and regained.
+    const networkEventHandler = (event) => {
+      console.log(
+        "Inside online/offline networkEventHandler.  The event is: ",
+        event
+      );
       console.log("navigator.onLine is: ", navigator.onLine);
       console.log("setting online state...");
       setOnline(navigator.onLine);
       if (event.type === "online") {
         console.log("Alert: Now connected to the network.");
+        //  Check for indexedDB records.
+        //  If they exist attempt a put request.
+        const carCollection = db.car.toCollection();
+        const recordsExist = new Promise((resolve, reject) => {
+          carCollection.count((count) => {
+            console.log(`if ${count} is 0, there are no records`);
+            if (count !== 0) {
+              console.log(`There are ${count} records in the indexedDB`);
+              resolve(true);
+            } else if (count === 0) {
+              console.log("There are no records in the indexedDB");
+              resolve(false);
+            } else {
+              reject(
+                "Error: count was neither !== 0 nor === 0.  count: ",
+                count
+              );
+            }
+          });
+        });
+        recordsExist.then((answer) => {
+          if (recordsExist) {
+            //  use collection.toArray to get convert records in
+            //  the indexedDB to an array.
+            carCollection.toArray((dexieCarData) => {
+              console.log("Sending records saved while offline to server...");
+              //Put request goes here with toArray()
+              axios
+                .put("/api/transferIndexedDBRecords", {
+                  data: dexieCarData,
+                })
+                .then((response) => {
+                  console.log(
+                    "Response from /transferIndexedDBRecords: ",
+                    response
+                  );
+                  //  If OKAY response, then delete all records from indexedDB
+                  const carCollection = db.car.toCollection();
+                  db.transaction("rw", db.car, () => {
+                    carCollection.eachPrimaryKey((key) => {
+                      console.log("key: ", key);
+                      console.log("Deleting dexie record for car ", key);
+                      db.car.delete(key);
+                    });
+                  }).catch((err) => {
+                    console.log("There was an error: ", err);
+                  });
+                })
+                .catch((err) => {
+                  console.log("There was an error: ", err);
+                });
+            });
+          } else {
+            console.log("No dexie records to send.");
+          }
+        });
+        //  recordsExist can now be used as a trigger
+        console.log("recordsExist", recordsExist);
       } else {
         console.log("Alert: Now disconnected from the network.");
       }
     };
-    window.addEventListener("offline", handler);
-    window.addEventListener("online", handler);
+    window.addEventListener("offline", networkEventHandler);
+    window.addEventListener("online", networkEventHandler);
     const cleanUp = () => {
-      window.removeEventListener("online", handler);
-      window.removeEventListener("offline", handler);
+      window.removeEventListener("online", networkEventHandler);
+      window.removeEventListener("offline", networkEventHandler);
     };
     return cleanUp;
   }, []);
@@ -269,6 +319,22 @@ function MetroApp() {
           {"Last State Update Time: "}
           {moment.unix(lastStateUpdateTime)._d.toString()}
         </div>
+        <Button
+          onClick={() => {
+            const carCollection = db.car.toCollection();
+            db.transaction("rw", db.car, () => {
+              carCollection.eachPrimaryKey((key) => {
+                console.log("key: ", key);
+                console.log("Deleting dexie record for car ", key);
+                db.car.delete(key);
+              });
+            }).catch((err) => {
+              console.log("There was an error: ", err);
+            });
+          }}
+        >
+          Get Dexie Keys
+        </Button>
         <Button onClick={testBackend}>Test Backend (check console)</Button>
         <Button variant="outlined" onClick={initializeDB}>
           Initialize DB
@@ -310,6 +376,17 @@ function MetroApp() {
         <Button onClick={updateDBLatestPut}>update latest put</Button>
         <Button onClick={changeOneCar}>ChangeOneCar</Button>
         <Button onClick={getOutOfDateCars}>Get Out of Date Cars</Button>
+        <Button
+          onClick={() => {
+            const carCollection = db.car.toCollection();
+            carCollection.count((count) => console.log(count));
+            carCollection.toArray((array) => {
+              console.log("array", array);
+            });
+          }}
+        >
+          get array of car table.
+        </Button>
       </Collapse>
 
       <Grid container>
