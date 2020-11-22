@@ -16,7 +16,7 @@ const MetroSearch = ({
 
   return (
     <div className={"metro-search"}>
-      <Input fullWidth inputRef={searchRef} placeholder="Filter By Number" onChange={handleInputChange}></Input>
+      <Input inputProps={{type: "text", pattern: "\d*"}} fullWidth inputRef={searchRef} placeholder="Filter By Number" onChange={handleInputChange}></Input>
     </div>
   );
 };
