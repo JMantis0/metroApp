@@ -31,7 +31,7 @@ function MetroApp() {
   const [state, setState] = useState([]);
   const [volumeFilterState, setVolumeFilterState] = useState(0);
   //  Dev Collapse
-  const [checked, setChecked] = useState(true);
+  const [checked, setChecked] = useState(false);
   //  Stores the last time the state was updated
   const [lastStateUpdateTime, setLastStateUpdateTime] = useState(0);
   const [carsNeedingUpdate, setCarsNeedingUpdate] = useState([]);
@@ -146,18 +146,17 @@ function MetroApp() {
     console.log("navigator.onLine: ", navigator.onLine);
   }, [navigator.onLine]);
 
-  //  TEMP COMMENT OUT FOR OFFLINE TESTING
-  // useEffect(() => {
-  //   console.log("Setting data-check interval");
-  //   const carTicker = setInterval(async () => {
-  //     checkForNewData();
-  //   }, 5000);
-  //   const cleanup = () => {
-  //     console.log("Clearing data-check interval");
-  //     clearInterval(carTicker);
-  //   };
-  //   return cleanup;
-  // }, [lastStateUpdateTime]);
+  useEffect(() => {
+    console.log("Setting data-check interval");
+    const carTicker = setInterval(async () => {
+      checkForNewData();
+    }, 5000);
+    const cleanup = () => {
+      console.log("Clearing data-check interval");
+      clearInterval(carTicker);
+    };
+    return cleanup;
+  }, [lastStateUpdateTime]);
 
   const requestCountsAndSetFooterState = () => {
     console.log("Getting all footer counts...");
