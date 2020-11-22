@@ -1,10 +1,7 @@
 import React from "react";
 import Input from "@material-ui/core/Input";
 
-const MetroSearch = ({
-  searchRef,
-  setSearchState,
-}) => {
+const MetroSearch = ({ searchRef, setSearchState }) => {
   let inputTimeout;
   const handleInputChange = (event) => {
     clearTimeout(inputTimeout);
@@ -16,7 +13,13 @@ const MetroSearch = ({
 
   return (
     <div className={"metro-search"}>
-      <Input inputProps={{type: "text", pattern: "\d*"}} fullWidth inputRef={searchRef} placeholder="Filter By Number" onChange={handleInputChange}></Input>
+      <Input
+        inputProps={{ type: "number", pattern: "[0-9]", inputmode: "numeric" }}
+        fullWidth
+        inputRef={searchRef}
+        placeholder="Filter By Number"
+        onChange={handleInputChange}
+      ></Input>
     </div>
   );
 };
