@@ -1,7 +1,6 @@
 import React, { memo, useState, useEffect, useMemo } from "react";
 
-import axios from "axios";
-
+//  mui components
 import Paper from "@material-ui/core/Paper";
 import FormLabel from "@material-ui/core/FormLabel";
 import FormGroup from "@material-ui/core/FormGroup";
@@ -11,28 +10,21 @@ import LocalShippingRoundedIcon from "@material-ui/icons/LocalShippingRounded";
 import Grid from "@material-ui/core/Grid";
 import Radio from "@material-ui/core/Radio";
 import RadioGroup from "@material-ui/core/RadioGroup";
+
+//  npm libraries
+import axios from "axios";
 import moment from "moment";
 import classnames from "classnames";
-
 import Dexie from "dexie";
+
+//  
 var db = new Dexie("MetroDB");
 db.version(1).stores({
   car: "number,volume,keys,createdAt,updatedAt",
   latestPut: "latestPut,createdAt,updatedAt",
 });
+console.log(Dexie);
 db.open();
-// db.car.add({
-//   number: "199999",
-//   volume: "heavy",
-//   keys: "3",
-//   createdAt: moment().format("YYYY-MM-DD HH:mm:ss"),
-//   updatedAt: moment().format("YYYY-MM-DD HH:mm:ss"),
-// });
-// db.latestPut.add({
-//   latestPut: moment().unix(),
-//   createdAt: moment().format("YYYY-MM-DD HH:mm:ss"),
-//   updatedAt: moment().format("YYYY-MM-DD HH:mm:ss"),
-// });
 
 const MetroCar = memo(
   ({
@@ -175,22 +167,23 @@ const MetroCar = memo(
       //  2) If so, update the indexedDB record for that car
       //  3) If no, add an indexedDB record that that car
       else {
-        console.log("offline!  indexxedDB transaction occuring...");
+        console.log("No network connection available, using indexedDB...");
 
         //  a DB transaction handles a group of
         //  db operations with only one catch.  Very useful
         db.transaction("rw", db.car, () => {
           console.log(
-            `Checking indexedDB for record with car ${metroCarState.carNumber}...`
+            `Checking indexed DB for record with car ${metroCarState.carNumber}...`
           );
           db.car.get(metroCarState.carNumber, (response) => {
-            console.log("db.car.where: ", response);
             if (response) {
               console.log(
-                `Record found for car ${metroCarState.carNumber} found in indexedDB`,
+                `Indexed DB record found for car ${metroCarState.carNumber}.`,
                 response
               );
-              console.log(`Updating entry for ${metroCarState.carNumber}...`);
+              console.log(
+                `Updating indexed DB record for ${metroCarState.carNumber}...`
+              );
               db.car
                 .update(metroCarState.carNumber, {
                   number: metroCarState.carNumber,
@@ -200,7 +193,7 @@ const MetroCar = memo(
                 })
                 .then((response) => {
                   console.log(
-                    `Update to dexie record for car ${metroCarState.carNumber} complete.  Result: `,
+                    `Successfully updated Indexed DB record for car ${metroCarState.carNumber}`,
                     response
                   );
                 })
@@ -212,10 +205,10 @@ const MetroCar = memo(
                 });
             } else {
               console.log(
-                `No record for car ${metroCarState.carNumber} found in indexedDB`
+                `No indexed DB record found for car ${metroCarState.carNumber}`
               );
               console.log(
-                `Adding record for car ${metroCarState.carNumber} to indexeDB...`
+                `Adding indexed DB record for car ${metroCarState.carNumber}...`
               );
               db.car
                 .add({
@@ -350,15 +343,15 @@ const MetroCar = memo(
         <Paper>
           <FormGroup row>
             <Grid container alignItems="center" justify="space-evenly">
-              <Grid item xs={1}>
+              <Grid item xs={"auto"}>
                 <FormLabel>
                   <LocalShippingRoundedIcon className="shipcon" />
                 </FormLabel>
               </Grid>
-              <Grid className="car-number" item xs={3}>
+              <Grid className="car-number" item xs={"auto"}>
                 {number}
               </Grid>
-              <Grid item xs={4}>
+              <Grid item xs={"auto"}>
                 <FormControlLabel
                   control={
                     <RadioGroup

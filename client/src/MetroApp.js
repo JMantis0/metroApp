@@ -1,43 +1,44 @@
 import React, { Suspense, lazy, useState, useEffect, useRef } from "react";
 import "./MetroApp.css";
-import axios from "axios";
-//     Component imports
-import MetroSearch from "./components/MetroSearch";
-//     Mui imports
+//  Mui imports
 import Grid from "@material-ui/core/Grid";
 import Button from "@material-ui/core/Button";
 import Collapse from "@material-ui/core/Collapse";
 import CssBaseline from "@material-ui/core/CssBaseline";
-
-// component imports
+//  Component imports
 import MetroFooter from "./components/MetroFooter";
 import MetroClock from "./components/MetroClock";
 import MetroTitles from "./components/MetroTitles";
-
+//  npm library imports
+import axios from "axios";
 import moment from "moment";
 import Dexie from "dexie";
+//  lazy load for MetroCars
 const MetroCar = lazy(() => import("./components/MetroCar"));
-
-console.log(Dexie);
+//  Set up indexedDB using dexie API
 var db = new Dexie("MetroDB");
 db.version(1).stores({
   car: "number,volume,keys,createdAt,updatedAt",
   latestPut: "latestPut,createdAt,updatedAt",
 });
 db.open();
-
+//  Functional component definition
 function MetroApp() {
-  //  Car data object.
+  //  Car data object.  Is only set on first render.
   const [state, setState] = useState([]);
+  //  Used by metroFooter to display cars by volume type.
   const [volumeFilterState, setVolumeFilterState] = useState(0);
   //  Dev Collapse
   const [checked, setChecked] = useState(false);
-  //  Stores the last time the state was updated
+  //  Used to check server DB for new records.
   const [lastStateUpdateTime, setLastStateUpdateTime] = useState(0);
+  //  Used to tell MetroCars to update.
   const [carsNeedingUpdate, setCarsNeedingUpdate] = useState([]);
-  //  Ref for search input within MetroSearch.  Used by MetroCar to control display value;
+  //  Ref and state for search input within MetroSearch.
+  //  Used by MetroCar to display cars with number filter.
   const searchRef = useRef("");
   const [searchState, setSearchState] = useState("");
+  //  Used to display counts grouped by volume type in MetroFooter.
   const [footerState, setFooterState] = useState({
     allCount: "...",
     heavyCount: "...",
@@ -45,118 +46,133 @@ function MetroApp() {
     uncheckedCount: "...",
     emptyCount: "...",
   });
+  //  Used to control how records are saved
   const [online, setOnline] = useState(true);
-
-  // Listeners to detect offline and online status
-  //  On first render, get Metro Car data from server DB and set it to state.
+  //  The useEffect with dependency [] only triggers on first render.
+  //  Fires off functions to get car data from server DB and then
+  //  sets up event listeners for when the clients network status
+  //  changes from online to offline and vice versa.
   useEffect(() => {
-    if (navigator.onLine) {
-      console.log("Connected to the network.");
-    } else {
-      console.log("Disconnected from the network.");
-    }
-    console.log("Getting car data");
     setLastStateUpdateTime(moment().unix());
     requestMetroCarDataAndSetStates();
     requestCountsAndSetFooterState();
-
-    //  Handles dexie records when connection is lost and regained.
+    //  Handles Dexie records when connection is lost or regained.
     const networkEventHandler = (event) => {
-      console.log(
-        "Inside online/offline networkEventHandler.  The event is: ",
-        event
-      );
-      console.log("navigator.onLine is: ", navigator.onLine);
-      console.log("setting online state...");
       setOnline(navigator.onLine);
       if (event.type === "online") {
-        console.log("Alert: Now connected to the network.");
-        //  Check for indexedDB records.
-        //  If they exist attempt a put request.
-        const carCollection = db.car.toCollection();
-        const recordsExist = new Promise((resolve, reject) => {
-          carCollection.count((count) => {
-            console.log(`if ${count} is 0, there are no records`);
-            if (count !== 0) {
-              console.log(`There are ${count} records in the indexedDB`);
-              resolve(true);
-            } else if (count === 0) {
-              console.log("There are no records in the indexedDB");
-              resolve(false);
-            } else {
-              reject(
-                "Error: count was neither !== 0 nor === 0.  count: ",
-                count
-              );
-            }
-          });
-        });
-        recordsExist.then((answer) => {
-          if (recordsExist) {
-            //  use collection.toArray to get convert records in
-            //  the indexedDB to an array.
-            carCollection.toArray((dexieCarData) => {
-              console.log("Sending records saved while offline to server...");
-              //Put request goes here with toArray()
-              axios
-                .put("/api/transferIndexedDBRecords", {
-                  data: dexieCarData,
-                })
-                .then((response) => {
-                  console.log(
-                    "Response from /transferIndexedDBRecords: ",
-                    response
-                  );
-                  //  If OKAY response, then delete all records from indexedDB
-                  const carCollection = db.car.toCollection();
-                  db.transaction("rw", db.car, () => {
-                    carCollection.eachPrimaryKey((key) => {
-                      console.log("key: ", key);
-                      console.log("Deleting dexie record for car ", key);
-                      db.car.delete(key);
-                    });
-                  }).catch((err) => {
-                    console.log("There was an error: ", err);
-                  });
-                })
-                .catch((err) => {
-                  console.log("There was an error: ", err);
-                });
-            });
-          } else {
-            console.log("No dexie records to send.");
-          }
-        });
-        //  recordsExist can now be used as a trigger
-        console.log("recordsExist", recordsExist);
+        console.log("Client reconnected to the network.");
+        sendAnyIndexedDBRecordsToServer();
       } else {
-        console.log("Alert: Now disconnected from the network.");
+        console.log("Client disconnected from the network.");
       }
     };
-    window.addEventListener("offline", networkEventHandler);
-    window.addEventListener("online", networkEventHandler);
+    // window.addEventListener("offline", networkEventHandler);
+    // window.addEventListener("online", networkEventHandler);
+    //  Remove event listeners on unmount/unrender
     const cleanUp = () => {
-      window.removeEventListener("online", networkEventHandler);
-      window.removeEventListener("offline", networkEventHandler);
+      // window.removeEventListener("online", networkEventHandler);
+      // window.removeEventListener("offline", networkEventHandler);
     };
     return cleanUp;
   }, []);
-
-  useEffect(() => {
-    console.log("navigator.onLine: ", navigator.onLine);
-  }, [navigator.onLine]);
 
   useEffect(() => {
     console.log("Setting data-check interval");
     const carTicker = setInterval(async () => {
       checkForNewData();
     }, 5000);
+
+    console.log(
+      "adding event listeners to handle intervals during network events...  "
+    );
+
+    //  Why arent these event listeners working?? 11/22/210220 2023
+
+    const handler = (event) => {
+      console.log("offline/online event detected. event.type: ", event.type);
+      if (event.type === "offline") {
+        console.log("clearing carTicker");
+        clearInterval(carTicker);
+      } else if (event.type === "online") {
+        console.log("resetting carTicker");
+      }
+    };
+    // They werent working because the handler was not defined yet.  Place these
+    //  below the handler function.  11/22/2020 20:40
+    window.addEventListener("offline", handler);
+    window.addEventListener("online", handler);
+    
     const cleanup = () => {
       console.log("Clearing data-check interval");
       clearInterval(carTicker);
+      console.log("Removing event listeners...");
+      window.removeEventListener("offline", handler);
+      window.removeEventListener("online", handler);
     };
+
     return cleanup;
   }, [lastStateUpdateTime]);
+
+  const sendAnyIndexedDBRecordsToServer = () => {
+    //  Dexie methods convert car object-store into a collection and
+    //  use it to get count of all records in the car object store.
+    const carCollection = db.car.toCollection();
+    //  Set up a promise that returns true if there are records in the collection
+    //  and returns false if there are no records in the collection.
+    const doRecordsExist = new Promise((resolve, reject) => {
+      carCollection.count((count) => {
+        if (count !== 0) {
+          console.log(`There are ${count} records in the indexedDB`);
+          resolve(true);
+        } else if (count === 0) {
+          console.log("There are no records in the indexedDB");
+          resolve(false);
+        } else {
+          reject({
+            errorMsg: "Error: count was neither !== 0 nor === 0.  count: ",
+            error: count,
+          });
+        }
+      });
+    });
+    //  Execute the promise and use the result to decide whether
+    //  to make a PUT request or do nothing.
+    doRecordsExist.then((atLeastOneRecord) => {
+      if (typeof atLeastOneRecord !== "boolean") {
+        console.log(atLeastOneRecord.errorMsg, atLeastOneRecord.error);
+      } else if (atLeastOneRecord) {
+        //  collection.toArray converts indexedDB records to an array.
+        carCollection.toArray((indexedDBCarData) => {
+          console.log("Sending indexedDB car data to server...");
+          axios
+            .put("/api/transferIndexedDBRecords", {
+              data: indexedDBCarData,
+            })
+            .then((response) => {
+              console.log(
+                "Success! Server DB updated for these cars: ",
+                response
+              );
+              //  If OKAY response, then delete all records from indexedDB
+              const carCollection = db.car.toCollection();
+              db.transaction("rw", db.car, () => {
+                carCollection.eachPrimaryKey((key) => {
+                  console.log("Deleting old indexedDB record for car... ", key);
+                  db.car.delete(key);
+                });
+              }).catch((err) => {
+                console.log("There was an error: ", err);
+              });
+            })
+            .catch((err) => {
+              console.log("There was an error: ", err);
+            });
+        });
+      } else {
+        console.log("No indexedDB records to send.");
+      }
+    });
+  };
 
   const requestCountsAndSetFooterState = () => {
     console.log("Getting all footer counts...");
