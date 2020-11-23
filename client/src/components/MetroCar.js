@@ -17,15 +17,12 @@ import moment from "moment";
 import classnames from "classnames";
 import Dexie from "dexie";
 
-//
 var db = new Dexie("MetroDB");
 db.version(1).stores({
   car: "number,volume,keys,createdAt,updatedAt",
   latestPut: "latestPut,createdAt,updatedAt",
 });
-console.log(Dexie);
 db.open();
-
 const MetroCar = memo(
   ({
     number,
@@ -96,14 +93,12 @@ const MetroCar = memo(
       }
     }, [carsNeedingUpdate]);
 
-    //  This will be the setMetroCarState route
-
     const getNewMetroCarData = () => {
       console.log(`Requesting new data for car ${number}...`);
       axios
         .get(`/api/updateMetroCar/${number}`)
         .then((updateCarResponse) => {
-          console.log("Car data obtained", updateCarResponse);
+          console.log(`New data for car ${number} received:`, updateCarResponse.data);
           const newMetroCarState = {
             ...metroCarState,
             carVolume: updateCarResponse.data.volume,
@@ -134,7 +129,6 @@ const MetroCar = memo(
         carKeys: newCarKeysValue,
       });
 
-      //  if online
       if (online) {
         console.log("Sending PUT request to server with new keys value...");
         axios
@@ -154,16 +148,8 @@ const MetroCar = memo(
           .catch((err) => {
             console.log("There was an error: ", err);
           });
-      }
-      //  If offline:
-      //  1) Check to see if any indexedDB records exist for this car, then
-      //  2) If so, update the indexedDB record for that car
-      //  3) If no, add an indexedDB record that that car
-      else {
-        console.log("No network connection available, using indexedDB...");
-
-        //  a DB transaction handles a group of
-        //  db operations with only one catch.  Very useful
+      } else {
+        console.log("No network connection using indexedDB...");
         db.transaction("rw", db.car, () => {
           console.log(
             `Checking indexed DB for record with car ${metroCarState.carNumber}...`
@@ -189,16 +175,10 @@ const MetroCar = memo(
                     `Successfully updated Indexed DB record for car ${metroCarState.carNumber}`,
                     response
                   );
-                })
-                .catch((err) => {
-                  console.log(
-                    `There was an error updating car ${metroCarState.carNumber}`,
-                    err
-                  );
                 });
             } else {
               console.log(
-                `No indexed DB record found for car ${metroCarState.carNumber}`
+                `Indexed DB record not found for car ${metroCarState.carNumber}`
               );
               console.log(
                 `Adding indexed DB record for car ${metroCarState.carNumber}...`
@@ -212,10 +192,10 @@ const MetroCar = memo(
                   updatedAt: moment().format("YYYY-MM-DD HH:mm:ss"),
                 })
                 .then((response) => {
-                  console.log("Car added from dexie: ", response);
-                })
-                .catch((err) => {
-                  console.log("there was a dexie when adding car error: ", err);
+                  console.log(
+                    `Successfully added Indexed DB record for car ${metroCarState.carNumber}`,
+                    response
+                  );
                 });
             }
           });
@@ -232,7 +212,6 @@ const MetroCar = memo(
         ...metroCarState,
         carVolume: newVolume,
       });
-
       if (online) {
         console.log("Sending PUT request to server with new volume value...");
         axios
@@ -260,16 +239,8 @@ const MetroCar = memo(
               ("There was an error in the setVolumeRadio route: ", error)
             );
           });
-      }
-      //  If offline:
-      //  1) Check to see if any indexedDB records exist for this car, then
-      //  2) If so, update the indexedDB record for that car
-      //  3) If no, add an indexedDB record that that car
-      else {
-        console.log("offline!  indexxedDB transaction occuring...");
-
-        //  a DB transaction handles a group of
-        //  db operations with only one catch.  Very useful
+      } else {
+        console.log("No network connection, using indexedDB...");
         db.transaction("rw", db.car, () => {
           console.log(
             `Checking indexedDB for record with car ${metroCarState.carNumber}...`
@@ -277,10 +248,12 @@ const MetroCar = memo(
           db.car.get(metroCarState.carNumber, (response) => {
             if (response) {
               console.log(
-                `Record found for car ${metroCarState.carNumber} found in indexedDB`,
+                `Indexed DB record found for car ${metroCarState.carNumber}.`,
                 response
               );
-              console.log(`Updating entry for ${metroCarState.carNumber}...`);
+              console.log(
+                `Updating indexed DB record for ${metroCarState.carNumber}...`
+              );
               db.car
                 .update(metroCarState.carNumber, {
                   number: metroCarState.carNumber,
@@ -290,14 +263,8 @@ const MetroCar = memo(
                 })
                 .then((response) => {
                   console.log(
-                    `Update to car ${metroCarState.carNumber} complete.  Result: `,
+                    `Successfully updated Indexed DB record for car ${metroCarState.carNumber}`,
                     response
-                  );
-                })
-                .catch((err) => {
-                  console.log(
-                    `There was an error updating car ${metroCarState.carNumber}`,
-                    err
                   );
                 });
             } else {
@@ -305,7 +272,7 @@ const MetroCar = memo(
                 `No record for car ${metroCarState.carNumber} found in indexedDB`
               );
               console.log(
-                `Saving record for car ${metroCarState.carNumber} to indexeDB...`
+                `Saving record for car ${metroCarState.carNumber} to indexedDB...`
               );
               db.car
                 .add({
@@ -320,14 +287,14 @@ const MetroCar = memo(
                     "Success.  Added indexedDB record for car ",
                     response
                   );
-                })
-                .catch((err) => {
-                  console.log("Error adding record to indexedDB: ", err);
                 });
             }
           });
         }).catch((err) => {
-          console.log("IndexedDB transaction error: ", err);
+          console.log(
+            `IndexedDB transaction error for car ${metroCarState.number}: `,
+            err
+          );
         });
       }
     };
@@ -335,8 +302,7 @@ const MetroCar = memo(
     //  A MetroCar is a row on the screen with car data and can be interacted with by a user.
     return (
       <div className={carClasses}>
-        <Paper
-        elevation={4}>
+        <Paper elevation={4}>
           <FormGroup row>
             <Grid container alignItems="center" justify="space-evenly">
               <Grid item xs={1}>

@@ -29,11 +29,17 @@
 
 .title {
   background: linear-gradient(rgb(179, 179, 179) 30%, #919191 70%);
-  padding: 10px 0;
-  font-weight: 400;
-  font-size: 18px;
+  padding: 7px 0;
+  font-weight: 500;
+  font-size: 20px;
   border: solid 1px black;
 }
+
+
+.big-letter {
+  font-size: 24px;
+}
+
 
 .bottom-space {
   height: 200px;
@@ -57,6 +63,7 @@
 .bottom-navigation .navBtn {
   align-items: center;
   border: solid 1px black;
+  font-size:  15px;
   border-radius: 2px;
   background-color: rgb(179, 179, 179);
   text-transform: "capitalize";
@@ -86,10 +93,6 @@
  text-align: center;
 }
 
-.big-letter {
-  font-size: 20px;
-}
-
 .title-label {
   padding: 0!important;
   margin: 0!important;
@@ -106,7 +109,16 @@
 .empty-radio {
   color: rgb(0, 164, 0)!important;
 }
-
 .metroCar {
   margin: 5px 0;
+}
+
+#clock {
+  background-color: rgb(201, 201, 201);
+  border: solid 1px black;
+}
+
+.banner {
+  background-color: rgb(131, 215, 148);
+  
 }

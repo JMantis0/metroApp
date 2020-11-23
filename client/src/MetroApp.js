@@ -5,9 +5,11 @@ import Grid from "@material-ui/core/Grid";
 import Button from "@material-ui/core/Button";
 import Collapse from "@material-ui/core/Collapse";
 import CssBaseline from "@material-ui/core/CssBaseline";
+import CircularProgress from "@material-ui/core/CircularProgress";
 //  Component imports
 import MetroFooter from "./components/MetroFooter";
 import MetroClock from "./components/MetroClock";
+import MetroFilterBanner from "./components/MetroFilterBanner";
 //  npm library imports
 import axios from "axios";
 import moment from "moment";
@@ -26,7 +28,7 @@ function MetroApp() {
   //  Car data object.  Is only set on first render.
   const [state, setState] = useState([]);
   //  Used by metroFooter to display cars by volume type.
-  const [volumeFilterState, setVolumeFilterState] = useState(0);
+  const [volumeFilterState, setVolumeFilterState] = useState("all");
   //  Dev Collapse
   const [checked, setChecked] = useState(false);
   //  Used to check server DB for new records.
@@ -76,7 +78,6 @@ function MetroApp() {
 
   useEffect(() => {
     const dataCheckIntervalNetworkEventHandler = (event) => {
-      console.log("offline/online event detected. event.type: ", event.type);
       if (event.type === "offline") {
         console.log("Disconnected from network.  Stop data checks.");
         clearInterval(carTicker);
@@ -161,8 +162,6 @@ function MetroApp() {
               console.log("There was an error: ", err);
             });
         });
-      } else {
-        console.log("No indexedDB records to send.");
       }
     });
   };
@@ -172,7 +171,7 @@ function MetroApp() {
     axios
       .get("/api/allFooterCounts")
       .then((response) => {
-        console.log("Footer counts from server: ", response);
+        console.log("Footer counts from server: ", response.data[0]);
         const footerStateObject = {
           allCount: response.data[0].all_count,
           heavyCount: response.data[0].heavy_count,
@@ -192,7 +191,6 @@ function MetroApp() {
     axios
       .get("/api/getCarNumbers")
       .then((allCarNumbers) => {
-        console.log("Response from getCarNumbers route: ", allCarNumbers.data);
         setState(allCarNumbers.data);
       })
       .catch((err) => {
@@ -201,8 +199,6 @@ function MetroApp() {
   };
 
   const checkForNewData = async () => {
-    console.log("Checking for new data...", lastStateUpdateTime);
-
     axios
       .get(`/api/checkForNewData/${lastStateUpdateTime}`)
       .then((dataCheckResponse) => {
@@ -212,8 +208,7 @@ function MetroApp() {
           getOutOfDateCars();
           requestCountsAndSetFooterState();
         } else {
-          console.log("Client is already up to date.");
-          console.log("There is no new data");
+          console.log("No new data on server.  Client is still up to date.");
         }
         return newData;
       })
@@ -312,6 +307,7 @@ function MetroApp() {
         <span className="big-letter">A</span>PP
       </div>
       <MetroClock />
+
       <Collapse in={checked}>
         <div>
           {"Last State Update Time: "}
@@ -415,7 +411,9 @@ function MetroApp() {
         </Suspense>
       </Grid>
       <div className={"bottom-space"}></div>
+
       <MetroFooter
+        volumeFilterState={volumeFilterState}
         searchRef={searchRef}
         searchState={searchState}
         setSearchState={setSearchState}

@@ -1,10 +1,9 @@
-import React, { useState } from "react";
+import React from "react";
 import Input from "@material-ui/core/Input";
 import Button from "@material-ui/core/Button";
 import Grid from "@material-ui/core/Grid";
 
-const MetroSearch = ({ searchRef, setSearchState, searchState }) => {
-  const [inputState, setInputState] = useState("");
+const MetroSearch = ({ searchRef, setSearchState, inputState, setInputState }) => {
   const handleInputChange = (event) => {
     setInputState(searchRef.current.value);
   };
@@ -19,7 +18,9 @@ const MetroSearch = ({ searchRef, setSearchState, searchState }) => {
 
   return (
     <div className={"metro-search"}>
-      <Grid container>
+      <Grid container 
+      justify="space-around"
+      >
         <Grid item xs={7}>
           <Input
             id="searchInput"
@@ -40,7 +41,7 @@ const MetroSearch = ({ searchRef, setSearchState, searchState }) => {
             onChange={handleInputChange}
           ></Input>
         </Grid>
-        <Grid item xs={"autp"}>
+        <Grid item xs={"auto"}>
           <Button
             className="searchBtn"
             variant="contained"

@@ -1,9 +1,10 @@
-import React from "react";
+import React, { useState } from "react";
 
 import Grid from "@material-ui/core/Grid";
 import BottomNavigation from "@material-ui/core/BottomNavigation";
 import BottomNavigationAction from "@material-ui/core/BottomNavigationAction";
 import MetroSearch from "./MetroSearch";
+import MetroFilterBanner from "./MetroFilterBanner";
 
 const MetroFooter = ({
   setVolumeFilterState,
@@ -11,13 +12,18 @@ const MetroFooter = ({
   searchRef,
   setSearchState,
   searchState,
+  volumeFilterState,
 }) => {
+  const [inputState, setInputState] = useState("");
+
   const handleChange = (event, value) => {
-    //  volumeFilterState filters (by setting display: none) by volume value
     console.log(`Displaying only ${value} cars.`);
     setVolumeFilterState(value);
-    // searchRef.current = "";
-    // setSearchState("");
+  };
+
+  const resetNumberSearch = (event) => {
+    setSearchState("");
+    setInputState("");
   };
 
   return (
@@ -26,13 +32,21 @@ const MetroFooter = ({
       className={"bottom-navigation-container"}
       style={{ zIndex: 10 }}
     >
+      <Grid item xs={12}>
+        <MetroFilterBanner
+          searchState={searchState}
+          volumeFilterState={volumeFilterState}
+        />
+      </Grid>
       <MetroSearch
-        searchState={searchState}
+        inputState={inputState}
+        setInputState={setInputState}
         searchRef={searchRef}
         setSearchState={setSearchState}
       />
       <Grid item xs={12}>
         <BottomNavigation
+          value={volumeFilterState}
           className="bottom-navigation"
           onChange={(event, value) => {
             handleChange(event, value);
@@ -44,30 +58,35 @@ const MetroFooter = ({
             value="unchecked"
             label={`(${footerState.uncheckedCount})`}
             icon="Unchecked"
+            onClick={resetNumberSearch}
           />
           <BottomNavigationAction
             className="navBtn"
             value="heavy"
             label={`(${footerState.heavyCount})`}
             icon="Heavy"
+            onClick={resetNumberSearch}
           />
           <BottomNavigationAction
             className="navBtn"
             value="light"
             label={`(${footerState.lightCount})`}
             icon={"Light"}
+            onClick={resetNumberSearch}
           />
           <BottomNavigationAction
             className="navBtn"
             value="empty"
             label={`(${footerState.emptyCount})`}
             icon="Empty"
+            onClick={resetNumberSearch}
           />
           <BottomNavigationAction
             className="navBtn"
             value="all"
             label={`(${footerState.allCount})`}
             icon={"All"}
+            onClick={resetNumberSearch}
           />
         </BottomNavigation>
       </Grid>
