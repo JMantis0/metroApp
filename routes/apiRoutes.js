@@ -145,8 +145,6 @@ router.get("/allFooterCounts", (req, res) => {
   );
   console.log(`GET request from client: /api/allFooterCounts`);
   console.log("Querying DB for total counts for volume types...");
-
-  //  This query gets the count for each volume type
   models.Car.findAll({
     attributes: [
       [Sequelize.fn(`COUNT`, Sequelize.col("volume")), "all_count"],
@@ -280,7 +278,6 @@ router.get("/getCarNumbers", (req, res) => {
   console.log(`GET request from client: /api/getCarNumbers`);
   console.log("Getting car data ...");
   models.Car.findAll({})
-    //finds the whole set
     .then((allCars) => {
       const carObject = {};
       allCars.forEach((car) => {
@@ -301,8 +298,6 @@ router.get("/getCarNumbers", (req, res) => {
 });
 
 router.get("/checkForNewData/:lastStateUpdateTime", (req, res) => {
-  // https://momentjs.com/docs/#/parsing/string-format/
-  //  Timestamp from front end
   console.log(
     `███████████████████████████████████████████████████████████████████`
   );
@@ -316,7 +311,6 @@ router.get("/checkForNewData/:lastStateUpdateTime", (req, res) => {
   console.log(
     "Comparing latest update time from client against most recent update time in db"
   );
-  //  I want to compare this timestamp to the most recent updatedAt
   models.LatestPut.findAll({ where: { id: 1 } })
     .then((response) => {
       const updatedAtMoment = moment(response[0].dataValues.updatedAt);
@@ -416,6 +410,13 @@ router.put("/setVolumeRadio", (req, res) => {
     });
 });
 
+router.put("/testLatestPut", (req, res) => {
+  updateLatestPut(res).then((response) => {
+    console.log("42updateLatestPut response", response);
+    res.status(202).send(response);
+  });
+});
+
 router.put("/toggleKeys", (req, res) => {
   console.log(
     `███████████████████████████████████████████████████████████████████`
@@ -436,7 +437,6 @@ router.put("/toggleKeys", (req, res) => {
     }
   )
     .then((sqlResponse) => {
-      //  Then find the car that was just updated
       models.Car.findOne({ where: { num: req.body.num } }).then((car) => {
         console.log(
           `Database record for car ${car.dataValues.num} has been updated`

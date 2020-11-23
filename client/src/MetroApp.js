@@ -53,63 +53,57 @@ function MetroApp() {
   //  sets up event listeners for when the clients network status
   //  changes from online to offline and vice versa.
   useEffect(() => {
+    const indexedDBNetworkEventHandler = (event) => {
+      setOnline(navigator.onLine);
+      if (event.type === "online") {
+        console.log("Connected to the network.");
+        sendAnyIndexedDBRecordsToServer();
+      } else {
+        console.log("Disconnected from the network.");
+      }
+    };
     setLastStateUpdateTime(moment().unix());
     requestMetroCarDataAndSetStates();
     requestCountsAndSetFooterState();
-    //  Handles Dexie records when connection is lost or regained.
-    const networkEventHandler = (event) => {
-      setOnline(navigator.onLine);
-      if (event.type === "online") {
-        console.log("Client reconnected to the network.");
-        sendAnyIndexedDBRecordsToServer();
-      } else {
-        console.log("Client disconnected from the network.");
-      }
-    };
-    // window.addEventListener("offline", networkEventHandler);
-    // window.addEventListener("online", networkEventHandler);
-    //  Remove event listeners on unmount/unrender
+    sendAnyIndexedDBRecordsToServer();
+    window.addEventListener("offline", indexedDBNetworkEventHandler);
+    window.addEventListener("online", indexedDBNetworkEventHandler);
     const cleanUp = () => {
-      // window.removeEventListener("online", networkEventHandler);
-      // window.removeEventListener("offline", networkEventHandler);
+      window.removeEventListener("offline", indexedDBNetworkEventHandler);
+      window.removeEventListener("online", indexedDBNetworkEventHandler);
     };
     return cleanUp;
   }, []);
 
   useEffect(() => {
-    console.log("Setting data-check interval");
-    const carTicker = setInterval(async () => {
-      checkForNewData();
-    }, 5000);
-
-    console.log(
-      "adding event listeners to handle intervals during network events...  "
-    );
-
-    //  Why arent these event listeners working?? 11/22/210220 2023
-
-    const handler = (event) => {
+    const dataCheckIntervalNetworkEventHandler = (event) => {
       console.log("offline/online event detected. event.type: ", event.type);
       if (event.type === "offline") {
-        console.log("clearing carTicker");
+        console.log("Disconnected from network.  Stop data checks.");
         clearInterval(carTicker);
       } else if (event.type === "online") {
-        console.log("resetting carTicker");
+        console.log("Connected to network.  Checking for data...");
+        carTicker = setInterval(async () => {
+          checkForNewData();
+        }, 5000);
       }
     };
-    // They werent working because the handler was not defined yet.  Place these
-    //  below the handler function.  11/22/2020 20:40
-    window.addEventListener("offline", handler);
-    window.addEventListener("online", handler);
-    
+    let carTicker = setInterval(async () => {
+      checkForNewData();
+    }, 5000);
+    window.addEventListener("offline", dataCheckIntervalNetworkEventHandler);
+    window.addEventListener("online", dataCheckIntervalNetworkEventHandler);
     const cleanup = () => {
-      console.log("Clearing data-check interval");
       clearInterval(carTicker);
-      console.log("Removing event listeners...");
-      window.removeEventListener("offline", handler);
-      window.removeEventListener("online", handler);
+      window.removeEventListener(
+        "offline",
+        dataCheckIntervalNetworkEventHandler
+      );
+      window.removeEventListener(
+        "online",
+        dataCheckIntervalNetworkEventHandler
+      );
     };
-
     return cleanup;
   }, [lastStateUpdateTime]);
 
@@ -295,8 +289,6 @@ function MetroApp() {
       });
   };
 
-  //
-
   // This function is only used for testing
 
   const updateDBLatestPut = () => {
@@ -317,16 +309,11 @@ function MetroApp() {
       });
   };
 
-  // This function is only used for testing
-  const changeOneCar = () => {
-    setState({ ...state, "130598": { carVolume: "heavy" } });
-  };
-
   return (
     <div className="App">
       <CssBaseline />
       <div className="title" onClick={handleCollapse}>
-        METRO APP
+      <span className="big-letter">M</span>ETRO <span className="big-letter">A</span>PP
       </div>
       <MetroClock />
       <Collapse in={checked}>
@@ -389,7 +376,6 @@ function MetroApp() {
           Check for new data
         </Button>
         <Button onClick={updateDBLatestPut}>update latest put</Button>
-        <Button onClick={changeOneCar}>ChangeOneCar</Button>
         <Button onClick={getOutOfDateCars}>Get Out of Date Cars</Button>
         <Button
           onClick={() => {
@@ -408,10 +394,11 @@ function MetroApp() {
         <Suspense fallback={<h1>Loading...</h1>}>
           <MetroTitles />
           <Grid item xs={12}>
-            {Object.keys(state).map((key) => {
+            <TitleCar></TitleCar>
+            {Object.keys(state).map((key, index) => {
               return (
                 <MetroCar
-                  key={state[key].number}
+                  key={index + 1}
                   number={state[key].number}
                   volume={state[key].volume}
                   keys={state[key].keys}
@@ -428,12 +415,14 @@ function MetroApp() {
                 ></MetroCar>
               );
             })}
+            End of list
           </Grid>
         </Suspense>
       </Grid>
       <div className={"bottom-space"}></div>
       <MetroFooter
         searchRef={searchRef}
+        searchState={searchState}
         setSearchState={setSearchState}
         setVolumeFilterState={setVolumeFilterState}
         footerState={footerState}
