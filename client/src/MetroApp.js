@@ -8,7 +8,6 @@ import CssBaseline from "@material-ui/core/CssBaseline";
 //  Component imports
 import MetroFooter from "./components/MetroFooter";
 import MetroClock from "./components/MetroClock";
-import MetroTitles from "./components/MetroTitles";
 //  npm library imports
 import axios from "axios";
 import moment from "moment";
@@ -174,7 +173,6 @@ function MetroApp() {
       .get("/api/allFooterCounts")
       .then((response) => {
         console.log("Footer counts from server: ", response);
-        // Set up footer object
         const footerStateObject = {
           allCount: response.data[0].all_count,
           heavyCount: response.data[0].heavy_count,
@@ -211,8 +209,6 @@ function MetroApp() {
         const newData = dataCheckResponse.data.newData;
         if (newData) {
           console.log("There is new data in the database.");
-          //  At this point I want to to trigger the
-          //  Labels in the MetroFooter to update
           getOutOfDateCars();
           requestCountsAndSetFooterState();
         } else {
@@ -236,7 +232,6 @@ function MetroApp() {
           carsToBeUpdated.data
         );
         if (carsToBeUpdated.data.length !== 0) {
-          //  Changing this state automatically causes each MetroCar to run getNewMetroCarData
           setCarsNeedingUpdate(carsToBeUpdated.data);
         }
       })
@@ -393,8 +388,8 @@ function MetroApp() {
 
       <Grid container>
         <Suspense fallback={<h1>Loading...</h1>}>
+          <Grid item xs={12}></Grid>
           <Grid item xs={12}>
-            <MetroTitles />
             {Object.keys(state).map((key, index) => {
               return (
                 <MetroCar
