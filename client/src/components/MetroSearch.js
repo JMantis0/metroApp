@@ -14,7 +14,7 @@ const MetroSearch = ({ searchRef, setSearchState }) => {
   return (
     <div className={"metro-search"}>
       <Input
-        inputProps={{ type: "number", pattern: "[0-9]", inputmode: "numeric" }}
+        inputProps={{ type: "number", pattern: "[0-9]", inputMode: "numeric" }}
         fullWidth
         inputRef={searchRef}
         placeholder="Filter By Number"
