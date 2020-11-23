@@ -313,7 +313,8 @@ function MetroApp() {
     <div className="App">
       <CssBaseline />
       <div className="title" onClick={handleCollapse}>
-      <span className="big-letter">M</span>ETRO <span className="big-letter">A</span>PP
+        <span className="big-letter">M</span>ETRO{" "}
+        <span className="big-letter">A</span>PP
       </div>
       <MetroClock />
       <Collapse in={checked}>
@@ -392,9 +393,8 @@ function MetroApp() {
 
       <Grid container>
         <Suspense fallback={<h1>Loading...</h1>}>
-          <MetroTitles />
           <Grid item xs={12}>
-            <TitleCar></TitleCar>
+            <MetroTitles />
             {Object.keys(state).map((key, index) => {
               return (
                 <MetroCar
