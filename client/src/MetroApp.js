@@ -396,9 +396,6 @@ function MetroApp() {
           <Grid item xs={12}>
             <TitleCar></TitleCar>
             {Object.keys(state).map((key, index) => {
-              {
-                console.log("index", index);
-              }
               return (
                 <MetroCar
                   key={index + 1}
