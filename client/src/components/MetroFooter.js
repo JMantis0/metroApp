@@ -10,6 +10,7 @@ const MetroFooter = ({
   footerState,
   searchRef,
   setSearchState,
+  searchState,
 }) => {
   const handleChange = (event, value) => {
     //  volumeFilterState filters (by setting display: none) by volume value
@@ -26,6 +27,7 @@ const MetroFooter = ({
       style={{ zIndex: 10 }}
     >
       <MetroSearch
+        searchState={searchState}
         searchRef={searchRef}
         setSearchState={setSearchState}
       />

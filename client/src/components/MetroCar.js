@@ -17,7 +17,7 @@ import moment from "moment";
 import classnames from "classnames";
 import Dexie from "dexie";
 
-//  
+//
 var db = new Dexie("MetroDB");
 db.version(1).stores({
   car: "number,volume,keys,createdAt,updatedAt",
@@ -282,7 +282,6 @@ const MetroCar = memo(
             `Checking indexedDB for record with car ${metroCarState.carNumber}...`
           );
           db.car.get(metroCarState.carNumber, (response) => {
-            console.log("db.car.where: ", response);
             if (response) {
               console.log(
                 `Record found for car ${metroCarState.carNumber} found in indexedDB`,
@@ -313,7 +312,7 @@ const MetroCar = memo(
                 `No record for car ${metroCarState.carNumber} found in indexedDB`
               );
               console.log(
-                `Adding record for car ${metroCarState.carNumber} to indexeDB...`
+                `Saving record for car ${metroCarState.carNumber} to indexeDB...`
               );
               db.car
                 .add({
@@ -324,10 +323,13 @@ const MetroCar = memo(
                   updatedAt: moment().format("YYYY-MM-DD HH:mm:ss"),
                 })
                 .then((response) => {
-                  console.log("Car added from dexie: ", response);
+                  console.log(
+                    "Success.  Added indexedDB record for car ",
+                    response
+                  );
                 })
                 .catch((err) => {
-                  console.log("there was a dexie when adding car error: ", err);
+                  console.log("Error adding record to indexedDB: ", err);
                 });
             }
           });

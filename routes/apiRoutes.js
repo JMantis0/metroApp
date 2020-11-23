@@ -416,6 +416,13 @@ router.put("/setVolumeRadio", (req, res) => {
     });
 });
 
+router.put("/testLatestPut", (req, res) => {
+  updateLatestPut(res).then((response) => {
+    console.log("42updateLatestPut response", response);
+    res.status(202).send(response);
+  });
+});
+
 router.put("/toggleKeys", (req, res) => {
   console.log(
     `███████████████████████████████████████████████████████████████████`
