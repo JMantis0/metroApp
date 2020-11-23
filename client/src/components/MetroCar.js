@@ -39,13 +39,6 @@ const MetroCar = memo(
     online,
   }) => {
     const [metroCarState, setMetroCarState] = useState({});
-
-    //  I feel like npm classnames is something that was available in jQuery
-    //  and haD been missing from React.  In jQuery I tended to use
-    //  addClass(); and removeClass(); methods quite a lot.
-    //  classnames npm is an even more useful version of these methods.
-    //  The classnames npm is going to  be a wonderful library moving forward.
-
     //  npm classnames.  Here are the conditions where a car should be hidden
     const carClasses = classnames({
       hidden:
@@ -88,7 +81,6 @@ const MetroCar = memo(
         carKeys: keys,
         carVolume: volume,
         carUpdatedAt: updatedAt,
-        carInvisible: false,
       });
     }, []);
 

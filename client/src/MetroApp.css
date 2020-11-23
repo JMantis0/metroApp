@@ -26,11 +26,17 @@
   from { transform: rotate(0deg); }
   to { transform: rotate(360deg); }
 }
+
 .title {
-  background-color: rgb(179, 179, 179);
+  background: linear-gradient(rgb(179, 179, 179) 30%, #919191 70%);
+  padding: 10px 0;
+  font-weight: 400;
+  font-size: 18px;
+  border: solid 1px black;
 }
+
 .bottom-space {
-  height: 500px;
+  height: 200px;
 }
 
 .car-number {
@@ -52,10 +58,32 @@
   border: solid 1px black;
   border-radius: 2px;
   background-color: rgb(179, 179, 179);
-  font-weight: 700;
+  text-transform: "capitalize";
+  background: linear-gradient(rgb(179, 179, 179) 30%, #919191 70%);
+  border: 0;
+  border-radius: 3;
+  border: solid 1px black!important;
+  color: black;
 }
 
 .metro-search {
+  border: solid 1px black!important;
+  padding: 4px 0 4px 0;
   background-color: rgb(201, 201, 201);
   width: 100%;
+}
+
+.searchBtn {
+  color: black;
+  background: linear-gradient(rgb(179, 179, 179) 30%, #919191 70%);
+  border: solid 1px black!important;
+  background-color: rgb(179, 179, 179)!important;
+}
+
+.search-input {
+ text-align: center;
+}
+
+.big-letter {
+  font-size: 20px;
 }
