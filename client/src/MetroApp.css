@@ -19,7 +19,7 @@
 }
 
 .hidden {
-  display: none;
+  display: none!important;
 }
 
 @keyframes App-logo-spin {
@@ -41,7 +41,8 @@
 
 .car-number {
   font-family: 'Cabin', sans-serif;
-  font-size: 18x;
+  font-size: 15.5px;
+  color: black;
 }
 
 .bottom-navigation-container {
@@ -66,6 +67,7 @@
   color: black;
 }
 
+
 .metro-search {
   border: solid 1px black!important;
   padding: 4px 0 4px 0;
@@ -86,4 +88,25 @@
 
 .big-letter {
   font-size: 20px;
+}
+
+.title-label {
+  padding: 0!important;
+  margin: 0!important;
+}
+
+.light-radio {
+  color: orange!important;
+  
+}
+.heavy-radio {
+  color: red!important; 
+}
+
+.empty-radio {
+  color: rgb(0, 164, 0)!important;
+}
+
+.metroCar {
+  margin: 5px 0;
 }

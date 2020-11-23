@@ -41,6 +41,7 @@ const MetroCar = memo(
     const [metroCarState, setMetroCarState] = useState({});
     //  npm classnames.  Here are the conditions where a car should be hidden
     const carClasses = classnames({
+      metroCar: true,
       hidden:
         //  User wants to only display heavy cars
         (metroCarState.carVolume !== "heavy" &&
@@ -334,15 +335,16 @@ const MetroCar = memo(
     //  A MetroCar is a row on the screen with car data and can be interacted with by a user.
     return (
       <div className={carClasses}>
-        <Paper>
+        <Paper
+        elevation={4}>
           <FormGroup row>
             <Grid container alignItems="center" justify="space-evenly">
-              <Grid item xs={"auto"}>
+              <Grid item xs={1}>
                 <FormLabel>
                   <LocalShippingRoundedIcon className="shipcon" />
                 </FormLabel>
               </Grid>
-              <Grid className="car-number" item xs={"auto"}>
+              <Grid className="car-number" item xs={2}>
                 {number}
               </Grid>
               <Grid item xs={"auto"}>
