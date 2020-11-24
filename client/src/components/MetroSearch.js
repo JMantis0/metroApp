@@ -21,7 +21,7 @@ const MetroSearch = ({ searchRef, setSearchState, inputState, setInputState }) =
       <Grid container 
       justify="space-around"
       >
-        <Grid item xs={7}>
+        <Grid item xs={6}>
           <Input
             id="searchInput"
             onKeyPress={(event) => {
@@ -41,24 +41,24 @@ const MetroSearch = ({ searchRef, setSearchState, inputState, setInputState }) =
             onChange={handleInputChange}
           ></Input>
         </Grid>
-        <Grid item xs={"auto"}>
+        <Grid item xs={3}>
           <Button
             className="searchBtn"
             variant="contained"
             onClick={handleSubmit}
             type="submit"
           >
-            Go
+            SEARCH
           </Button>
         </Grid>
-        <Grid item xs={"auto"}>
+        <Grid item xs={3}>
           <Button
             className="searchBtn"
             variant="contained"
             onClick={handleClear}
             type="submit"
           >
-            Clear
+            CLEAR
           </Button>
         </Grid>
       </Grid>
