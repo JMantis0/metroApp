@@ -122,3 +122,12 @@
   background-color: rgb(131, 215, 148);
   
 }
+
+.radio-label .MuiTypography-root {
+  position: relative;
+  top: 8px;
+  font-size:10px;
+  /* font-weight: 800; */
+  padding: 0;
+  margin: 0;
+}

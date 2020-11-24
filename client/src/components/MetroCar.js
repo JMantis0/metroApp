@@ -10,6 +10,7 @@ import LocalShippingRoundedIcon from "@material-ui/icons/LocalShippingRounded";
 import Grid from "@material-ui/core/Grid";
 import Radio from "@material-ui/core/Radio";
 import RadioGroup from "@material-ui/core/RadioGroup";
+import TextField from "@material-ui/core/TextField";
 
 //  npm libraries
 import axios from "axios";
@@ -98,7 +99,10 @@ const MetroCar = memo(
       axios
         .get(`/api/updateMetroCar/${number}`)
         .then((updateCarResponse) => {
-          console.log(`New data for car ${number} received:`, updateCarResponse.data);
+          console.log(
+            `New data for car ${number} received:`,
+            updateCarResponse.data
+          );
           const newMetroCarState = {
             ...metroCarState,
             carVolume: updateCarResponse.data.volume,
@@ -322,39 +326,46 @@ const MetroCar = memo(
                       onChange={handleVolumeChange}
                       justify="space-around"
                     >
-                      <Radio
-                        className="heavy-radio"
-                        size="small"
-                        value="heavy"
+                      <FormControlLabel
+                        className="radio-label"
+                        label="Heavy"
+                        labelPlacement="top"
+                        control={
+                          <Radio
+                            className="heavy-radio"
+                            size="small"
+                            value="heavy"
+                          />
+                        }
                       />
-                      <Radio
-                        className="light-radio"
-                        size="small"
-                        value="light"
+                      <FormControlLabel
+                        className="radio-label"
+                        label="Light"
+                        labelPlacement="top"
+                        control={
+                          <Radio
+                            className="light-radio"
+                            size="small"
+                            value="light"
+                          />
+                        }
                       />
-                      <Radio
-                        className="empty-radio"
-                        size="small"
-                        value="empty"
+
+                      <FormControlLabel
+                        className="radio-label"
+                        label="Empty"
+                        labelPlacement="top"
+                        control={
+                          <Radio
+                            className="empty-radio"
+                            size="small"
+                            value="empty"
+                          />
+                        }
                       />
                     </RadioGroup>
                   }
                 />
-              </Grid>
-              <Grid item xs={1}>
-                <FormControlLabel
-                  control={
-                    <Switch
-                      size="small"
-                      checked={metroCarState.carKeys}
-                      onChange={handleKeysChange}
-                      name="keys"
-                    />
-                  }
-                />
-              </Grid>
-              <Grid item xs={"auto"}>
-                {moment(metroCarState.carUpdatedAt).format("hh:mm:ss a")}
               </Grid>
             </Grid>
           </FormGroup>
