@@ -8,8 +8,7 @@ import CssBaseline from "@material-ui/core/CssBaseline";
 import CircularProgress from "@material-ui/core/CircularProgress";
 //  Component imports
 import MetroFooter from "./components/MetroFooter";
-import MetroClock from "./components/MetroClock";
-import MetroFilterBanner from "./components/MetroFilterBanner";
+import MetroHeader from "./components/MetroHeader";
 //  npm library imports
 import axios from "axios";
 import moment from "moment";
@@ -302,12 +301,8 @@ function MetroApp() {
   return (
     <div className="App">
       <CssBaseline />
-      <div className="title" onClick={handleCollapse}>
-        <span className="big-letter">M</span>ETRO{" "}
-        <span className="big-letter">A</span>PP
-      </div>
-      <MetroClock />
-
+      <MetroHeader handleCollapse={handleCollapse} />
+      <div className={"top-space"}></div>
       <Collapse in={checked}>
         <div>
           {"Last State Update Time: "}
@@ -411,6 +406,7 @@ function MetroApp() {
         </Suspense>
       </Grid>
       <div className={"bottom-space"}></div>
+      
 
       <MetroFooter
         volumeFilterState={volumeFilterState}

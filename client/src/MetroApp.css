@@ -40,10 +40,15 @@
   font-size: 24px;
 }
 
+.top-space {
+  height: 73px;
+}
 
 .bottom-space {
   height: 200px;
 }
+
+
 
 .car-number {
   font-family: 'Cabin', sans-serif;
@@ -100,14 +105,19 @@
 
 .light-radio {
   color: orange!important;
-  
+  position: relative;
+  bottom: 2px;
 }
 .heavy-radio {
   color: red!important; 
+  position: relative;
+  bottom: 2px;
 }
 
 .empty-radio {
   color: rgb(0, 164, 0)!important;
+  position: relative;
+  bottom: 2px;
 }
 .metroCar {
   margin: 5px 0;
@@ -125,9 +135,15 @@
 
 .radio-label .MuiTypography-root {
   position: relative;
-  top: 8px;
+  top:6px;
   font-size:10px;
-  /* font-weight: 800; */
+
   padding: 0;
   margin: 0;
+}
+
+.metro-header {
+  position: fixed;
+  width: 100%;
+  z-index: 3;
 }

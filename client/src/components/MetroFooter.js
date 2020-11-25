@@ -30,7 +30,6 @@ const MetroFooter = ({
     <Grid
       container
       className={"bottom-navigation-container"}
-      style={{ zIndex: 10 }}
     >
       <Grid item xs={12}>
         <MetroFilterBanner

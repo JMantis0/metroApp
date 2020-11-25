@@ -17,8 +17,6 @@
     "morgan": "^1.10.0",
     "mysql": "^2.18.1",
     "mysql2": "^1.7.0",
-    "react-pdf": "^5.0.0",
-    "react-sizeme": "^2.6.12",
     "sequelize": "^5.8.6",
     "xlsx": "^0.16.8"
   },
