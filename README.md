@@ -2,7 +2,7 @@
 # [Metro App](https://metroappx.herokuapp.com/)
 ![GitHub repo size](https://img.shields.io/github/repo-size/JMantis0/metroApp)  ![GitHub language count](https://img.shields.io/github/languages/count/JMantis0/metroApp)  ![GitHub top language](https://img.shields.io/github/languages/top/JMantis0/metroApp)  
 
-![Screenshot1](./client/src/assets/images/Screentshot1.JPG)
+![Screenshot1](./client/src/assets/images/Screenshot1.JPG)
 
 ## Description
 
