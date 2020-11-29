@@ -2,6 +2,8 @@
 # [Metro App](https://metroappx.herokuapp.com/)
 ![GitHub repo size](https://img.shields.io/github/repo-size/JMantis0/metroApp)  ![GitHub language count](https://img.shields.io/github/languages/count/JMantis0/metroApp)  ![GitHub top language](https://img.shields.io/github/languages/top/JMantis0/metroApp)  
 
+![Screenshot1](client/src/assets/images/Screentshot1.JPG)
+
 ## Description
 
 An application that provides UPS management teams a real-time solution to track and update the status of UPS Package cars, designed to be used by multiple members of management simultaneously.
