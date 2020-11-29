@@ -1,5 +1,5 @@
 
-# Metro App
+# [Metro App](https://metroappx.herokuapp.com/)
 ![GitHub repo size](https://img.shields.io/github/repo-size/JMantis0/metroApp)  ![GitHub language count](https://img.shields.io/github/languages/count/JMantis0/metroApp)  ![GitHub top language](https://img.shields.io/github/languages/top/JMantis0/metroApp)  
 
 ## Description
@@ -28,10 +28,6 @@ Select 'Heavy' (red) for heavy volume.  Selecting 'Heavy' indicates that the pac
 
 Please note that Metro App will automatically update itself to display the most current package car data.  This includes the package car status updates made by other members of management.
 
-## Credits
-
-
-
 ## License
 
 
@@ -54,32 +50,6 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
-
-## Contributing
-
-Leave comments or issues on this repository.
-
-## Tests
-
-none
-
-## Questions
-
-
-
-
-This application is a tool to increase efficiency and service in Metro Operations.
-
-Node
-Express
-MySQL/ Sequelize
-axios
-xlsx
-React
-Material UI
-Indexed DB / Dexie
-moment.js
-
 
 Alpha version is online: [Metro App](https://metroappx.herokuapp.com/)
 
