@@ -10,7 +10,7 @@ An application that provides UPS management teams a real-time solution to track 
 
 ## Installation
 
-Visit the Metro App site. Open your browser menu and click 'Install Metro App.' Open the application from your desktop or mobile phone.
+Visit the Metro App [site](https://metroappx.herokuapp.com/). Open your browser menu and click 'Install Metro App.' Open the application from your desktop or mobile phone.
 
 ## Usage
 
