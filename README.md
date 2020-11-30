@@ -9,11 +9,18 @@
 An application that provides UPS management teams a real-time solution to track and update the status of UPS Package cars.  
 
 Metro App helps UPS: 
+
 •	Protect Service Commitments
+
 • Reduce Service Failures
+
 • Increase accuracy
+
 • Increase efficiency
+
 • Increase visibility
+
+
 • Save paper
 ## Installation (Mobile)
 
