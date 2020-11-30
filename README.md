@@ -2,7 +2,7 @@
 # [Metro App](https://metroappx.herokuapp.com/)
 ![GitHub repo size](https://img.shields.io/github/repo-size/JMantis0/metroApp)  ![GitHub language count](https://img.shields.io/github/languages/count/JMantis0/metroApp)  ![GitHub top language](https://img.shields.io/github/languages/top/JMantis0/metroApp)  
 
-![Screenshot1](./client/src/assets/images/Screenshot1.JPG)
+![TitleShot](./client/src/assets/images/Screenshot1.JPG)
 
 ## Description
 
@@ -10,8 +10,16 @@ An application that provides UPS management teams a real-time solution to track 
 
 ## Installation
 
-Visit the Metro App [site](https://metroappx.herokuapp.com/). Open your browser menu and click 'Install Metro App.' Open the application from your desktop or mobile phone.
+Visit the Metro App [site](https://metroappx.herokuapp.com/). Open your browser menu and click 'Install Metro App.' Open the application from your desktop or mobile phone.  See images:
 
+#### Mobile 
+
+![MobileInstallation1](./client/src/assets/images/Screenshot2.JPG)
+
+![MobileInstallation2](./client/src/assets/images/Screenshot3.JPG)
+#### Desktop
+
+![MobileInstallation2](./client/src/assets/images/Screenshot4.JPG)
 ## Usage
 
 The app displays all the package cars in your operation.  To update the status of a package car first locate the number of the package car you want to update either by scrolling to it or 
