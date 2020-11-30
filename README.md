@@ -6,8 +6,15 @@
 
 ## Description
 
-An application that provides UPS management teams a real-time solution to track and update the status of UPS Package cars, designed to be used by multiple members of management simultaneously.
+An application that provides UPS management teams a real-time solution to track and update the status of UPS Package cars.  
 
+Metro App helps UPS: 
+•	Protect Service Commitments
+• Reduce Service Failures
+• Increase accuracy
+• Increase efficiency
+• Increase visibility
+• Save paper
 ## Installation (Mobile)
 
 Visit the Metro App [site](https://metroappx.herokuapp.com/) on your mobile device.
@@ -68,8 +75,17 @@ Clicking on one of these buttons will display all the cars of that volume type.
 
 ![FilterGif](./client/src/assets/images/VolumeFilters.gif)
 
+## Additional Features
 
-Please note that Metro App will automatically update itself to display the most current package car data.  This includes the package car status updates made by other members of management.
+### Multiple Users
+
+Metro App is designed to be used by more than one member of management at a time, and automatically updates itself to reflect the most current package car data available.
+### Onboard Clock
+
+100% Accurate
+### Offline Functionality
+
+If for any reason the mobile device or desktop becomes disconnected from the network, any volume status updates will be saved in the browser (indexed DB).  When a network connection is re-established the updates stored in the browser are automatically sent to the database.  This feature allows the app to continue to be used during intermittent periods of connection loss.
 
 ## License
 
@@ -93,6 +109,3 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
-
-Alpha version is online: [Metro App](https://metroappx.herokuapp.com/)
-
