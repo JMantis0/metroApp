@@ -14,9 +14,9 @@ Visit the Metro App [site](https://metroappx.herokuapp.com/) on your mobile devi
 
 Then click Add to Home Screen as seen in the following images:
 
-![MobileInstallation1](./client/src/assets/images/Screenshot2.JPG)
+![MobileInstallation1](./client/src/assets/images/Screenshot2.jpg)
 
-![MobileInstallation2](./client/src/assets/images/Screenshot3.JPG)
+![MobileInstallation2](./client/src/assets/images/Screenshot3.jpg)
 #### Installation (Desktop)
 
 ![MobileInstallation2](./client/src/assets/images/Screenshot4.JPG)
