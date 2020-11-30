@@ -15,7 +15,7 @@ Visit the Metro App [site](https://metroappx.herokuapp.com/) on your mobile devi
 Then click Add to Home Screen, either on the popup at the bottom of the screen or through your mobile devices browser menu:
 
 ![MobileInstallation2](./client/src/assets/images/ScreenShot3.jpg)
-#### Installation (Desktop)
+## Installation (Desktop)
 
 Visit the Metro App [site](https://metroappx.herokuapp.com/) in your desktop browser.
 
@@ -24,17 +24,24 @@ Then click Add to Home Screen, either on the popup at the bottom of the screen o
 ![MobileInstallation2](./client/src/assets/images/Screenshot4.JPG)
 ## Usage
 
-Click on the Metro App icon that was added to your desktop/mobile device during installation.
+To open the application click on the Metro App icon that was added to your desktop/mobile device during installation.  The application can also be used directly from the browser at [https://metroappx.herokuapp.com/](https://metroappx.herokuapp.com/)
 
 ![icon](./client/public/icons/icon-144x144.png)
 
 
-The app displays all the package cars in your operation.  To update the status of a package car first locate the number of the package car you want to update either by scrolling to it or 
-search by number.
+The app displays all the package cars in your operation.  To update the status of a package car first locate the number of the package car you want to update either by scrolling to it or search by number.
 
 ### Search
 
-The search feature displays all package cars that contain the number searched for.  Then select the option that reflects the status of the package car.
+The search feature displays all package cars that contain the number searched for.  
+
+Example 1: Search for car number 657929: 
+![SearchExample1](./client/src/assets/images/Search657929.gif)
+
+Example 2: Search for all cars with 998 in the number:
+![SearchExample2](./client/src/assets/images/Search998.gif)
+
+
 
 ### Select Status
 
