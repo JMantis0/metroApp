@@ -16,7 +16,7 @@ Then click Add to Home Screen as seen in the following images:
 
 ![MobileInstallation1](./client/src/assets/images/Screenshot2.jpg)
 
-![MobileInstallation2](./client/src/assets/images/Screenshot3.jpg)
+![MobileInstallation2](./client/src/assets/images/ScreenShot3.jpg)
 #### Installation (Desktop)
 
 ![MobileInstallation2](./client/src/assets/images/Screenshot4.JPG)
@@ -24,7 +24,7 @@ Then click Add to Home Screen as seen in the following images:
 
 Click on the Metro App icon that was added to your desktop/mobile device during installation.
 
-![icon](./client/public/icons/icon-1026x1026)
+![icon](./client/public/icons/icon-1026x1026.png)
 
 
 The app displays all the package cars in your operation.  To update the status of a package car first locate the number of the package car you want to update either by scrolling to it or 
