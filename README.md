@@ -12,19 +12,21 @@ An application that provides UPS management teams a real-time solution to track 
 
 Visit the Metro App [site](https://metroappx.herokuapp.com/) on your mobile device.
 
-Then click Add to Home Screen as seen in the following images:
-
-![MobileInstallation1](./client/src/assets/images/Screenshot2.jpg)
+Then click Add to Home Screen, either on the popup at the bottom of the screen or through your mobile devices browser menu:
 
 ![MobileInstallation2](./client/src/assets/images/ScreenShot3.jpg)
 #### Installation (Desktop)
+
+Visit the Metro App [site](https://metroappx.herokuapp.com/) in your desktop browser.
+
+Then click Add to Home Screen, either on the popup at the bottom of the screen or through your mobile devices browser menu:
 
 ![MobileInstallation2](./client/src/assets/images/Screenshot4.JPG)
 ## Usage
 
 Click on the Metro App icon that was added to your desktop/mobile device during installation.
 
-![icon](./client/public/icons/icon-1026x1026.png)
+![icon](./client/public/icons/icon-144x144.png)
 
 
 The app displays all the package cars in your operation.  To update the status of a package car first locate the number of the package car you want to update either by scrolling to it or 
