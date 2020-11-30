@@ -35,17 +35,29 @@ The app displays all the package cars in your operation.  To update the status o
 
 The search feature displays all package cars that contain the number searched for.  
 
-Example 1: Search for car number 657929: 
+Example 1: Search for car number 657929:
+
 ![SearchExample1](./client/src/assets/images/Search657929.gif)
 
 Example 2: Search for all cars with 998 in the number:
+
 ![SearchExample2](./client/src/assets/images/Search998.gif)
 
 
 
 ### Select Status
 
-Select 'Heavy' (red) for heavy volume.  Selecting 'Heavy' indicates that the package car needs to be moved inside to unload.  Select Light (yellow) for light volume.  'Light' status indicates that the package car has a small amount of volume that is able to be consolidated into another car.  Select 'Empty' to indicate that the package car is empty and contains no volume that needs to be unloaded.  
+Select 'Heavy' (red) for heavy volume.  Selecting 'Heavy' indicates that the package car needs to be moved inside to unload.  
+
+![SelectHeavy](./client/src/assets/images/SelectHeavy.gif)
+
+Select Light (yellow) for light volume.  'Light' status indicates that the package car has a small amount of volume that is able to be consolidated into another car. 
+
+![SelectHeavy](./client/src/assets/images/SelectLight.gif)
+
+Select 'Empty' to indicate that the package car is empty and contains no volume that needs to be unloaded.  
+
+![SelectHeavy](./client/src/assets/images/SelectEmpty.gif)
 
 ### Volume Filters
 
