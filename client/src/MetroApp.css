@@ -30,7 +30,7 @@
 .title {
   background: linear-gradient(rgb(179, 179, 179) 30%, #919191 70%);
   padding: 7px 0;
-  font-weight: 500;
+  font-weight: 700;
   font-size: 20px;
   border: solid 1px black;
 }
@@ -67,10 +67,8 @@
 
 .bottom-navigation .navBtn {
   align-items: center;
-  border: solid 1px black;
   font-size:  15px;
   border-radius: 2px;
-  background-color: rgb(179, 179, 179);
   text-transform: "capitalize";
   background: linear-gradient(rgb(179, 179, 179) 30%, #919191 70%);
   border: 0;
@@ -78,7 +76,6 @@
   border: solid 1px black!important;
   color: black;
 }
-
 
 .metro-search {
   border: solid 1px black!important;
@@ -147,3 +144,34 @@
   width: 100%;
   z-index: 3;
 }
+
+.MuiBottomNavigationAction-label {
+  font-weight: 700;
+}
+
+.Mui-selected {
+  color: black!important;
+  font-weight: 700;
+  font-size: 16px;
+  text-transform: uppercase;
+}
+
+.MuiBottomNavigationAction-root   .Mui-selected {
+  border: solid 3px yellow!important;
+}
+
+.shipconWhite  {
+  color: blue!important;
+  border: solid 1px blue;
+}
+
+.MuiIcon-colorSecondary {
+  color: yellow;
+}
+
+.shipconBrown {
+  color: brown!important;
+}
+
+
+

@@ -5,12 +5,11 @@ import Paper from "@material-ui/core/Paper";
 import FormLabel from "@material-ui/core/FormLabel";
 import FormGroup from "@material-ui/core/FormGroup";
 import FormControlLabel from "@material-ui/core/FormControlLabel";
-import Switch from "@material-ui/core/Switch";
 import LocalShippingRoundedIcon from "@material-ui/icons/LocalShippingRounded";
+import LocalShippingTwoToneIcon from "@material-ui/icons/LocalShippingTwoTone";
 import Grid from "@material-ui/core/Grid";
 import Radio from "@material-ui/core/Radio";
 import RadioGroup from "@material-ui/core/RadioGroup";
-import TextField from "@material-ui/core/TextField";
 
 //  npm libraries
 import axios from "axios";
@@ -38,39 +37,6 @@ const MetroCar = memo(
   }) => {
     const [metroCarState, setMetroCarState] = useState({});
     //  npm classnames.  Here are the conditions where a car should be hidden
-    const carClasses = classnames({
-      metroCar: true,
-      hidden:
-        //  User wants to only display heavy cars
-        (metroCarState.carVolume !== "heavy" &&
-          volumeFilterState === "heavy") ||
-        //  User wants to display only light cars
-        (metroCarState.carVolume !== "light" &&
-          volumeFilterState === "light") ||
-        // User wants to display only unchecked cars
-        (metroCarState.carVolume !== "unchecked" &&
-          volumeFilterState === "unchecked") ||
-        // User wants to display only unchecked cars
-        (metroCarState.carVolume !== "empty" &&
-          volumeFilterState === "empty") ||
-        //  user wants to display only cars within search parameters
-        !number.includes(searchState),
-      fadeOut:
-        //  only fade out heavy cars
-        (metroCarState.carVolume !== "heavy" &&
-          volumeFilterState === "heavy") ||
-        //  fade out only light cars
-        (metroCarState.carVolume !== "light" &&
-          volumeFilterState === "light") ||
-        // fade out only unchecked cars
-        (metroCarState.carVolume !== "unchecked" &&
-          volumeFilterState === "unchecked") ||
-        // fade out only unchecked cars
-        (metroCarState.carVolume !== "empty" &&
-          volumeFilterState === "empty") ||
-        //  fade out only cars within search parameters
-        !number.includes(searchState),
-    });
 
     // During render, this useMemo
     // sets the metroCarState to props values.
@@ -123,90 +89,6 @@ const MetroCar = memo(
         .catch((updateCarError) => {
           console.log("Error from updateMetroCar route: ", updateCarError);
         });
-    };
-
-    const handleKeysChange = (event) => {
-      const newCarKeysValue = !metroCarState.carKeys;
-      console.log(`Client changed car ${number} keys to ${newCarKeysValue}`);
-      setMetroCarState({
-        ...metroCarState,
-        carKeys: newCarKeysValue,
-      });
-
-      if (online) {
-        console.log("Sending PUT request to server with new keys value...");
-        axios
-          .put("/api/toggleKeys", {
-            newKeys: !metroCarState.carKeys,
-            num: number,
-          })
-          .then((response) => {
-            console.log("Car data in DB has been updated: ", response.data);
-            //  Important to set carUpdatedAt
-            setMetroCarState({
-              ...metroCarState,
-              carKeys: response.data.keyz,
-              carUpdatedAt: response.data.updatedAt,
-            });
-          })
-          .catch((err) => {
-            console.log("There was an error: ", err);
-          });
-      } else {
-        console.log("No network connection using indexedDB...");
-        db.transaction("rw", db.car, () => {
-          console.log(
-            `Checking indexed DB for record with car ${metroCarState.carNumber}...`
-          );
-          db.car.get(metroCarState.carNumber, (response) => {
-            if (response) {
-              console.log(
-                `Indexed DB record found for car ${metroCarState.carNumber}.`,
-                response
-              );
-              console.log(
-                `Updating indexed DB record for ${metroCarState.carNumber}...`
-              );
-              db.car
-                .update(metroCarState.carNumber, {
-                  number: metroCarState.carNumber,
-                  volume: metroCarState.carVolume,
-                  keys: newCarKeysValue,
-                  updatedAt: moment().format("YYYY-MM-DD HH:mm:ss"),
-                })
-                .then((response) => {
-                  console.log(
-                    `Successfully updated Indexed DB record for car ${metroCarState.carNumber}`,
-                    response
-                  );
-                });
-            } else {
-              console.log(
-                `Indexed DB record not found for car ${metroCarState.carNumber}`
-              );
-              console.log(
-                `Adding indexed DB record for car ${metroCarState.carNumber}...`
-              );
-              db.car
-                .add({
-                  number: metroCarState.carNumber,
-                  volume: metroCarState.carVolume,
-                  keys: newCarKeysValue,
-                  createdAt: moment().format("YYYY-MM-DD HH:mm:ss"),
-                  updatedAt: moment().format("YYYY-MM-DD HH:mm:ss"),
-                })
-                .then((response) => {
-                  console.log(
-                    `Successfully added Indexed DB record for car ${metroCarState.carNumber}`,
-                    response
-                  );
-                });
-            }
-          });
-        }).catch((err) => {
-          console.log("IndexedDB transaction error: ", err);
-        });
-      }
     };
 
     const handleVolumeChange = (event) => {
@@ -302,16 +184,56 @@ const MetroCar = memo(
         });
       }
     };
+    const iconClasses = classnames({
+     shipconBrown: true,
+    });
+    const carClasses = classnames({
+      metroCar: true,
+      hidden:
+        //  User wants to only display heavy cars
+        (metroCarState.carVolume !== "heavy" &&
+          volumeFilterState === "heavy") ||
+        //  User wants to display only light cars
+        (metroCarState.carVolume !== "light" &&
+          volumeFilterState === "light") ||
+        // User wants to display only unchecked cars
+        (metroCarState.carVolume !== "unchecked" &&
+          volumeFilterState === "unchecked") ||
+        // User wants to display only unchecked cars
+        (metroCarState.carVolume !== "empty" &&
+          volumeFilterState === "empty") ||
+        //  user wants to display only cars within search parameters
+        !number.includes(searchState),
+      fadeOut:
+        //  only fade out heavy cars
+        (metroCarState.carVolume !== "heavy" &&
+          volumeFilterState === "heavy") ||
+        //  fade out only light cars
+        (metroCarState.carVolume !== "light" &&
+          volumeFilterState === "light") ||
+        // fade out only unchecked cars
+        (metroCarState.carVolume !== "unchecked" &&
+          volumeFilterState === "unchecked") ||
+        // fade out only unchecked cars
+        (metroCarState.carVolume !== "empty" &&
+          volumeFilterState === "empty") ||
+        //  fade out only cars within search parameters
+        !number.includes(searchState),
+    });
 
     //  A MetroCar is a row on the screen with car data and can be interacted with by a user.
     return (
       <div className={carClasses}>
-        <Paper elevation={4}>
+        <Paper className={"car-paper"} elevation={4}>
           <FormGroup row>
             <Grid container alignItems="center" justify="space-evenly">
               <Grid item xs={1}>
                 <FormLabel>
-                  <LocalShippingRoundedIcon className="shipcon" />
+                  {number.substring(0, 3).includes("998") ? (
+                    <LocalShippingTwoToneIcon className={iconClasses} />
+                  ) : (
+                    <LocalShippingRoundedIcon className={iconClasses} />
+                  )}
                 </FormLabel>
               </Grid>
               <Grid className="car-number" item xs={2}>

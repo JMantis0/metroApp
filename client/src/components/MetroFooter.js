@@ -27,10 +27,7 @@ const MetroFooter = ({
   };
 
   return (
-    <Grid
-      container
-      className={"bottom-navigation-container"}
-    >
+    <Grid container className={"bottom-navigation-container"}>
       <Grid item xs={12}>
         <MetroFilterBanner
           searchState={searchState}
