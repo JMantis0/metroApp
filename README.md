@@ -8,19 +8,24 @@
 
 An application that provides UPS management teams a real-time solution to track and update the status of UPS Package cars, designed to be used by multiple members of management simultaneously.
 
-## Installation
+## Installation (Mobile)
 
-Visit the Metro App [site](https://metroappx.herokuapp.com/). Open your browser menu and click 'Install Metro App.' Open the application from your desktop or mobile phone.  See images:
+Visit the Metro App [site](https://metroappx.herokuapp.com/) on your mobile device.
 
-#### Mobile 
+Then click Add to Home Screen as seen in the following images:
 
 ![MobileInstallation1](./client/src/assets/images/Screenshot2.JPG)
 
 ![MobileInstallation2](./client/src/assets/images/Screenshot3.JPG)
-#### Desktop
+#### Installation (Desktop)
 
 ![MobileInstallation2](./client/src/assets/images/Screenshot4.JPG)
 ## Usage
+
+Click on the Metro App icon that was added to your desktop/mobile device during installation.
+
+![icon](./client/public/icons/icon-1026x1026)
+
 
 The app displays all the package cars in your operation.  To update the status of a package car first locate the number of the package car you want to update either by scrolling to it or 
 search by number.
