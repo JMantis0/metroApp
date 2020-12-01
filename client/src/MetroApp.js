@@ -303,7 +303,7 @@ function MetroApp() {
       <CssBaseline />
       <MetroHeader handleCollapse={handleCollapse} />
       <div className={"top-space"}></div>
-      <Collapse in={checked}>
+     {/* <Collapse in={checked}>
         <div>
           {"Last State Update Time: "}
           {moment.unix(lastStateUpdateTime)._d.toString()}
@@ -375,7 +375,7 @@ function MetroApp() {
         >
           get array of car table.
         </Button>
-      </Collapse>
+      </Collapse> */}
 
       <Grid container>
         <Suspense fallback={<h1>Loading...</h1>}>
